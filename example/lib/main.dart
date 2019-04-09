@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:http_interceptor/http_interceptor.dart';
-import 'package:http_interceptor_example/credentials.dart';
-import 'cities.dart';
+import 'package:http_interceptor_example/credentials.dart'; // If you are going to run this example you need to replace the key.
+import 'cities.dart'; // This is just a List of Maps that contains the suggested cities.
 
 void main() => runApp(MyApp());
 
@@ -24,8 +24,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   WeatherRepository repository = WeatherRepository(
-    HttpClientWithInterceptor.build(middlewares: [
-      WeatherInterceptor(),
+    HttpClientWithInterceptor.build(interceptors: [
+      WeatherApiInterceptor(),
     ]),
   );
 
@@ -237,6 +237,25 @@ class WeatherRepository {
 
   WeatherRepository(this.client);
 
+  // Alternatively you can forget about using the Client and just doing the HTTP request with
+  // the HttpWithInterceptor.build() call.
+  // Future<Map<String, dynamic>> fetchCityWeather(int id) async {
+  //   var parsedWeather;
+  //   try {
+  //     var response = await HttpWithInterceptor.build(
+  //             interceptors: [WeatherApiInterceptor()])
+  //         .get("$baseUrl/weather?id=$id");
+  //     if (response.statusCode == 200) {
+  //       parsedWeather = json.decode(response.body);
+  //     } else {
+  //       throw Exception("Error while fetching. \n ${response.body}");
+  //     }
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  //   return parsedWeather;
+  // }
+
   Future<Map<String, dynamic>> fetchCityWeather(int id) async {
     var parsedWeather;
     try {
@@ -251,14 +270,9 @@ class WeatherRepository {
     }
     return parsedWeather;
   }
-
-  Future<Map<String, dynamic>> fetchCityForecast(int id) async {
-    final response = await client.get("$baseUrl/forecast?id=$id");
-    return json.decode(response.body);
-  }
 }
 
-class WeatherInterceptor implements InterceptorContract {
+class WeatherApiInterceptor implements InterceptorContract {
   @override
   Future<RequestData> interceptRequest({RequestData data}) async {
     try {

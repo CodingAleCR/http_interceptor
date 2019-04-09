@@ -1,18 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:collection/collection.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
-import 'package:http/io_client.dart';
 import 'package:http_interceptor/models/models.dart';
 import 'package:http_interceptor/interceptor_contract.dart';
 
-///Class to be used by the user to set up a new `http.Client` with middleware supported.
-///call the `build()` constructor passing in the list of middlewares.
+///Class to be used by the user to set up a new `http.Client` with interceptor supported.
+///call the `build()` constructor passing in the list of interceptors.
 ///Example:
 ///```dart
-/// HttpClientWithInterceptor httpClient = HttpClientWithInterceptor.build(middlewares: [
+/// HttpClientWithInterceptor httpClient = HttpClientWithInterceptor.build(interceptors: [
 ///     Logger(),
 /// ]);
 ///```
@@ -33,21 +31,21 @@ import 'package:http_interceptor/interceptor_contract.dart';
 ///Don't forget to close the client once you are done, as a client keeps
 ///the connection alive with the server.
 class HttpClientWithInterceptor extends http.BaseClient {
-  List<InterceptorContract> middlewares;
+  List<InterceptorContract> interceptors;
   Duration requestTimeout;
 
   final Client _client = Client();
 
-  HttpClientWithInterceptor._internal({this.middlewares, this.requestTimeout});
+  HttpClientWithInterceptor._internal({this.interceptors, this.requestTimeout});
 
   factory HttpClientWithInterceptor.build({
-    List<InterceptorContract> middlewares,
+    List<InterceptorContract> interceptors,
     Duration requestTimeout,
   }) {
     //Remove any value that is null.
-    middlewares?.removeWhere((middleware) => middleware == null);
+    interceptors?.removeWhere((interceptor) => interceptor == null);
     return HttpClientWithInterceptor._internal(
-      middlewares: middlewares,
+      interceptors: interceptors,
       requestTimeout: requestTimeout,
     );
   }
@@ -110,8 +108,8 @@ class HttpClientWithInterceptor extends http.BaseClient {
     }
 
     //Perform request interception
-    for (InterceptorContract middleware in middlewares) {
-      RequestData interceptedData = await middleware.interceptRequest(
+    for (InterceptorContract interceptor in interceptors) {
+      RequestData interceptedData = await interceptor.interceptRequest(
         data: RequestData.fromHttpRequest(request),
       );
       request = interceptedData.toHttpRequest();
@@ -123,19 +121,12 @@ class HttpClientWithInterceptor extends http.BaseClient {
 
     var response = await Response.fromStream(stream);
 
+    var responseData = ResponseData.fromHttpResponse(response);
+    for (InterceptorContract interceptor in interceptors) {
+      responseData = await interceptor.interceptResponse(data: responseData);
+    }
 
-    return response;
-
-    
-
-    // return await Response.fromStream(stream).then((response) async {
-    //   var responseData = ResponseData.fromHttpResponse(response);
-    //   for (InterceptorContract middleware in middlewares) {
-    //     responseData = await middleware.interceptResponse(data: responseData);
-    //   }
-
-    //   return responseData.toHttpResponse();
-    // });
+    return responseData.toHttpResponse();
   }
 
   void _checkResponseSuccess(url, Response response) {

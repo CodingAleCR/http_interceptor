@@ -1,6 +1,6 @@
 import 'package:http_interceptor/models/models.dart';
 
-///Middleware interface to create custom middleware for http.
+///Interceptor interface to create custom Interceptor for http.
 ///Extend this class and override the functions that you want
 ///to intercept.
 ///
@@ -10,7 +10,7 @@ import 'package:http_interceptor/models/models.dart';
 ///Example (Simple logging):
 ///
 ///```dart
-///class CustomMiddleWare extends MiddlewareContract {
+///class CustomInterceptor extends InterceptorContract {
 ///    @override
 ///    Function(http.Response) interceptRequest({RequestData data}) {
 ///        print("${data.method} Url: ${data.url}")
