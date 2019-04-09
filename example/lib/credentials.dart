@@ -1,0 +1,1 @@
+const String OPEN_WEATHER_API_KEY = "YOUR-KEY-GOES-HERE";
