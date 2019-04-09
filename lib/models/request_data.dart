@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:collection/collection.dart';
 import 'package:http/http.dart';
 
 import 'package:http_interceptor/http_methods.dart';
@@ -38,9 +37,9 @@ class RequestData {
       if (body is String) {
         request.body = body;
       } else if (body is List) {
-        request.bodyBytes = DelegatingList.typed(body);
+        request.bodyBytes = body.cast<int>();
       } else if (body is Map) {
-        request.bodyFields = DelegatingMap.typed(body);
+        request.bodyFields = body.cast<String, String>();
       } else {
         throw new ArgumentError('Invalid request body "$body".');
       }
