@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:http_interceptor/http_interceptor.dart';
-import 'package:http_interceptor_example/weather_interceptor.dart';
+import 'package:http_interceptor_example/credentials.dart';
 import 'cities.dart';
 
 void main() => runApp(MyApp());
@@ -256,4 +256,21 @@ class WeatherRepository {
     final response = await client.get("$baseUrl/forecast?id=$id");
     return json.decode(response.body);
   }
+}
+
+class WeatherInterceptor implements InterceptorContract {
+  @override
+  Future<RequestData> interceptRequest({RequestData data}) async {
+    try {
+      data.url = "${data.url}&appid=$OPEN_WEATHER_API_KEY";
+      data.url = "${data.url}&units=metric";
+      data.headers["Content-Type"] = "application/json";
+    } catch (e) {
+      print(e);
+    }
+    return data;
+  }
+
+  @override
+  Future<ResponseData> interceptResponse({ResponseData data}) async => data;
 }
