@@ -43,7 +43,7 @@ class ResponseData {
       persistentConnection: persistentConnection,
       isRedirect: isRedirect,
       request: Request(
-        method.toString().substring(7),
+        methodToString(method),
         Uri.parse(url),
       ),
     );

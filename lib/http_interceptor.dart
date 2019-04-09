@@ -1,13 +1,7 @@
-import 'dart:async';
+library http_interceptor;
 
-import 'package:flutter/services.dart';
-
-class HttpInterceptor {
-  static const MethodChannel _channel =
-      const MethodChannel('http_interceptor');
-
-  static Future<String> get platformVersion async {
-    final String version = await _channel.invokeMethod('getPlatformVersion');
-    return version;
-  }
-}
+export 'package:http_interceptor/models/models.dart';
+export 'package:http_interceptor/http_methods.dart';
+export 'package:http_interceptor/interceptor_contract.dart';
+export 'package:http_interceptor/http_client_with_interceptor.dart';
+export 'package:http_interceptor/http_with_interceptor.dart';

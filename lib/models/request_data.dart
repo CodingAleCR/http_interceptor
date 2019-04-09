@@ -30,7 +30,7 @@ class RequestData {
   }
 
   Request toHttpRequest() {
-    var request = new Request(method.toString(), Uri.parse(url));
+    var request = new Request(methodToString(method), Uri.parse(url));
 
     if (headers != null) request.headers.addAll(headers);
     if (encoding != null) request.encoding = encoding;
