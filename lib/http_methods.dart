@@ -24,3 +24,21 @@ Method methodFromString(String method) {
   }
   return null;
 }
+
+String methodToString(Method method) {
+  switch (method) {
+    case Method.HEAD:
+      return "HEAD";
+    case Method.GET:
+      return "GET";
+    case Method.POST:
+      return "POST";
+    case Method.PUT:
+      return "PUT";
+    case Method.PATCH:
+      return "PATCH";
+    case Method.DELETE:
+      return "DELETE";
+  }
+  return null;
+}

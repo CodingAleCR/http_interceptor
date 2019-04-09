@@ -12,7 +12,7 @@ import 'package:http_interceptor/interceptor_contract.dart';
 ///call the `build()` constructor passing in the list of middlewares.
 ///Example:
 ///```dart
-/// HttpClientWithMiddleware httpClient = HttpClientWithMiddleware.build(middlewares: [
+/// HttpClientWithInterceptor httpClient = HttpClientWithInterceptor.build(middlewares: [
 ///     Logger(),
 /// ]);
 ///```
@@ -32,21 +32,21 @@ import 'package:http_interceptor/interceptor_contract.dart';
 ///```
 ///Don't forget to close the client once you are done, as a client keeps
 ///the connection alive with the server.
-class HttpClientWithMiddleware extends http.BaseClient {
-  List<MiddlewareContract> middlewares;
+class HttpClientWithInterceptor extends http.BaseClient {
+  List<InterceptorContract> middlewares;
   Duration requestTimeout;
 
-  final IOClient _client = IOClient();
+  final Client _client = Client();
 
-  HttpClientWithMiddleware._internal({this.middlewares, this.requestTimeout});
+  HttpClientWithInterceptor._internal({this.middlewares, this.requestTimeout});
 
-  factory HttpClientWithMiddleware.build({
-    List<MiddlewareContract> middlewares,
+  factory HttpClientWithInterceptor.build({
+    List<InterceptorContract> middlewares,
     Duration requestTimeout,
   }) {
     //Remove any value that is null.
     middlewares?.removeWhere((middleware) => middleware == null);
-    return HttpClientWithMiddleware._internal(
+    return HttpClientWithInterceptor._internal(
       middlewares: middlewares,
       requestTimeout: requestTimeout,
     );
@@ -101,35 +101,41 @@ class HttpClientWithMiddleware extends http.BaseClient {
       if (body is String) {
         request.body = body;
       } else if (body is List) {
-        request.bodyBytes = DelegatingList.typed(body);
+        request.bodyBytes = body.cast<int>();
       } else if (body is Map) {
-        request.bodyFields = DelegatingMap.typed(body);
+        request.bodyFields = body.cast<String, String>();
       } else {
         throw new ArgumentError('Invalid request body "$body".');
       }
     }
 
     //Perform request interception
-    middlewares?.forEach((middleware) async {
+    for (InterceptorContract middleware in middlewares) {
       RequestData interceptedData = await middleware.interceptRequest(
         data: RequestData.fromHttpRequest(request),
       );
       request = interceptedData.toHttpRequest();
-    });
+    }
 
     var stream = requestTimeout == null
         ? await send(request)
         : await send(request).timeout(requestTimeout);
 
-    return Response.fromStream(stream).then((response) {
-      var responseData = ResponseData.fromHttpResponse(response);
+    var response = await Response.fromStream(stream);
 
-      //Perform response interception
-      middlewares?.forEach((middleware) async => responseData =
-          await middleware.interceptResponse(data: responseData));
 
-      return responseData.toHttpResponse();
-    });
+    return response;
+
+    
+
+    // return await Response.fromStream(stream).then((response) async {
+    //   var responseData = ResponseData.fromHttpResponse(response);
+    //   for (InterceptorContract middleware in middlewares) {
+    //     responseData = await middleware.interceptResponse(data: responseData);
+    //   }
+
+    //   return responseData.toHttpResponse();
+    // });
   }
 
   void _checkResponseSuccess(url, Response response) {

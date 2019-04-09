@@ -10,7 +10,7 @@ import 'package:http_interceptor/interceptor_contract.dart';
 ///call the `build()` constructor passing in the list of middlewares.
 ///Example:
 ///```dart
-/// HttpWithMiddleware http = HttpWithMiddleware.build(middlewares: [
+/// HttpWithInterceptor http = HttpWithInterceptor.build(middlewares: [
 ///     Logger(),
 /// ]);
 ///```
@@ -25,22 +25,22 @@ import 'package:http_interceptor/interceptor_contract.dart';
 /// http.read(...);
 /// http.readBytes(...);
 ///```
-class HttpWithMiddleware {
-  List<MiddlewareContract> middlewares;
+class HttpWithInterceptor {
+  List<InterceptorContract> middlewares;
   Duration requestTimeout;
 
-  HttpWithMiddleware._internal({
+  HttpWithInterceptor._internal({
     this.middlewares,
     this.requestTimeout,
   });
 
-  factory HttpWithMiddleware.build({
-    List<MiddlewareContract> middlewares,
+  factory HttpWithInterceptor.build({
+    List<InterceptorContract> middlewares,
     Duration requestTimeout,
   }) {
     //Remove any value that is null.
     middlewares?.removeWhere((middleware) => middleware == null);
-    return new HttpWithMiddleware._internal(
+    return new HttpWithInterceptor._internal(
         middlewares: middlewares, requestTimeout: requestTimeout);
   }
 

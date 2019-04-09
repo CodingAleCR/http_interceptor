@@ -28,7 +28,7 @@ import 'package:http_interceptor/models/models.dart';
 ///    }
 ///}
 ///```
-abstract class MiddlewareContract {
+abstract class InterceptorContract {
   Future<RequestData> interceptRequest({RequestData data});
 
   Future<ResponseData> interceptResponse({ResponseData data});
