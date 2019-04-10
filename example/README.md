@@ -1,16 +1,11 @@
-# http_interceptor_example
+# OpenWeatherApp
+**http_interceptor example**
 
 Demonstrates how to use the http_interceptor plugin.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+This app implements the usage of the http_interceptor plugin. It uses the OpenWeatherAPI and intercepts the requests done to add the App Id Key and the unit system desired for the response. Notice that this example is for **show purposes only, it is not intended as a full testable implementation**.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.io/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.io/docs/cookbook)
-
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.io/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+### Running the example
+In order to run this example locally you will need to replace the API Key in the `credentials.dart`. You can get your own at https://openweathermap.org/
