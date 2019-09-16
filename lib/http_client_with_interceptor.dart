@@ -51,10 +51,11 @@ class HttpClientWithInterceptor extends http.BaseClient {
   }
 
   Future<Response> head(url, {Map<String, String> headers}) =>
-      _sendUnstreamed("HEAD", url, headers);
+      _sendUnstreamed("HEAD", url, headers, null);
 
-  Future<Response> get(url, {Map<String, String> headers}) =>
-      _sendUnstreamed("GET", url, headers);
+  Future<Response> get(url,
+          {Map<String, String> headers, Map<String, String> params}) =>
+      _sendUnstreamed("GET", url, headers, params);
 
   Future<Response> post(url,
           {Map<String, String> headers, body, Encoding encoding}) =>
@@ -69,7 +70,7 @@ class HttpClientWithInterceptor extends http.BaseClient {
       _sendUnstreamed("PATCH", url, headers, body, encoding);
 
   Future<Response> delete(url, {Map<String, String> headers}) =>
-      _sendUnstreamed("DELETE", url, headers);
+      _sendUnstreamed("DELETE", url, headers, null);
 
   Future<String> read(url, {Map<String, String> headers}) {
     return get(url, headers: headers).then((response) {
@@ -87,10 +88,21 @@ class HttpClientWithInterceptor extends http.BaseClient {
 
   Future<StreamedResponse> send(BaseRequest request) => _client.send(request);
 
-  Future<Response> _sendUnstreamed(
-      String method, url, Map<String, String> headers,
+  Future<Response> _sendUnstreamed(String method, url,
+      Map<String, String> headers, Map<String, String> params,
       [body, Encoding encoding]) async {
-    if (url is String) url = Uri.parse(url);
+    if (url is String) {
+      var paramUrl = url;
+      if (params != null && params.length > 0) {
+        paramUrl += "?";
+        params.forEach((key, value) {
+          paramUrl += "$key=$value&";
+        });
+        paramUrl = paramUrl.substring(0, paramUrl.length); // to remove the last '&' character
+      }
+      url = Uri.parse(paramUrl);
+    }
+
     var request = new Request(method, url);
 
     if (headers != null) request.headers.addAll(headers);

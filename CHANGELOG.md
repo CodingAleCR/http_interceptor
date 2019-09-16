@@ -1,3 +1,9 @@
+# Changelog
+
+## 0.1.0
+
+* Added: Documentation for the example.
+
 ## 0.0.3
 
 * Added: Documentation for the example.
