@@ -1,6 +1,6 @@
 # http_interceptor
 
-A middleware library that lets you modify requests and responses if desired. Based of on (http_middleware)[https://github.com/TEDConsulting/http_middleware]
+A middleware library that lets you modify requests and responses if desired. Based of on [http_middleware](https://github.com/TEDConsulting/http_middleware)
 
 ## Getting Started
 
@@ -52,8 +52,8 @@ class WeatherApiInterceptor implements InterceptorContract {
   @override
   Future<RequestData> interceptRequest({RequestData data}) async {
     try {
-      data.url = "${data.url}&appid=$OPEN_WEATHER_API_KEY";
-      data.url = "${data.url}&units=metric";
+      data.params['appid'] = OPEN_WEATHER_API_KEY;
+      data.params['units'] = 'metric';
       data.headers["Content-Type"] = "application/json";
     } catch (e) {
       print(e);
@@ -85,7 +85,8 @@ class WeatherRepository {
   Future<Map<String, dynamic>> fetchCityWeather(int id) async {
     var parsedWeather;
     try {
-      final response = await client.get("$baseUrl/weather?id=$id");
+      final response =
+          await client.get("$baseUrl/weather", params: {'id': "$id"});
       if (response.statusCode == 200) {
         parsedWeather = json.decode(response.body);
       } else {
@@ -111,13 +112,11 @@ class WeatherRepository {
 
 
   Future<Map<String, dynamic>> fetchCityWeather(int id) async {
-    HttpWithInterceptor http = HttpWithInterceptor.build(
-              interceptors: [WeatherApiInterceptor()]);
-
     var parsedWeather;
     try {
-      var response = await http.get("$baseUrl/weather?id=$id");
-
+      var response = await HttpWithInterceptor.build(
+              interceptors: [WeatherApiInterceptor()])
+          .get("$baseUrl/weather", params: {'id': "$id"});
       if (response.statusCode == 200) {
         parsedWeather = json.decode(response.body);
       } else {
@@ -132,5 +131,6 @@ class WeatherRepository {
 }
 ```
 
-### Need help?
+### Issue Reporting
+
 Open an issue and tell me, I will be happy to help you out as soon as I can.
