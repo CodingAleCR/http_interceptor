@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:http/http.dart';
 import 'package:http_interceptor/http_methods.dart';
@@ -49,10 +50,11 @@ class HttpWithInterceptor {
     return _withClient((client) => client.head(url, headers: headers));
   }
 
-  Future<Response> get(url, {Map<String, String> headers}) async {
-    RequestData data =
-        await _sendInterception(method: Method.GET, headers: headers, url: url);
-    return _withClient((client) => client.get(data.url, headers: data.headers));
+  Future<Response> get(url,
+      {Map<String, String> headers, Map<String, String> params}) async {
+    RequestData data = await _sendInterception(
+        method: Method.GET, headers: headers, url: url, params: params);
+    return _withClient((client) => client.get(data.requestUrl, headers: data.headers));
   }
 
   Future<Response> post(url,
@@ -105,18 +107,22 @@ class HttpWithInterceptor {
   Future<Uint8List> readBytes(url, {Map<String, String> headers}) =>
       _withClient((client) => client.readBytes(url, headers: headers));
 
-  Future<RequestData> _sendInterception(
-      {Method method,
-      Encoding encoding,
-      dynamic body,
-      String url,
-      Map<String, String> headers}) async {
+  Future<RequestData> _sendInterception({
+    Method method,
+    Encoding encoding,
+    dynamic body,
+    String url,
+    Map<String, String> headers,
+    Map<String, String> params,
+  }) async {
     RequestData data = RequestData(
-        method: method,
-        encoding: encoding,
-        body: body,
-        url: url,
-        headers: headers ?? <String, String>{});
+      method: method,
+      encoding: encoding,
+      body: body,
+      url: url,
+      headers: headers ?? <String, String>{},
+      params: params ?? <String, String>{},
+    );
 
     //Perform request interception
     for (InterceptorContract interceptor in interceptors) {

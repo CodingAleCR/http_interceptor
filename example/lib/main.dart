@@ -161,12 +161,10 @@ class WeatherSearch extends SearchDelegate<String> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 ListTile(
-                  leading: Column(
-                    children: <Widget>[
-                      Image.network(
-                          "https://openweathermap.org/img/w/$iconWeather.png"),
-                      Text(weather["weather"][0]["main"]),
-                    ],
+                  leading: Tooltip(
+                    child: Image.network(
+                        "https://openweathermap.org/img/w/$iconWeather.png"),
+                    message: weather["weather"][0]["main"],
                   ),
                   title: Text(city["name"]),
                   subtitle: Text(city["country"]),
@@ -233,7 +231,7 @@ class WeatherSearch extends SearchDelegate<String> {
 const baseUrl = "https://api.openweathermap.org/data/2.5";
 
 class WeatherRepository {
-  Client client;
+  HttpClientWithInterceptor client;
 
   WeatherRepository(this.client);
 
@@ -244,7 +242,7 @@ class WeatherRepository {
   //   try {
   //     var response = await HttpWithInterceptor.build(
   //             interceptors: [WeatherApiInterceptor()])
-  //         .get("$baseUrl/weather?id=$id");
+  //         .get("$baseUrl/weather", params: {'id': "$id"});
   //     if (response.statusCode == 200) {
   //       parsedWeather = json.decode(response.body);
   //     } else {
@@ -259,7 +257,8 @@ class WeatherRepository {
   Future<Map<String, dynamic>> fetchCityWeather(int id) async {
     var parsedWeather;
     try {
-      final response = await client.get("$baseUrl/weather?id=$id");
+      final response =
+          await client.get("$baseUrl/weather", params: {'id': "$id"});
       if (response.statusCode == 200) {
         parsedWeather = json.decode(response.body);
       } else {
@@ -276,8 +275,8 @@ class WeatherApiInterceptor implements InterceptorContract {
   @override
   Future<RequestData> interceptRequest({RequestData data}) async {
     try {
-      data.url = "${data.url}&appid=$OPEN_WEATHER_API_KEY";
-      data.url = "${data.url}&units=metric";
+      data.params['appid'] = OPEN_WEATHER_API_KEY;
+      data.params['units'] = 'metric';
       data.headers["Content-Type"] = "application/json";
     } catch (e) {
       print(e);
