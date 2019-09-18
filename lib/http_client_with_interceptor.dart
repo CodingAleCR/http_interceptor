@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:http_interceptor/models/models.dart';
 import 'package:http_interceptor/interceptor_contract.dart';
+
+import 'http_methods.dart';
 
 ///Class to be used by the user to set up a new `http.Client` with interceptor supported.
 ///call the `build()` constructor passing in the list of interceptors.
@@ -50,27 +53,57 @@ class HttpClientWithInterceptor extends http.BaseClient {
     );
   }
 
-  Future<Response> head(url, {Map<String, String> headers}) =>
-      _sendUnstreamed("HEAD", url, headers, null);
+  Future<Response> head(url, {Map<String, String> headers}) => _sendUnstreamed(
+        method: Method.HEAD,
+        url: url,
+        headers: headers,
+      );
 
   Future<Response> get(url,
           {Map<String, String> headers, Map<String, String> params}) =>
-      _sendUnstreamed("GET", url, headers, params);
+      _sendUnstreamed(
+        method: Method.GET,
+        url: url,
+        headers: headers,
+        params: params,
+      );
 
   Future<Response> post(url,
           {Map<String, String> headers, body, Encoding encoding}) =>
-      _sendUnstreamed("POST", url, headers, body, encoding);
+      _sendUnstreamed(
+        method: Method.POST,
+        url: url,
+        headers: headers,
+        body: body,
+        encoding: encoding,
+      );
 
   Future<Response> put(url,
           {Map<String, String> headers, body, Encoding encoding}) =>
-      _sendUnstreamed("PUT", url, headers, body, encoding);
+      _sendUnstreamed(
+        method: Method.PUT,
+        url: url,
+        headers: headers,
+        body: body,
+        encoding: encoding,
+      );
 
   Future<Response> patch(url,
           {Map<String, String> headers, body, Encoding encoding}) =>
-      _sendUnstreamed("PATCH", url, headers, body, encoding);
+      _sendUnstreamed(
+        method: Method.PATCH,
+        url: url,
+        headers: headers,
+        body: body,
+        encoding: encoding,
+      );
 
   Future<Response> delete(url, {Map<String, String> headers}) =>
-      _sendUnstreamed("DELETE", url, headers, null);
+      _sendUnstreamed(
+        method: Method.DELETE,
+        url: url,
+        headers: headers,
+      );
 
   Future<String> read(url, {Map<String, String> headers}) {
     return get(url, headers: headers).then((response) {
@@ -88,22 +121,26 @@ class HttpClientWithInterceptor extends http.BaseClient {
 
   Future<StreamedResponse> send(BaseRequest request) => _client.send(request);
 
-  Future<Response> _sendUnstreamed(String method, url,
-      Map<String, String> headers, Map<String, String> params,
-      [body, Encoding encoding]) async {
-    if (url is String) {
-      var paramUrl = url;
-      if (params != null && params.length > 0) {
-        paramUrl += "?";
-        params.forEach((key, value) {
-          paramUrl += "$key=$value&";
-        });
-        paramUrl = paramUrl.substring(0, paramUrl.length); // to remove the last '&' character
-      }
-      url = Uri.parse(paramUrl);
+  Future<Response> _sendUnstreamed({
+    @required Method method,
+    @required String url,
+    @required Map<String, String> headers,
+    Map<String, String> params,
+    dynamic body,
+    Encoding encoding,
+  }) async {
+    String paramUrl = url;
+    if (params != null && params.length > 0) {
+      paramUrl += "?";
+      params.forEach((key, value) {
+        paramUrl += "$key=$value&";
+      });
+      paramUrl = paramUrl.substring(
+          0, paramUrl.length); // to remove the last '&' character
     }
 
-    var request = new Request(method, url);
+    var requestUrl = Uri.parse(paramUrl);
+    var request = new Request(methodToString(method), requestUrl);
 
     if (headers != null) request.headers.addAll(headers);
     if (encoding != null) request.encoding = encoding;
