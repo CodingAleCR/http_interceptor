@@ -123,13 +123,13 @@ class HttpClientWithInterceptor extends http.BaseClient {
 
   Future<Response> _sendUnstreamed({
     @required Method method,
-    @required String url,
+    @required dynamic url,
     @required Map<String, String> headers,
     Map<String, String> params,
     dynamic body,
     Encoding encoding,
   }) async {
-    String paramUrl = url;
+    String paramUrl = url is Uri ? url.toString() : url;
     if (params != null && params.length > 0) {
       paramUrl += "?";
       params.forEach((key, value) {
