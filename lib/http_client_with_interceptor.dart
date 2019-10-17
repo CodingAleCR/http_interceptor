@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
+import 'package:http_interceptor/models/merge_params.dart';
 import 'package:http_interceptor/models/models.dart';
 import 'package:http_interceptor/interceptor_contract.dart';
 
@@ -60,7 +61,8 @@ class HttpClientWithInterceptor extends http.BaseClient {
       );
 
   Future<Response> get(url,
-          {Map<String, String> headers, Map<String, String> params}) =>
+          {Map<String, String> headers,
+          Map<String, dynamic /*String|Iterable<String>*/ > params}) =>
       _sendUnstreamed(
         method: Method.GET,
         url: url,
@@ -125,22 +127,13 @@ class HttpClientWithInterceptor extends http.BaseClient {
     @required Method method,
     @required dynamic url,
     @required Map<String, String> headers,
-    Map<String, String> params,
+    Map<String, dynamic /*String|Iterable<String>*/ > params,
     dynamic body,
     Encoding encoding,
   }) async {
-    String paramUrl = url is Uri ? url.toString() : url;
-    if (params != null && params.length > 0) {
-      paramUrl += "?";
-      params.forEach((key, value) {
-        paramUrl += "$key=$value&";
-      });
-      paramUrl = paramUrl.substring(
-          0, paramUrl.length); // to remove the last '&' character
-    }
-
-    var requestUrl = Uri.parse(paramUrl);
-    var request = new Request(methodToString(method), requestUrl);
+    Uri paramUrl = url is Uri ? url : Uri.parse(url);
+    paramUrl = mergeParams(paramUrl, params);
+    var request = new Request(methodToString(method), paramUrl);
 
     if (headers != null) request.headers.addAll(headers);
     if (encoding != null) request.encoding = encoding;

@@ -5,7 +5,7 @@ author: Alejandro Ulate (codingalecr) <codingalecr@gmail.com>
 homepage: https://github.com/CodingAleCR/http_interceptor
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.2.2 <3.0.0"
 
 dependencies:
   flutter:

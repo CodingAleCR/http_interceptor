@@ -51,7 +51,7 @@ class HttpWithInterceptor {
   }
 
   Future<Response> get(url,
-      {Map<String, String> headers, Map<String, String> params}) async {
+      {Map<String, String> headers, Map<String, dynamic /*String|Iterable<String>*/> params}) async {
     RequestData data = await _sendInterception(
         method: Method.GET, headers: headers, url: url, params: params);
     return _withClient(
@@ -110,9 +110,9 @@ class HttpWithInterceptor {
 
   Future<RequestData> _sendInterception({
     @required Method method,
-    @required String url,
+    @required dynamic url,
     @required Map<String, String> headers,
-    Map<String, String> params,
+    Map<String, dynamic /*String|Iterable<String>*/> params,
     dynamic body,
     Encoding encoding,
   }) async {
@@ -120,9 +120,9 @@ class HttpWithInterceptor {
       method: method,
       encoding: encoding,
       body: body,
-      url: url,
+      url: url is Uri ? url : Uri.parse(url),
       headers: headers ?? <String, String>{},
-      params: params ?? <String, String>{},
+      params: params ?? <String, dynamic>{},
     );
 
     //Perform request interception
