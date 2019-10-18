@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'credentials.dart'; // If you are going to run this example you need to replace the key.
 import 'cities.dart'; // This is just a List of Maps that contains the suggested cities.
