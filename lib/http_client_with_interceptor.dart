@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
+import 'package:http_interceptor/models/merge_params.dart';
 import 'package:http_interceptor/models/models.dart';
 import 'package:http_interceptor/interceptor_contract.dart';
 
@@ -60,7 +61,8 @@ class HttpClientWithInterceptor extends http.BaseClient {
       );
 
   Future<Response> get(url,
-          {Map<String, String> headers, Map<String, String> params}) =>
+          {Map<String, String> headers,
+          Map<String, dynamic /*String|Iterable<String>*/ > params}) =>
       _sendUnstreamed(
         method: Method.GET,
         url: url,
@@ -112,6 +114,81 @@ class HttpClientWithInterceptor extends http.BaseClient {
     });
   }
 
+  /// send file
+  ///
+  /// ```dart
+  /// import 'dart:io';
+  /// import 'package:async/async.dart';
+  /// import 'package:http_interceptor/http_interceptor.dart';
+  /// import 'package:image_picker/image_picker.dart';
+  /// import 'package:http/http.dart';
+  /// import 'package:path/path.dart';
+  ///
+  ///// Create http sender
+  /// HttpClientWithInterceptor client = HttpClientWithInterceptor.build(
+  ///   interceptors: [
+  ///     BaseUrlInterceptor(),
+  ///   ],
+  /// );
+  ///
+  /// // Create an interceptor that will stitch the url
+  /// class BaseUrlInterceptor implements InterceptorContract {
+  ///   final baseUrl = "http://192.168.1.91:5000";
+  ///   @override
+  ///   Future<RequestData> interceptRequest({RequestData data}) async {
+  ///     data.url = Uri.parse(baseUrl.toString() + data.url.toString());
+  ///     return data;
+  ///   }
+  ///   @override
+  ///   Future<ResponseData> interceptResponse({ResponseData data}) async {
+  ///     return data;
+  ///   }
+  /// }
+  ///
+  /// floatingActionButton: FloatingActionButton(
+  ///   child: Icon(Icons.add),
+  ///   onPressed: () async {
+  ///     // Get image
+  ///     File imageFile =  await ImagePicker.pickImage(source: ImageSource.gallery);
+  ///     if (imageFile != null) {
+  ///       var stream = ByteStream(
+  ///         DelegatingStream.typed(imageFile.openRead()),
+  ///       );
+  ///       int length = await imageFile.length();
+  ///       MultipartFile file = MultipartFile(
+  ///         'file',
+  ///         stream,
+  ///         length,
+  ///         filename: basename(imageFile.path),
+  ///       );
+  ///       // send
+  ///       var r = await client.postFile(
+  ///        "/upload",
+  ///         body: {
+  ///           'name': 'foo',
+  ///         },
+  ///         files: [file],
+  ///       );
+  ///       print(r.statusCode);
+  ///       print(r.body);
+  ///     }
+  ///   },
+  /// ),
+  /// ```
+  Future<Response> postFile(
+    url, {
+    Map<String, String> headers,
+    Map<String, String> body,
+    List<MultipartFile> files,
+  }) =>
+      _sendUnstreamed(
+        method: Method.POST,
+        url: url,
+        headers: headers,
+        body: body,
+        files: files,
+      );
+
   Future<Uint8List> readBytes(url, {Map<String, String> headers}) {
     return get(url, headers: headers).then((response) {
       _checkResponseSuccess(url, response);
@@ -123,37 +200,36 @@ class HttpClientWithInterceptor extends http.BaseClient {
 
   Future<Response> _sendUnstreamed({
     @required Method method,
-    @required String url,
+    @required dynamic url,
     @required Map<String, String> headers,
-    Map<String, String> params,
+    Map<String, dynamic /*String|Iterable<String>*/ > params,
     dynamic body,
     Encoding encoding,
+    List<MultipartFile> files,
   }) async {
-    String paramUrl = url;
-    if (params != null && params.length > 0) {
-      paramUrl += "?";
-      params.forEach((key, value) {
-        paramUrl += "$key=$value&";
-      });
-      paramUrl = paramUrl.substring(
-          0, paramUrl.length); // to remove the last '&' character
-    }
-
-    var requestUrl = Uri.parse(paramUrl);
-    var request = new Request(methodToString(method), requestUrl);
-
-    if (headers != null) request.headers.addAll(headers);
-    if (encoding != null) request.encoding = encoding;
-    if (body != null) {
-      if (body is String) {
-        request.body = body;
-      } else if (body is List) {
-        request.bodyBytes = body.cast<int>();
-      } else if (body is Map) {
-        request.bodyFields = body.cast<String, String>();
-      } else {
-        throw new ArgumentError('Invalid request body "$body".');
+    Uri paramUrl = url is Uri ? url : Uri.parse(url);
+    paramUrl = mergeParams(paramUrl, params);
+    var request;
+    if (files == null) {
+      request = new Request(methodToString(method), paramUrl);
+      if (headers != null) request.headers.addAll(headers);
+      if (encoding != null) request.encoding = encoding;
+      if (body != null) {
+        if (body is String) {
+          request.body = body;
+        } else if (body is List) {
+          request.bodyBytes = body.cast<int>();
+        } else if (body is Map) {
+          request.bodyFields = body.cast<String, String>();
+        } else {
+          throw new ArgumentError('Invalid request body "$body".');
+        }
       }
+    } else {
+      request = MultipartRequest(methodToString(method), paramUrl);
+      if (headers != null) request.headers.addAll(headers);
+      if (body != null) request.fields.addAll(body);
+      if (files != null) request.files.addAll(files);
     }
 
     //Perform request interception
@@ -161,7 +237,9 @@ class HttpClientWithInterceptor extends http.BaseClient {
       RequestData interceptedData = await interceptor.interceptRequest(
         data: RequestData.fromHttpRequest(request),
       );
-      request = interceptedData.toHttpRequest();
+      request = files == null
+          ? interceptedData.toHttpRequest()
+          : interceptedData.toHttpRequest<MultipartRequest>();
     }
 
     var stream = requestTimeout == null
