@@ -136,7 +136,7 @@ class HttpClientWithInterceptor extends http.BaseClient {
         paramUrl += "$key=$value&";
       });
       paramUrl = paramUrl.substring(
-          0, paramUrl.length); // to remove the last '&' character
+          0, paramUrl.length - 1); // to remove the last '&' character
     }
 
     var requestUrl = Uri.parse(paramUrl);
