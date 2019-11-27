@@ -17,8 +17,7 @@ before_script:
   - git clone https://github.com/flutter/flutter.git -b stable --depth 1
   - ./flutter/bin/flutter doctor
 script:
-  - pub get
-  - pub upgrade
+  - ./flutter/bin/flutter packages get
   - ./flutter/bin/flutter test --coverage
 after_success:
   - bash <(curl -s https://codecov.io/bash)
