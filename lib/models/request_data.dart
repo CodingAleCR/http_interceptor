@@ -41,7 +41,7 @@ class RequestData {
       method: methodFromString(request.method),
       encoding: request.encoding,
       body: request.body,
-      url: request.url.toString(),
+      url: request.url.toString().split("?")[0],
       headers: request.headers ?? <String, String>{},
       params: params ?? <String, String>{},
     );
