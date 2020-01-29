@@ -1,11 +1,12 @@
 # Changelog
 
-## 0.1.2
+## 0.2.0
 
 * Added: Unit testing for a few of the files.
 * Modified: Android and iOS projects both in the plugin and the example now use Kotlin/Swift.
 * Modified: Android projects both in the plugin and the example now use AndroidX namespaces.
 * Fixed: Last '&' character was not removed from parametized URLs.
+* Fixed: Duplicate GET parameters when using `get`.
 
 ## 0.1.1
 
