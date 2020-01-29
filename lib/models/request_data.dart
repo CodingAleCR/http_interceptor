@@ -1,62 +1,51 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 
 import 'package:http_interceptor/http_methods.dart';
+import 'package:http_interceptor/utils.dart';
 
 class RequestData {
   Method method;
-  String url;
+  String baseUrl;
   Map<String, String> headers;
   Map<String, String> params;
   dynamic body;
   Encoding encoding;
 
   RequestData({
-    this.method,
-    this.url,
+    @required this.method,
+    @required this.baseUrl,
     this.headers,
     this.params,
     this.body,
     this.encoding,
-  });
+  })  : assert(method != null),
+        assert(baseUrl != null);
 
-  String get requestUrl {
-    var paramUrl = url;
-    if (params != null && params.length > 0) {
-      paramUrl += "?";
-      params.forEach((key, value) {
-        paramUrl += "$key=$value&";
-      });
-      paramUrl = paramUrl.substring(0, paramUrl.length);
-    }
-    return paramUrl;
-  }
+  String get url => addParametersToUrl(baseUrl, params);
 
   factory RequestData.fromHttpRequest(Request request) {
     var params = Map<String, String>();
     request.url.queryParameters.forEach((key, value) {
       params[key] = value;
     });
+    String baseUrl = request.url.origin + request.url.path;
     return RequestData(
       method: methodFromString(request.method),
       encoding: request.encoding,
       body: request.body,
-      url: request.url.toString(),
+      baseUrl: baseUrl,
       headers: request.headers ?? <String, String>{},
       params: params ?? <String, String>{},
     );
   }
 
   Request toHttpRequest() {
-    var paramUrl = url;
-    if (params != null && params.length > 0) {
-      paramUrl += "?";
-      params.forEach((key, value) {
-        paramUrl += "$key=$value&";
-      });
-      paramUrl = paramUrl.substring(0, paramUrl.length);
-    }
-    var request = new Request(methodToString(method), Uri.parse(paramUrl));
+    var reqUrl = Uri.parse(addParametersToUrl(baseUrl, params));
+    
+    Request request = new Request(methodToString(method), reqUrl);
+
     if (headers != null) request.headers.addAll(headers);
     if (encoding != null) request.encoding = encoding;
     if (body != null) {

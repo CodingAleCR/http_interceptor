@@ -3,8 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
-import 'package:http_interceptor/http_methods.dart';
-import 'package:http_interceptor/models/models.dart';
+import 'package:http_interceptor/http_interceptor.dart';
 import 'package:http_interceptor/interceptor_contract.dart';
 
 ///Class to be used by the user as a replacement for 'http' with interceptor supported.
@@ -36,69 +35,48 @@ class HttpWithInterceptor {
   });
 
   factory HttpWithInterceptor.build({
-    List<InterceptorContract> interceptors,
+    @required List<InterceptorContract> interceptors,
     Duration requestTimeout,
   }) {
+    assert(interceptors != null);
+
     //Remove any value that is null.
     interceptors?.removeWhere((interceptor) => interceptor == null);
     return new HttpWithInterceptor._internal(
-        interceptors: interceptors, requestTimeout: requestTimeout);
+      interceptors: interceptors,
+      requestTimeout: requestTimeout,
+    );
   }
 
   Future<Response> head(url, {Map<String, String> headers}) async {
-    await _sendInterception(method: Method.HEAD, headers: headers, url: url);
     return _withClient((client) => client.head(url, headers: headers));
   }
 
   Future<Response> get(url,
       {Map<String, String> headers, Map<String, String> params}) async {
-    RequestData data = await _sendInterception(
-        method: Method.GET, headers: headers, url: url, params: params);
-    return _withClient(
-        (client) => client.get(data.requestUrl, headers: data.headers));
+    return _withClient((client) => client.get(url, headers: headers, params: params));
   }
 
   Future<Response> post(url,
       {Map<String, String> headers, body, Encoding encoding}) async {
-    RequestData data = await _sendInterception(
-        method: Method.POST,
-        headers: headers,
-        url: url,
-        body: body,
-        encoding: encoding);
-    return _withClient((client) => client.post(data.url,
-        headers: data.headers, body: data.body, encoding: data.encoding));
+    return _withClient((client) =>
+        client.post(url, headers: headers, body: body, encoding: encoding));
   }
 
   Future<Response> put(url,
       {Map<String, String> headers, body, Encoding encoding}) async {
-    RequestData data = await _sendInterception(
-        method: Method.PUT,
-        headers: headers,
-        url: url,
-        body: body,
-        encoding: encoding);
-    return _withClient((client) => client.put(data.url,
-        headers: data.headers, body: data.body, encoding: data.encoding));
+    return _withClient((client) =>
+        client.put(url, headers: headers, body: body, encoding: encoding));
   }
 
   Future<Response> patch(url,
       {Map<String, String> headers, body, Encoding encoding}) async {
-    RequestData data = await _sendInterception(
-        method: Method.PATCH,
-        headers: headers,
-        url: url,
-        body: body,
-        encoding: encoding);
-    return _withClient((client) => client.patch(data.url,
-        headers: data.headers, body: data.body, encoding: data.encoding));
+    return _withClient((client) =>
+        client.patch(url, headers: headers, body: body, encoding: encoding));
   }
 
   Future<Response> delete(url, {Map<String, String> headers}) async {
-    RequestData data = await _sendInterception(
-        method: Method.DELETE, headers: headers, url: url);
-    return _withClient(
-        (client) => client.delete(data.url, headers: data.headers));
+    return _withClient((client) => client.delete(url, headers: headers));
   }
 
   Future<String> read(url, {Map<String, String> headers}) {
@@ -108,48 +86,14 @@ class HttpWithInterceptor {
   Future<Uint8List> readBytes(url, {Map<String, String> headers}) =>
       _withClient((client) => client.readBytes(url, headers: headers));
 
-  Future<RequestData> _sendInterception({
-    @required Method method,
-    @required String url,
-    @required Map<String, String> headers,
-    Map<String, String> params,
-    dynamic body,
-    Encoding encoding,
-  }) async {
-    RequestData data = RequestData(
-      method: method,
-      encoding: encoding,
-      body: body,
-      url: url,
-      headers: headers ?? <String, String>{},
-      params: params ?? <String, String>{},
+  Future<T> _withClient<T>(
+      Future<T> fn(HttpClientWithInterceptor client)) async {
+    var client = new HttpClientWithInterceptor.build(
+      interceptors: interceptors,
+      requestTimeout: requestTimeout,
     );
-
-    //Perform request interception
-    for (InterceptorContract interceptor in interceptors) {
-      data = await interceptor.interceptRequest(
-        data: data,
-      );
-    }
-    return data;
-  }
-
-  Future<T> _withClient<T>(Future<T> fn(Client client)) async {
-    var client = new Client();
     try {
-      T response = requestTimeout == null
-          ? await fn(client)
-          : await fn(client).timeout(requestTimeout);
-      if (response is Response) {
-        var responseData = ResponseData.fromHttpResponse(response);
-        for (InterceptorContract interceptor in interceptors) {
-          responseData =
-              await interceptor.interceptResponse(data: responseData);
-        }
-
-        return responseData.toHttpResponse() as T;
-      }
-      return response;
+      return await fn(client);
     } finally {
       client.close();
     }

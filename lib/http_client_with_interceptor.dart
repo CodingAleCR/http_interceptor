@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:http_interceptor/models/models.dart';
 import 'package:http_interceptor/interceptor_contract.dart';
+import 'package:http_interceptor/utils.dart';
 
 import 'http_methods.dart';
 
@@ -42,11 +43,13 @@ class HttpClientWithInterceptor extends http.BaseClient {
   HttpClientWithInterceptor._internal({this.interceptors, this.requestTimeout});
 
   factory HttpClientWithInterceptor.build({
-    List<InterceptorContract> interceptors,
+    @required List<InterceptorContract> interceptors,
     Duration requestTimeout,
   }) {
+    assert(interceptors != null);
+
     //Remove any value that is null.
-    interceptors?.removeWhere((interceptor) => interceptor == null);
+    interceptors.removeWhere((interceptor) => interceptor == null);
     return HttpClientWithInterceptor._internal(
       interceptors: interceptors,
       requestTimeout: requestTimeout,
@@ -123,25 +126,15 @@ class HttpClientWithInterceptor extends http.BaseClient {
 
   Future<Response> _sendUnstreamed({
     @required Method method,
-    @required String url,
+    @required url,
     @required Map<String, String> headers,
     Map<String, String> params,
     dynamic body,
     Encoding encoding,
   }) async {
-    String paramUrl = url;
-    if (params != null && params.length > 0) {
-      paramUrl += "?";
-      params.forEach((key, value) {
-        paramUrl += "$key=$value&";
-      });
-      paramUrl = paramUrl.substring(
-          0, paramUrl.length - 1); // to remove the last '&' character
-    }
+    if (url is String) url = Uri.parse(addParametersToUrl(url, params));
 
-    var requestUrl = Uri.parse(paramUrl);
-    var request = new Request(methodToString(method), requestUrl);
-
+    Request request = new Request(methodToString(method), url);
     if (headers != null) request.headers.addAll(headers);
     if (encoding != null) request.encoding = encoding;
     if (body != null) {
@@ -156,13 +149,8 @@ class HttpClientWithInterceptor extends http.BaseClient {
       }
     }
 
-    //Perform request interception
-    for (InterceptorContract interceptor in interceptors) {
-      RequestData interceptedData = await interceptor.interceptRequest(
-        data: RequestData.fromHttpRequest(request),
-      );
-      request = interceptedData.toHttpRequest();
-    }
+    // Intercept request
+    await _interceptRequest(request);
 
     var stream = requestTimeout == null
         ? await send(request)
@@ -170,12 +158,10 @@ class HttpClientWithInterceptor extends http.BaseClient {
 
     var response = await Response.fromStream(stream);
 
-    var responseData = ResponseData.fromHttpResponse(response);
-    for (InterceptorContract interceptor in interceptors) {
-      responseData = await interceptor.interceptResponse(data: responseData);
-    }
+    // Intercept response
+    response = await _interceptResponse(response);
 
-    return responseData.toHttpResponse();
+    return response;
   }
 
   void _checkResponseSuccess(url, Response response) {
@@ -186,6 +172,30 @@ class HttpClientWithInterceptor extends http.BaseClient {
     }
     if (url is String) url = Uri.parse(url);
     throw new ClientException("$message.", url);
+  }
+
+  /// This internal function intercepts the request.
+  Future<Request> _interceptRequest(Request request) async {
+    for (InterceptorContract interceptor in interceptors) {
+      RequestData interceptedData = await interceptor.interceptRequest(
+        data: RequestData.fromHttpRequest(request),
+      );
+      request = interceptedData.toHttpRequest();
+    }
+
+    return request;
+  }
+
+  /// This internal function intercepts the response.
+  Future<Response> _interceptResponse(Response response) async {
+    for (InterceptorContract interceptor in interceptors) {
+      ResponseData responseData = await interceptor.interceptResponse(
+        data: ResponseData.fromHttpResponse(response),
+      );
+      response = responseData.toHttpResponse();
+    }
+
+    return response;
   }
 
   void close() {
