@@ -8,4 +8,4 @@ This app implements the usage of the http_interceptor plugin. It uses the OpenWe
 
 ### Running the example
 
-In order to run this example locally you will need to replace the API Key in the `credentials.dart`. You can get your own at https://openweathermap.org/
+In order to run this example locally you will need to replace the API Key in the `credentials.dart`. You can get your own at <https://openweathermap.org/>
