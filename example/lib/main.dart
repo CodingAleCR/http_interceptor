@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'credentials.dart'; // If you are going to run this example you need to replace the key.
 import 'cities.dart'; // This is just a List of Maps that contains the suggested cities.
@@ -138,14 +137,15 @@ class WeatherSearch extends SearchDelegate<String> {
     return FutureBuilder(
       future: repo.fetchCityWeather(city["id"]),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        }
         if (snapshot.hasError) {
           return Center(
             child: Text(snapshot.error),
+          );
+        }
+        
+        if (!snapshot.hasData) {
+          return Center(
+            child: CircularProgressIndicator(),
           );
         }
         final weather = snapshot.data;
@@ -262,7 +262,10 @@ class WeatherRepository {
       if (response.statusCode == 200) {
         parsedWeather = json.decode(response.body);
       } else {
-        throw Exception("Error while fetching. \n ${response.body}");
+        return Future.error(
+          "Error while fetching.",
+          StackTrace.fromString("${response.body}"),
+        );
       }
     } catch (e) {
       print(e);
