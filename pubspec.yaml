@@ -15,11 +15,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  effective_dart: ^1.1.0
+  effective_dart: ^1.2.1
 
 flutter:
-
-  plugin:
-    androidPackage: codingalecr.http_interceptor
-    pluginClass: HttpInterceptorPlugin
 
