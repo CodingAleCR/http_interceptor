@@ -35,7 +35,7 @@ In order to implement `http_interceptor` you need to implement the `InterceptorC
 - Logging with interceptor:
 
 ```dart
-class LogginInterceptor implements InterceptorContract {
+class LoggingInterceptor implements InterceptorContract {
   @override
   Future<RequestData> interceptRequest({RequestData data}) async {
     print(data);
