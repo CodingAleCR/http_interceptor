@@ -28,15 +28,18 @@ import 'package:http_interceptor/interceptor_contract.dart';
 class HttpWithInterceptor {
   List<InterceptorContract> interceptors;
   Duration requestTimeout;
+  RetryPolicy retryPolicy;
 
   HttpWithInterceptor._internal({
     this.interceptors,
     this.requestTimeout,
+    this.retryPolicy,
   });
 
   factory HttpWithInterceptor.build({
     @required List<InterceptorContract> interceptors,
     Duration requestTimeout,
+    RetryPolicy retryPolicy,
   }) {
     assert(interceptors != null);
 
@@ -45,6 +48,7 @@ class HttpWithInterceptor {
     return new HttpWithInterceptor._internal(
       interceptors: interceptors,
       requestTimeout: requestTimeout,
+      retryPolicy: retryPolicy,
     );
   }
 
@@ -91,6 +95,7 @@ class HttpWithInterceptor {
     var client = new HttpClientWithInterceptor.build(
       interceptors: interceptors,
       requestTimeout: requestTimeout,
+      retryPolicy: retryPolicy,
     );
     try {
       return await fn(client);

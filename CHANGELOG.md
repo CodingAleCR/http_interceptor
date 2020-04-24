@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.0
+
+* Added: RetryPolicy. It allows to attempt retries on a request when an exception occurs or when a condition from the response is met.
+* Fixed: URI type urls not concatenating parameters.
+
 ## 0.2.0
 
 * Added: Unit testing for a few of the files.
