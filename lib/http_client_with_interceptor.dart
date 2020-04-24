@@ -156,7 +156,7 @@ class HttpClientWithInterceptor extends http.BaseClient {
     }
 
     // Intercept request
-    await _interceptRequest(request);
+    request = await _interceptRequest(request);
 
     var stream = requestTimeout == null
         ? await send(request)
