@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
+import 'package:http/io_client.dart';
 import 'package:http_interceptor/models/models.dart';
 import 'package:http_interceptor/interceptor_contract.dart';
 import 'package:http_interceptor/utils.dart';
@@ -38,9 +40,16 @@ class HttpClientWithInterceptor extends http.BaseClient {
   List<InterceptorContract> interceptors;
   Duration requestTimeout;
   RetryPolicy retryPolicy;
+  bool Function(X509Certificate, String, int) badCertificateCallback;
 
-  final Client _client = Client();
   int _retryCount = 0;
+  Client _client;
+
+  void _initializeClient() {
+    var ioClient = new HttpClient()
+      ..badCertificateCallback = badCertificateCallback;
+    _client = IOClient(ioClient);
+  }
 
   HttpClientWithInterceptor._internal({
     this.interceptors,
@@ -130,7 +139,12 @@ class HttpClientWithInterceptor extends http.BaseClient {
     });
   }
 
-  Future<StreamedResponse> send(BaseRequest request) => _client.send(request);
+  Future<StreamedResponse> send(BaseRequest request) {
+    if (_client == null) {
+      _initializeClient();
+    }
+    return _client.send(request);
+  }
 
   Future<Response> _sendUnstreamed({
     @required Method method,
@@ -193,16 +207,16 @@ class HttpClientWithInterceptor extends http.BaseClient {
           : await send(request).timeout(requestTimeout);
 
       response = await Response.fromStream(stream);
-      if (retryPolicy != null 
-      && retryPolicy.maxRetryAttempts > _retryCount 
-      && retryPolicy.shouldAttemptRetryOnResponse(response)) {
+      if (retryPolicy != null &&
+          retryPolicy.maxRetryAttempts > _retryCount &&
+          retryPolicy.shouldAttemptRetryOnResponse(response)) {
         _retryCount += 1;
         return _attemptRequest(request);
       }
     } catch (error) {
-      if (retryPolicy != null 
-      && retryPolicy.maxRetryAttempts > _retryCount 
-      && retryPolicy.shouldAttemptRetryOnException(error)) {
+      if (retryPolicy != null &&
+          retryPolicy.maxRetryAttempts > _retryCount &&
+          retryPolicy.shouldAttemptRetryOnException(error)) {
         _retryCount += 1;
         return _attemptRequest(request);
       } else {
@@ -238,6 +252,9 @@ class HttpClientWithInterceptor extends http.BaseClient {
   }
 
   void close() {
+    if (_client == null) {
+      _initializeClient();
+    }
     _client.close();
   }
 }
