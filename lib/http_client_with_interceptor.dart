@@ -132,7 +132,13 @@ class HttpClientWithInterceptor extends http.BaseClient {
     dynamic body,
     Encoding encoding,
   }) async {
-    if (url is String) url = Uri.parse(addParametersToUrl(url, params));
+    if (url is String) {
+      url = Uri.parse(addParametersToStringUrl(url, params));
+    } else if (url is Uri) {
+      url = addParametersToUrl(url, params);
+    } else {
+      throw HttpInterceptorException("Malformed URL parameter");
+    }
 
     Request request = new Request(methodToString(method), url);
     if (headers != null) request.headers.addAll(headers);
@@ -150,7 +156,7 @@ class HttpClientWithInterceptor extends http.BaseClient {
     }
 
     // Intercept request
-    await _interceptRequest(request);
+    request = await _interceptRequest(request);
 
     var stream = requestTimeout == null
         ? await send(request)

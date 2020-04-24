@@ -23,7 +23,7 @@ class RequestData {
   })  : assert(method != null),
         assert(baseUrl != null);
 
-  String get url => addParametersToUrl(baseUrl, params);
+  String get url => addParametersToStringUrl(baseUrl, params);
 
   factory RequestData.fromHttpRequest(Request request) {
     var params = Map<String, String>();
@@ -42,7 +42,7 @@ class RequestData {
   }
 
   Request toHttpRequest() {
-    var reqUrl = Uri.parse(addParametersToUrl(baseUrl, params));
+    var reqUrl = Uri.parse(addParametersToStringUrl(baseUrl, params));
     
     Request request = new Request(methodToString(method), reqUrl);
 

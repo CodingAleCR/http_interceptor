@@ -284,6 +284,7 @@ class WeatherApiInterceptor implements InterceptorContract {
     } catch (e) {
       print(e);
     }
+    print(data.params);
     return data;
   }
 
