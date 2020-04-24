@@ -69,11 +69,10 @@ class HttpClientWithInterceptor extends http.BaseClient {
     //Remove any value that is null.
     interceptors.removeWhere((interceptor) => interceptor == null);
     return HttpClientWithInterceptor._internal(
-      interceptors: interceptors,
-      requestTimeout: requestTimeout,
-      retryPolicy: retryPolicy,
-      badCertificateCallback: badCertificateCallback
-    );
+        interceptors: interceptors,
+        requestTimeout: requestTimeout,
+        retryPolicy: retryPolicy,
+        badCertificateCallback: badCertificateCallback);
   }
 
   Future<Response> head(url, {Map<String, String> headers}) => _sendUnstreamed(

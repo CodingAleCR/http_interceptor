@@ -50,11 +50,10 @@ class HttpWithInterceptor {
     //Remove any value that is null.
     interceptors?.removeWhere((interceptor) => interceptor == null);
     return new HttpWithInterceptor._internal(
-      interceptors: interceptors,
-      requestTimeout: requestTimeout,
-      retryPolicy: retryPolicy,
-      badCertificateCallback: badCertificateCallback
-    );
+        interceptors: interceptors,
+        requestTimeout: requestTimeout,
+        retryPolicy: retryPolicy,
+        badCertificateCallback: badCertificateCallback);
   }
 
   Future<Response> head(url, {Map<String, String> headers}) async {
@@ -63,7 +62,8 @@ class HttpWithInterceptor {
 
   Future<Response> get(url,
       {Map<String, String> headers, Map<String, String> params}) async {
-    return _withClient((client) => client.get(url, headers: headers, params: params));
+    return _withClient(
+        (client) => client.get(url, headers: headers, params: params));
   }
 
   Future<Response> post(url,
