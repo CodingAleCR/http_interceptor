@@ -37,14 +37,21 @@ import 'http_methods.dart';
 class HttpClientWithInterceptor extends http.BaseClient {
   List<InterceptorContract> interceptors;
   Duration requestTimeout;
+  RetryPolicy retryPolicy;
 
   final Client _client = Client();
+  int _retryCount = 0;
 
-  HttpClientWithInterceptor._internal({this.interceptors, this.requestTimeout});
+  HttpClientWithInterceptor._internal({
+    this.interceptors,
+    this.requestTimeout,
+    this.retryPolicy,
+  });
 
   factory HttpClientWithInterceptor.build({
     @required List<InterceptorContract> interceptors,
     Duration requestTimeout,
+    RetryPolicy retryPolicy,
   }) {
     assert(interceptors != null);
 
@@ -53,6 +60,7 @@ class HttpClientWithInterceptor extends http.BaseClient {
     return HttpClientWithInterceptor._internal(
       interceptors: interceptors,
       requestTimeout: requestTimeout,
+      retryPolicy: retryPolicy,
     );
   }
 
@@ -137,7 +145,8 @@ class HttpClientWithInterceptor extends http.BaseClient {
     } else if (url is Uri) {
       url = addParametersToUrl(url, params);
     } else {
-      throw HttpInterceptorException("Malformed URL parameter");
+      throw HttpInterceptorException(
+          "Malformed URL parameter. Check that the url used is either a String or a Uri instance.");
     }
 
     Request request = new Request(methodToString(method), url);
@@ -155,14 +164,7 @@ class HttpClientWithInterceptor extends http.BaseClient {
       }
     }
 
-    // Intercept request
-    request = await _interceptRequest(request);
-
-    var stream = requestTimeout == null
-        ? await send(request)
-        : await send(request).timeout(requestTimeout);
-
-    var response = await Response.fromStream(stream);
+    var response = await _attemptRequest(request);
 
     // Intercept response
     response = await _interceptResponse(response);
@@ -178,6 +180,37 @@ class HttpClientWithInterceptor extends http.BaseClient {
     }
     if (url is String) url = Uri.parse(url);
     throw new ClientException("$message.", url);
+  }
+
+  Future<Response> _attemptRequest(Request request) async {
+    var response;
+    try {
+      // Intercept request
+      request = await _interceptRequest(request);
+
+      var stream = requestTimeout == null
+          ? await send(request)
+          : await send(request).timeout(requestTimeout);
+
+      response = await Response.fromStream(stream);
+      if (retryPolicy != null 
+      && retryPolicy.maxRetryAttempts > _retryCount 
+      && retryPolicy.shouldAttemptRetryOnResponse(response)) {
+        _retryCount += 1;
+        return _attemptRequest(request);
+      }
+    } catch (error) {
+      if (retryPolicy != null 
+      && retryPolicy.maxRetryAttempts > _retryCount 
+      && retryPolicy.shouldAttemptRetryOnException(error)) {
+        _retryCount += 1;
+        return _attemptRequest(request);
+      } else {
+        throw HttpInterceptorException(error.toString());
+      }
+    }
+
+    return response;
   }
 
   /// This internal function intercepts the request.
