@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
@@ -29,17 +30,20 @@ class HttpWithInterceptor {
   List<InterceptorContract> interceptors;
   Duration requestTimeout;
   RetryPolicy retryPolicy;
+  bool Function(X509Certificate, String, int) badCertificateCallback;
 
   HttpWithInterceptor._internal({
     this.interceptors,
     this.requestTimeout,
     this.retryPolicy,
+    this.badCertificateCallback,
   });
 
   factory HttpWithInterceptor.build({
     @required List<InterceptorContract> interceptors,
     Duration requestTimeout,
     RetryPolicy retryPolicy,
+    bool Function(X509Certificate, String, int) badCertificateCallback,
   }) {
     assert(interceptors != null);
 
@@ -49,6 +53,7 @@ class HttpWithInterceptor {
       interceptors: interceptors,
       requestTimeout: requestTimeout,
       retryPolicy: retryPolicy,
+      badCertificateCallback: badCertificateCallback
     );
   }
 
@@ -96,6 +101,7 @@ class HttpWithInterceptor {
       interceptors: interceptors,
       requestTimeout: requestTimeout,
       retryPolicy: retryPolicy,
+      badCertificateCallback: badCertificateCallback,
     );
     try {
       return await fn(client);

@@ -55,12 +55,14 @@ class HttpClientWithInterceptor extends http.BaseClient {
     this.interceptors,
     this.requestTimeout,
     this.retryPolicy,
+    this.badCertificateCallback,
   });
 
   factory HttpClientWithInterceptor.build({
     @required List<InterceptorContract> interceptors,
     Duration requestTimeout,
     RetryPolicy retryPolicy,
+    bool Function(X509Certificate, String, int) badCertificateCallback,
   }) {
     assert(interceptors != null);
 
@@ -70,6 +72,7 @@ class HttpClientWithInterceptor extends http.BaseClient {
       interceptors: interceptors,
       requestTimeout: requestTimeout,
       retryPolicy: retryPolicy,
+      badCertificateCallback: badCertificateCallback
     );
   }
 
