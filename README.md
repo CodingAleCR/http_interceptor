@@ -139,7 +139,7 @@ class WeatherRepository {
 
 #### Retrying requests (NEW 🎉)
 
-Sometimes you need to retry a request due to different circumstances, an expired token is a really good example. Here's how you could potentially implement an expired token retry policy with `http_interceptor`. 
+Sometimes you need to retry a request due to different circumstances, an expired token is a really good example. Here's how you could potentially implement an expired token retry policy with `http_interceptor`.
 
 ```dart
 class ExpiredTokenRetryPolicy extends RetryPolicy {
