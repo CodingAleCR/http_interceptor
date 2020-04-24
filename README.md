@@ -137,6 +137,27 @@ class WeatherRepository {
 }
 ```
 
+#### Retrying requests (NEW 🎉)
+
+Sometimes you need to retry a request due to different circumstances, an expired token is a really good example. Here's how you could potentially implement an expired token retry policy with `http_interceptor`. 
+
+```dart
+class ExpiredTokenRetryPolicy extends RetryPolicy {
+  @override
+  bool shouldAttemptRetryOnResponse(Response response) {
+    if (response.statusCode == 401) {
+      // Perform your token refresh here.
+
+      return true;
+    }
+
+    return false;
+  }
+}
+```
+
+You can also set the maximum amount of retry attempts with `maxRetryAttempts` property or override the `shouldAttemptRetryOnException` if you want to retry the request after it failed with an exception.
+
 ### Issue Reporting
 
 Open an issue and tell me, I will be happy to help you out as soon as I can.
