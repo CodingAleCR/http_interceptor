@@ -147,14 +147,14 @@ class WeatherRepository {
 ```dart
 class ExpiredTokenRetryPolicy extends RetryPolicy {
   @override
-  bool shouldAttemptRetryOnResponse(Response response) {
+  Future<bool> shouldAttemptRetryOnResponse(Response response) {
     if (response.statusCode == 401) {
       // Perform your token refresh here.
 
-      return true;
+      return Future.value(true);
     }
 
-    return false;
+    return Future.value(false);
   }
 }
 ```
