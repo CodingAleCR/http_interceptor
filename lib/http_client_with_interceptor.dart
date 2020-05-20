@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
+
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
-import 'package:http_interceptor/models/models.dart';
 import 'package:http_interceptor/interceptor_contract.dart';
+import 'package:http_interceptor/models/models.dart';
 import 'package:http_interceptor/utils.dart';
 
 import 'http_methods.dart';
@@ -193,16 +194,16 @@ class HttpClientWithInterceptor extends http.BaseClient {
           : await send(request).timeout(requestTimeout);
 
       response = await Response.fromStream(stream);
-      if (retryPolicy != null 
-      && retryPolicy.maxRetryAttempts > _retryCount 
-      && retryPolicy.shouldAttemptRetryOnResponse(response)) {
+      if (retryPolicy != null &&
+          retryPolicy.maxRetryAttempts > _retryCount &&
+          await retryPolicy.shouldAttemptRetryOnResponse(response)) {
         _retryCount += 1;
         return _attemptRequest(request);
       }
     } catch (error) {
-      if (retryPolicy != null 
-      && retryPolicy.maxRetryAttempts > _retryCount 
-      && retryPolicy.shouldAttemptRetryOnException(error)) {
+      if (retryPolicy != null &&
+          retryPolicy.maxRetryAttempts > _retryCount &&
+          retryPolicy.shouldAttemptRetryOnException(error)) {
         _retryCount += 1;
         return _attemptRequest(request);
       } else {
