@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:http/io_client.dart';
-import 'package:http_interceptor/models/models.dart';
 import 'package:http_interceptor/interceptor_contract.dart';
+import 'package:http_interceptor/models/models.dart';
 import 'package:http_interceptor/utils.dart';
 
 import 'http_methods.dart';
@@ -36,7 +36,7 @@ import 'http_methods.dart';
 ///```
 ///Don't forget to close the client once you are done, as a client keeps
 ///the connection alive with the server.
-class HttpClientWithInterceptor extends http.BaseClient {
+class HttpClientWithInterceptor extends BaseClient {
   List<InterceptorContract> interceptors;
   Duration requestTimeout;
   RetryPolicy retryPolicy;
@@ -211,7 +211,7 @@ class HttpClientWithInterceptor extends http.BaseClient {
       response = await Response.fromStream(stream);
       if (retryPolicy != null &&
           retryPolicy.maxRetryAttempts > _retryCount &&
-          retryPolicy.shouldAttemptRetryOnResponse(response)) {
+          await retryPolicy.shouldAttemptRetryOnResponse(response)) {
         _retryCount += 1;
         return _attemptRequest(request);
       }
