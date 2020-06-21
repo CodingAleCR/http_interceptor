@@ -15,6 +15,7 @@ This is a plugin that lets you intercept the different requests and responses fr
   - [Building your own interceptor](#building-your-own-interceptor)
   - [Using your interceptor](#using-your-interceptor)
   - [Retrying requests](#retrying-requests)
+  - [Using self-signed certificates](#using-self-signed-certificates)
 - [Having trouble? Fill an issue](#troubleshooting)
 
 ## Installation
@@ -160,6 +161,34 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
 ```
 
 You can also set the maximum amount of retry attempts with `maxRetryAttempts` property or override the `shouldAttemptRetryOnException` if you want to retry the request after it failed with an exception.
+
+### Using self signed certificates
+
+ **(EXPERIMENTAL ⚗️)** This plugin allows you to override the default `badCertificateCallback` provided by Dart's `io` package, this is really useful when working with self-signed certificates in your server. This can be done by sending a the callback to the HttpInterceptor builder functions. This feature is marked as experimental and **might be subject to change before release 1.0.0 comes**.
+
+```dart
+class WeatherRepository {
+
+  Future<Map<String, dynamic>> fetchCityWeather(int id) async {
+    var parsedWeather;
+    try {
+      var response = await HttpWithInterceptor.build(
+              interceptors: [WeatherApiInterceptor()],
+              badCertificateCallback: (certificate, host, port) => true)
+          .get("$baseUrl/weather", params: {'id': "$id"});
+      if (response.statusCode == 200) {
+        parsedWeather = json.decode(response.body);
+      } else {
+        throw Exception("Error while fetching. \n ${response.body}");
+      }
+    } catch (e) {
+      print(e);
+    }
+    return parsedWeather;
+  }
+
+}
+```
 
 ## Troubleshooting
 

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
@@ -29,27 +30,30 @@ class HttpWithInterceptor {
   List<InterceptorContract> interceptors;
   Duration requestTimeout;
   RetryPolicy retryPolicy;
+  bool Function(X509Certificate, String, int) badCertificateCallback;
 
   HttpWithInterceptor._internal({
     this.interceptors,
     this.requestTimeout,
     this.retryPolicy,
+    this.badCertificateCallback,
   });
 
   factory HttpWithInterceptor.build({
     @required List<InterceptorContract> interceptors,
     Duration requestTimeout,
     RetryPolicy retryPolicy,
+    bool Function(X509Certificate, String, int) badCertificateCallback,
   }) {
     assert(interceptors != null);
 
     //Remove any value that is null.
     interceptors?.removeWhere((interceptor) => interceptor == null);
     return new HttpWithInterceptor._internal(
-      interceptors: interceptors,
-      requestTimeout: requestTimeout,
-      retryPolicy: retryPolicy,
-    );
+        interceptors: interceptors,
+        requestTimeout: requestTimeout,
+        retryPolicy: retryPolicy,
+        badCertificateCallback: badCertificateCallback);
   }
 
   Future<Response> head(url, {Map<String, String> headers}) async {
@@ -58,7 +62,8 @@ class HttpWithInterceptor {
 
   Future<Response> get(url,
       {Map<String, String> headers, Map<String, String> params}) async {
-    return _withClient((client) => client.get(url, headers: headers, params: params));
+    return _withClient(
+        (client) => client.get(url, headers: headers, params: params));
   }
 
   Future<Response> post(url,
@@ -96,6 +101,7 @@ class HttpWithInterceptor {
       interceptors: interceptors,
       requestTimeout: requestTimeout,
       retryPolicy: retryPolicy,
+      badCertificateCallback: badCertificateCallback,
     );
     try {
       return await fn(client);
