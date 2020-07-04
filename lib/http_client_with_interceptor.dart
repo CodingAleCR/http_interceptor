@@ -211,7 +211,8 @@ class HttpClientWithInterceptor extends BaseClient {
       response = await Response.fromStream(stream);
       if (retryPolicy != null &&
           retryPolicy.maxRetryAttempts > _retryCount &&
-          await retryPolicy.shouldAttemptRetryOnResponse(response)) {
+          await retryPolicy.shouldAttemptRetryOnResponse(
+              ResponseData.fromHttpResponse(response))) {
         _retryCount += 1;
         return _attemptRequest(request);
       }
