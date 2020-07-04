@@ -148,7 +148,7 @@ class WeatherRepository {
 ```dart
 class ExpiredTokenRetryPolicy extends RetryPolicy {
   @override
-  Future<bool> shouldAttemptRetryOnResponse(Response response) async {
+  Future<bool> shouldAttemptRetryOnResponse(ResponseData response) async {
     if (response.statusCode == 401) {
       // Perform your token refresh here.
 

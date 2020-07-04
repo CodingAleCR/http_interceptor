@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.1
+
+* Fixed: Retry Policy's `shouldAttemptRetryOnResponse` was synchronous which would not allow async token updates.
+* Fixed: Retry Policy would only trigger once when using `HttpClientWithInterceptor`.
+* Fixed: Retry Policy would use the `http` Response class, which would force plugin users to add http plugin separately.
+* Experimental: `badCertificateCallback` allows you to use self-signing certificates.
+
 ## 0.3.0
 
 * Added: RetryPolicy. It allows to attempt retries on a request when an exception occurs or when a condition from the response is met.
