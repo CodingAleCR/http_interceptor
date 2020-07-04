@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
+
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
-import 'package:http_interceptor/models/models.dart';
+import 'package:http/io_client.dart';
 import 'package:http_interceptor/interceptor_contract.dart';
+import 'package:http_interceptor/models/models.dart';
 import 'package:http_interceptor/utils.dart';
 
 import 'http_methods.dart';
@@ -34,34 +36,43 @@ import 'http_methods.dart';
 ///```
 ///Don't forget to close the client once you are done, as a client keeps
 ///the connection alive with the server.
-class HttpClientWithInterceptor extends http.BaseClient {
+class HttpClientWithInterceptor extends BaseClient {
   List<InterceptorContract> interceptors;
   Duration requestTimeout;
   RetryPolicy retryPolicy;
+  bool Function(X509Certificate, String, int) badCertificateCallback;
 
-  final Client _client = Client();
   int _retryCount = 0;
+  Client _client;
+
+  void _initializeClient() {
+    var ioClient = new HttpClient()
+      ..badCertificateCallback = badCertificateCallback;
+    _client = IOClient(ioClient);
+  }
 
   HttpClientWithInterceptor._internal({
     this.interceptors,
     this.requestTimeout,
     this.retryPolicy,
+    this.badCertificateCallback,
   });
 
   factory HttpClientWithInterceptor.build({
     @required List<InterceptorContract> interceptors,
     Duration requestTimeout,
     RetryPolicy retryPolicy,
+    bool Function(X509Certificate, String, int) badCertificateCallback,
   }) {
     assert(interceptors != null);
 
     //Remove any value that is null.
     interceptors.removeWhere((interceptor) => interceptor == null);
     return HttpClientWithInterceptor._internal(
-      interceptors: interceptors,
-      requestTimeout: requestTimeout,
-      retryPolicy: retryPolicy,
-    );
+        interceptors: interceptors,
+        requestTimeout: requestTimeout,
+        retryPolicy: retryPolicy,
+        badCertificateCallback: badCertificateCallback);
   }
 
   Future<Response> head(url, {Map<String, String> headers}) => _sendUnstreamed(
@@ -130,7 +141,12 @@ class HttpClientWithInterceptor extends http.BaseClient {
     });
   }
 
-  Future<StreamedResponse> send(BaseRequest request) => _client.send(request);
+  Future<StreamedResponse> send(BaseRequest request) {
+    if (_client == null) {
+      _initializeClient();
+    }
+    return _client.send(request);
+  }
 
   Future<Response> _sendUnstreamed({
     @required Method method,
@@ -193,16 +209,17 @@ class HttpClientWithInterceptor extends http.BaseClient {
           : await send(request).timeout(requestTimeout);
 
       response = await Response.fromStream(stream);
-      if (retryPolicy != null 
-      && retryPolicy.maxRetryAttempts > _retryCount 
-      && retryPolicy.shouldAttemptRetryOnResponse(response)) {
+      if (retryPolicy != null &&
+          retryPolicy.maxRetryAttempts > _retryCount &&
+          await retryPolicy.shouldAttemptRetryOnResponse(
+              ResponseData.fromHttpResponse(response))) {
         _retryCount += 1;
         return _attemptRequest(request);
       }
     } catch (error) {
-      if (retryPolicy != null 
-      && retryPolicy.maxRetryAttempts > _retryCount 
-      && retryPolicy.shouldAttemptRetryOnException(error)) {
+      if (retryPolicy != null &&
+          retryPolicy.maxRetryAttempts > _retryCount &&
+          retryPolicy.shouldAttemptRetryOnException(error)) {
         _retryCount += 1;
         return _attemptRequest(request);
       } else {
@@ -210,6 +227,7 @@ class HttpClientWithInterceptor extends http.BaseClient {
       }
     }
 
+    _retryCount = 0;
     return response;
   }
 
@@ -238,6 +256,9 @@ class HttpClientWithInterceptor extends http.BaseClient {
   }
 
   void close() {
+    if (_client == null) {
+      _initializeClient();
+    }
     _client.close();
   }
 }
