@@ -226,6 +226,7 @@ class HttpClientWithInterceptor extends BaseClient {
       }
     }
 
+    _retryCount = 0;
     return response;
   }
 
