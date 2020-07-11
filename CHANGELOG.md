@@ -2,6 +2,8 @@
 
 ## 0.3.2
 
+* Changed: Example now showcases exception handling.
+* Changed: README now showcases exception handling.
 * Fixed: Interceptor no longer using custom exceptions, instead it rethrows in the case that the retry policy is not set or if it has reached max attempts.
 
 ## 0.3.1
