@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.2
+
+* Fixed: Interceptor no longer using custom exceptions, instead it rethrows in the case that the retry policy is not set or if it has reached max attempts.
+
 ## 0.3.1
 
 * Fixed: Retry Policy's `shouldAttemptRetryOnResponse` was synchronous which would not allow async token updates.

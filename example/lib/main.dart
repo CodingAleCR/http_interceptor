@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http_interceptor/http_interceptor.dart';
@@ -142,7 +143,7 @@ class WeatherSearch extends SearchDelegate<String> {
             child: Text(snapshot.error),
           );
         }
-        
+
         if (!snapshot.hasData) {
           return Center(
             child: CircularProgressIndicator(),
@@ -267,9 +268,14 @@ class WeatherRepository {
           StackTrace.fromString("${response.body}"),
         );
       }
-    } catch (e) {
-      print(e);
+    } on SocketException {
+      return Future.error('No Internet connection 😑');
+    } on FormatException {
+      return Future.error('Bad response format 👎');
+    } on Exception {
+      return Future.error('Unexpected error 😢');
     }
+
     return parsedWeather;
   }
 }
@@ -280,7 +286,7 @@ class WeatherApiInterceptor implements InterceptorContract {
     try {
       data.params['appid'] = OPEN_WEATHER_API_KEY;
       data.params['units'] = 'metric';
-      data.headers["Content-Type"] = "application/json";
+      data.headers[HttpHeaders.contentTypeHeader] = "application/json";
     } catch (e) {
       print(e);
     }
