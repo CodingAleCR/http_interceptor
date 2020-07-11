@@ -120,21 +120,27 @@ Here is an example with a repository using the `HttpWithInterceptor` class.
 ```dart
 class WeatherRepository {
 
-
-  Future<Map<String, dynamic>> fetchCityWeather(int id) async {
+    Future<Map<String, dynamic>> fetchCityWeather(int id) async {
     var parsedWeather;
     try {
-      var response = await HttpWithInterceptor.build(
-              interceptors: [WeatherApiInterceptor()])
-          .get("$baseUrl/weather", params: {'id': "$id"});
+      final response =
+          await client.get("$baseUrl/weather", params: {'id': "$id"});
       if (response.statusCode == 200) {
         parsedWeather = json.decode(response.body);
       } else {
-        throw Exception("Error while fetching. \n ${response.body}");
+        return Future.error(
+          "Error while fetching.",
+          StackTrace.fromString("${response.body}"),
+        );
       }
-    } catch (e) {
-      print(e);
+    } on SocketException {
+      return Future.error('No Internet connection 😑');
+    } on FormatException {
+      return Future.error('Bad response format 👎');
+    } on Exception {
+      return Future.error('Unexpected error 😢');
     }
+
     return parsedWeather;
   }
 
@@ -143,7 +149,7 @@ class WeatherRepository {
 
 ### Retrying requests
 
- **(NEW 🎉)** Sometimes you need to retry a request due to different circumstances, an expired token is a really good example. Here's how you could potentially implement an expired token retry policy with `http_interceptor`.
+**(NEW 🎉)** Sometimes you need to retry a request due to different circumstances, an expired token is a really good example. Here's how you could potentially implement an expired token retry policy with `http_interceptor`.
 
 ```dart
 class ExpiredTokenRetryPolicy extends RetryPolicy {
@@ -164,7 +170,7 @@ You can also set the maximum amount of retry attempts with `maxRetryAttempts` pr
 
 ### Using self signed certificates
 
- **(EXPERIMENTAL ⚗️)** This plugin allows you to override the default `badCertificateCallback` provided by Dart's `io` package, this is really useful when working with self-signed certificates in your server. This can be done by sending a the callback to the HttpInterceptor builder functions. This feature is marked as experimental and **might be subject to change before release 1.0.0 comes**.
+**(EXPERIMENTAL ⚗️)** This plugin allows you to override the default `badCertificateCallback` provided by Dart's `io` package, this is really useful when working with self-signed certificates in your server. This can be done by sending a the callback to the HttpInterceptor builder functions. This feature is marked as experimental and **might be subject to change before release 1.0.0 comes**.
 
 ```dart
 class WeatherRepository {

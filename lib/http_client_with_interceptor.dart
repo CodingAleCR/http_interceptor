@@ -223,7 +223,7 @@ class HttpClientWithInterceptor extends BaseClient {
         _retryCount += 1;
         return _attemptRequest(request);
       } else {
-        throw HttpInterceptorException(error.toString());
+        rethrow;
       }
     }
 
