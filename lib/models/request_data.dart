@@ -65,6 +65,6 @@ class RequestData {
 
   @override
   String toString() {
-    return '{ $method, $baseUrl, $headers, $params, $body }';
+    return 'Request Data { $method, $baseUrl, $headers, $params, $body }';
   }
 }

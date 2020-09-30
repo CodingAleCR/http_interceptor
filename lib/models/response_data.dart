@@ -51,6 +51,6 @@ class ResponseData {
 
   @override
   String toString() {
-    return '{ $method, $url, $headers, $statusCode, $body }';
+    return 'ResponseData { $method, $url, $headers, $statusCode, $body }';
   }
 }
