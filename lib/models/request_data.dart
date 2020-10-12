@@ -43,7 +43,7 @@ class RequestData {
 
   Request toHttpRequest() {
     var reqUrl = Uri.parse(addParametersToStringUrl(baseUrl, params));
-    
+
     Request request = new Request(methodToString(method), reqUrl);
 
     if (headers != null) request.headers.addAll(headers);
@@ -61,5 +61,10 @@ class RequestData {
     }
 
     return request;
+  }
+
+  @override
+  String toString() {
+    return 'Request Data { $method, $baseUrl, $headers, $params, $body }';
   }
 }

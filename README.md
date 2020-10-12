@@ -17,6 +17,7 @@ This is a plugin that lets you intercept the different requests and responses fr
   - [Retrying requests](#retrying-requests)
   - [Using self-signed certificates](#using-self-signed-certificates)
 - [Having trouble? Fill an issue](#troubleshooting)
+- [Contribution](#contribution)
 
 ## Installation
 
@@ -78,7 +79,7 @@ class WeatherApiInterceptor implements InterceptorContract {
 
 ### Using your interceptor
 
-Now that you actually have your interceptor implemented, now you need to use it. There are two general ways in which you can use them: by using the `HttpWithInterceptor` to do separate connections for different requests or using a `HttpClientWithInterceptor` for keeping a connection alive while making the different `http` calls. The ideal place to use them is in the service/provider class or the repository class (if you are not using services or providers); if you don't know about the repository pattern you can just google it and you'll know what I'm talking about. ;)
+Now that you actually have your interceptor implemented, now you need to use it. There are two general ways in which you can use them: by using the `HttpWithInterceptor` to do separate connections for different requests or using a `HttpClientWithInterceptor` for keeping a connection alive while making the different `http` calls. The ideal place to use them is in the service/provider class or the repository class (if you are not using services or providers); if you don't know about the repository pattern you can just google it and you'll know what I'm talking about. 😉
 
 #### Using interceptors with Client
 
@@ -149,7 +150,7 @@ class WeatherRepository {
 
 ### Retrying requests
 
-**(NEW 🎉)** Sometimes you need to retry a request due to different circumstances, an expired token is a really good example. Here's how you could potentially implement an expired token retry policy with `http_interceptor`.
+Sometimes you need to retry a request due to different circumstances, an expired token is a really good example. Here's how you could potentially implement an expired token retry policy with `http_interceptor`.
 
 ```dart
 class ExpiredTokenRetryPolicy extends RetryPolicy {
@@ -170,7 +171,7 @@ You can also set the maximum amount of retry attempts with `maxRetryAttempts` pr
 
 ### Using self signed certificates
 
-**(EXPERIMENTAL ⚗️)** This plugin allows you to override the default `badCertificateCallback` provided by Dart's `io` package, this is really useful when working with self-signed certificates in your server. This can be done by sending a the callback to the HttpInterceptor builder functions. This feature is marked as experimental and **might be subject to change before release 1.0.0 comes**.
+This plugin allows you to override the default `badCertificateCallback` provided by Dart's `io` package, this is really useful when working with self-signed certificates in your server. This can be done by sending a the callback to the HttpInterceptor builder functions. This feature is marked as experimental and **might be subject to change before release 1.0.0 comes**.
 
 ```dart
 class WeatherRepository {
@@ -196,6 +197,29 @@ class WeatherRepository {
 }
 ```
 
+## Roadmap
+
+- [x] Intercepting HTTP requests.
+- [x] Intercepting HTTP responses.
+- [x] Retrying requests after failures.
+- [x] Support for custom certificates.
+
+### Upcoming 
+
+- [ ] 80% test coverage to start.
+- [ ] Fully support Multipart requests.
+- [ ] Built in logger for all requests and responses.
+
+### Future Features
+
+- [ ] Separate branch for Flutter Web usage.
+- [ ] Support for protobufs.
+- [ ] Supporting a Global Configuration.
+- [ ] Internet connection checks for stability.
+
 ## Troubleshooting
 
 Open an issue and tell me, I will be happy to help you out as soon as I can.
+
+## Contribution
+Want to help out? We are always open to contributions. Write me an email to `me@codingale.dev` if you want to be a permanent contributor, I am sure I would learn a lot from you and it's always good to share ideas with other developers. Cheers!
