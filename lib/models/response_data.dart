@@ -48,4 +48,9 @@ class ResponseData {
       ),
     );
   }
+
+  @override
+  String toString() {
+    return 'ResponseData { $method, $url, $headers, $statusCode, $body }';
+  }
 }

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.3
+
+* Changed: Plugin no longer depends on the `flutter/foundation.dart`, instead it uses `meta` plugin which allows for usage on non flutter environments.
+* Changed: README now features a contribution and a roadmap sections for improving visibility on the project's future.
+* Changed: `badCertificateCallback` is now available to use without the experimental tag.
+
 ## 0.3.2
 
 * Changed: Example now showcases exception handling.

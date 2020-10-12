@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:http/io_client.dart';
 import 'package:http_interceptor/interceptor_contract.dart';
 import 'package:http_interceptor/models/models.dart';
 import 'package:http_interceptor/utils.dart';
+import 'package:meta/meta.dart';
 
 import 'http_methods.dart';
 
