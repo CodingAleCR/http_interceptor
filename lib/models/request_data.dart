@@ -30,7 +30,12 @@ class RequestData {
     request.url.queryParameters.forEach((key, value) {
       params[key] = value;
     });
-    String baseUrl = request.url.origin + request.url.path;
+
+    String baseUrl = request.url.path;
+    if (request.url.hasScheme) {
+      baseUrl = request.url.origin + request.url.path;
+    }
+
     return RequestData(
       method: methodFromString(request.method),
       encoding: request.encoding,
