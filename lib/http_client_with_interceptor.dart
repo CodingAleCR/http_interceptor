@@ -41,13 +41,15 @@ class HttpClientWithInterceptor extends BaseClient {
   Duration requestTimeout;
   RetryPolicy retryPolicy;
   bool Function(X509Certificate, String, int) badCertificateCallback;
+  String Function(Uri) findProxy;
 
   int _retryCount = 0;
   Client _client;
 
   void _initializeClient() {
     var ioClient = new HttpClient()
-      ..badCertificateCallback = badCertificateCallback;
+      ..badCertificateCallback = badCertificateCallback
+      ..findProxy = findProxy;
     _client = IOClient(ioClient);
   }
 
@@ -56,6 +58,7 @@ class HttpClientWithInterceptor extends BaseClient {
     this.requestTimeout,
     this.retryPolicy,
     this.badCertificateCallback,
+    this.findProxy,
   });
 
   factory HttpClientWithInterceptor.build({
@@ -63,6 +66,7 @@ class HttpClientWithInterceptor extends BaseClient {
     Duration requestTimeout,
     RetryPolicy retryPolicy,
     bool Function(X509Certificate, String, int) badCertificateCallback,
+    String Function(Uri) findProxy,
   }) {
     assert(interceptors != null);
 
@@ -72,7 +76,8 @@ class HttpClientWithInterceptor extends BaseClient {
         interceptors: interceptors,
         requestTimeout: requestTimeout,
         retryPolicy: retryPolicy,
-        badCertificateCallback: badCertificateCallback);
+        badCertificateCallback: badCertificateCallback,
+        findProxy: findProxy);
   }
 
   Future<Response> head(url, {Map<String, String> headers}) => _sendUnstreamed(
