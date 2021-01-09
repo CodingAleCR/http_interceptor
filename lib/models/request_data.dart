@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 
 import 'package:http_interceptor/http_methods.dart';
@@ -14,8 +13,8 @@ class RequestData {
   Encoding encoding;
 
   RequestData({
-    @required this.method,
-    @required this.baseUrl,
+    this.method,
+    this.baseUrl,
     this.headers,
     this.params,
     this.body,
