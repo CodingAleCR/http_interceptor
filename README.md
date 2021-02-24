@@ -17,7 +17,8 @@ This is a plugin that lets you intercept the different requests and responses fr
   - [Retrying requests](#retrying-requests)
   - [Using self-signed certificates](#using-self-signed-certificates)
 - [Having trouble? Fill an issue](#troubleshooting)
-- [Contribution](#contribution)
+- [Roadmap](https://doc.clickup.com/p/h/82gtq-119/f552a826792c049)
+- [Contribution](#contributions)
 
 ## Installation
 
@@ -199,27 +200,25 @@ class WeatherRepository {
 
 ## Roadmap
 
-- [x] Intercepting HTTP requests.
-- [x] Intercepting HTTP responses.
-- [x] Retrying requests after failures.
-- [x] Support for custom certificates.
+Check out our roadmap [here](https://doc.clickup.com/p/h/82gtq-119/f552a826792c049).
 
-### Upcoming 
-
-- [ ] 80% test coverage to start.
-- [ ] Fully support Multipart requests.
-- [ ] Built in logger for all requests and responses.
-
-### Future Features
-
-- [ ] Separate branch for Flutter Web usage.
-- [ ] Support for protobufs.
-- [ ] Supporting a Global Configuration.
-- [ ] Internet connection checks for stability.
+_We migrated our roadmap to better suit the needs for development since we use ClickUp as our task management tool._
 
 ## Troubleshooting
 
 Open an issue and tell me, I will be happy to help you out as soon as I can.
 
-## Contribution
-Want to help out? We are always open to contributions. Write me an email to `me@codingale.dev` if you want to be a permanent contributor, I am sure I would learn a lot from you and it's always good to share ideas with other developers. Cheers!
+## Contributions
+
+Contributions are always welcomed and encouraged, we will always give you credit for your work on this section. If you are interested in maintaining the project on a regular basis drop me a line at me@codingale.dev.
+
+### Team
+
+- Alejandro Ulate ([@CodingAleCR](https://github.com/CodingAleCR))
+
+### Contributors
+
+- Wes Ehrlichman ([@AsynchronySuperWes](https://github.com/AsynchronySuperWes))
+- Jan Lübeck ([@jlubeck](https://github.com/jlubeck))
+- Lucas Alves ([@lucalves](https://github.com/lucalves))
+- István Juhos ([@stewemetal](https://github.com/stewemetal))
