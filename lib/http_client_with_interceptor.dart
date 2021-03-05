@@ -8,7 +8,6 @@ import 'package:http/io_client.dart';
 import 'package:http_interceptor/interceptor_contract.dart';
 import 'package:http_interceptor/models/models.dart';
 import 'package:http_interceptor/utils.dart';
-import 'package:meta/meta.dart';
 
 import 'http_methods.dart';
 
@@ -62,7 +61,7 @@ class HttpClientWithInterceptor extends BaseClient {
   });
 
   factory HttpClientWithInterceptor.build({
-    @required List<InterceptorContract> interceptors,
+    List<InterceptorContract> interceptors,
     Duration requestTimeout,
     RetryPolicy retryPolicy,
     bool Function(X509Certificate, String, int) badCertificateCallback,
@@ -73,20 +72,22 @@ class HttpClientWithInterceptor extends BaseClient {
     //Remove any value that is null.
     interceptors.removeWhere((interceptor) => interceptor == null);
     return HttpClientWithInterceptor._internal(
-        interceptors: interceptors,
-        requestTimeout: requestTimeout,
-        retryPolicy: retryPolicy,
-        badCertificateCallback: badCertificateCallback,
-        findProxy: findProxy);
+      interceptors: interceptors,
+      requestTimeout: requestTimeout,
+      retryPolicy: retryPolicy,
+      badCertificateCallback: badCertificateCallback,
+      findProxy: findProxy,
+    );
   }
 
-  Future<Response> head(url, {Map<String, String> headers}) => _sendUnstreamed(
+  Future<Response> head(Uri url, {Map<String, String> headers}) =>
+      _sendUnstreamed(
         method: Method.HEAD,
         url: url,
         headers: headers,
       );
 
-  Future<Response> get(url,
+  Future<Response> get(Uri url,
           {Map<String, String> headers, Map<String, String> params}) =>
       _sendUnstreamed(
         method: Method.GET,
@@ -95,8 +96,8 @@ class HttpClientWithInterceptor extends BaseClient {
         params: params,
       );
 
-  Future<Response> post(url,
-          {Map<String, String> headers, body, Encoding encoding}) =>
+  Future<Response> post(Uri url,
+          {Map<String, String> headers, Object body, Encoding encoding}) =>
       _sendUnstreamed(
         method: Method.POST,
         url: url,
@@ -105,8 +106,8 @@ class HttpClientWithInterceptor extends BaseClient {
         encoding: encoding,
       );
 
-  Future<Response> put(url,
-          {Map<String, String> headers, body, Encoding encoding}) =>
+  Future<Response> put(Uri url,
+          {Map<String, String> headers, Object body, Encoding encoding}) =>
       _sendUnstreamed(
         method: Method.PUT,
         url: url,
@@ -115,8 +116,8 @@ class HttpClientWithInterceptor extends BaseClient {
         encoding: encoding,
       );
 
-  Future<Response> patch(url,
-          {Map<String, String> headers, body, Encoding encoding}) =>
+  Future<Response> patch(Uri url,
+          {Map<String, String> headers, Object body, Encoding encoding}) =>
       _sendUnstreamed(
         method: Method.PATCH,
         url: url,
@@ -125,21 +126,22 @@ class HttpClientWithInterceptor extends BaseClient {
         encoding: encoding,
       );
 
-  Future<Response> delete(url, {Map<String, String> headers}) =>
+  Future<Response> delete(Uri url,
+          {Map<String, String> headers, Object body, Encoding encoding}) =>
       _sendUnstreamed(
         method: Method.DELETE,
         url: url,
         headers: headers,
       );
 
-  Future<String> read(url, {Map<String, String> headers}) {
+  Future<String> read(Uri url, {Map<String, String> headers}) {
     return get(url, headers: headers).then((response) {
       _checkResponseSuccess(url, response);
       return response.body;
     });
   }
 
-  Future<Uint8List> readBytes(url, {Map<String, String> headers}) {
+  Future<Uint8List> readBytes(Uri url, {Map<String, String> headers}) {
     return get(url, headers: headers).then((response) {
       _checkResponseSuccess(url, response);
       return response.bodyBytes;
@@ -154,21 +156,14 @@ class HttpClientWithInterceptor extends BaseClient {
   }
 
   Future<Response> _sendUnstreamed({
-    @required Method method,
-    @required url,
-    @required Map<String, String> headers,
+    Method method,
+    Uri url,
+    Map<String, String> headers,
     Map<String, String> params,
     dynamic body,
     Encoding encoding,
   }) async {
-    if (url is String) {
-      url = Uri.parse(addParametersToStringUrl(url, params));
-    } else if (url is Uri) {
-      url = addParametersToUrl(url, params);
-    } else {
-      throw HttpInterceptorException(
-          "Malformed URL parameter. Check that the url used is either a String or a Uri instance.");
-    }
+    url = addParametersToUrl(url, params);
 
     Request request = new Request(methodToString(method), url);
     if (headers != null) request.headers.addAll(headers);

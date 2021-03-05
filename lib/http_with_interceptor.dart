@@ -5,7 +5,6 @@ import 'dart:typed_data';
 import 'package:http/http.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:http_interceptor/interceptor_contract.dart';
-import 'package:meta/meta.dart';
 
 ///Class to be used by the user as a replacement for 'http' with interceptor supported.
 ///call the `build()` constructor passing in the list of interceptors.
@@ -31,29 +30,34 @@ class HttpWithInterceptor {
   Duration requestTimeout;
   RetryPolicy retryPolicy;
   bool Function(X509Certificate, String, int) badCertificateCallback;
+  String Function(Uri) findProxy;
 
   HttpWithInterceptor._internal({
     this.interceptors,
     this.requestTimeout,
     this.retryPolicy,
     this.badCertificateCallback,
+    this.findProxy,
   });
 
   factory HttpWithInterceptor.build({
-    @required List<InterceptorContract> interceptors,
+    List<InterceptorContract> interceptors,
     Duration requestTimeout,
     RetryPolicy retryPolicy,
     bool Function(X509Certificate, String, int) badCertificateCallback,
+    String Function(Uri) findProxy,
   }) {
     assert(interceptors != null);
 
     //Remove any value that is null.
     interceptors?.removeWhere((interceptor) => interceptor == null);
     return new HttpWithInterceptor._internal(
-        interceptors: interceptors,
-        requestTimeout: requestTimeout,
-        retryPolicy: retryPolicy,
-        badCertificateCallback: badCertificateCallback);
+      interceptors: interceptors,
+      requestTimeout: requestTimeout,
+      retryPolicy: retryPolicy,
+      badCertificateCallback: badCertificateCallback,
+      findProxy: findProxy,
+    );
   }
 
   Future<Response> head(url, {Map<String, String> headers}) async {
@@ -67,25 +71,27 @@ class HttpWithInterceptor {
   }
 
   Future<Response> post(url,
-      {Map<String, String> headers, body, Encoding encoding}) async {
+      {Map<String, String> headers, Object body, Encoding encoding}) async {
     return _withClient((client) =>
         client.post(url, headers: headers, body: body, encoding: encoding));
   }
 
   Future<Response> put(url,
-      {Map<String, String> headers, body, Encoding encoding}) async {
+      {Map<String, String> headers, Object body, Encoding encoding}) async {
     return _withClient((client) =>
         client.put(url, headers: headers, body: body, encoding: encoding));
   }
 
   Future<Response> patch(url,
-      {Map<String, String> headers, body, Encoding encoding}) async {
+      {Map<String, String> headers, Object body, Encoding encoding}) async {
     return _withClient((client) =>
         client.patch(url, headers: headers, body: body, encoding: encoding));
   }
 
-  Future<Response> delete(url, {Map<String, String> headers}) async {
-    return _withClient((client) => client.delete(url, headers: headers));
+  Future<Response> delete(url,
+      {Map<String, String> headers, Object body, Encoding encoding}) async {
+    return _withClient((client) =>
+        client.delete(url, headers: headers, body: body, encoding: encoding));
   }
 
   Future<String> read(url, {Map<String, String> headers}) {
