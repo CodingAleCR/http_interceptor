@@ -15,7 +15,6 @@ Check out [our 0.4.0 migration guide](./docs/migration_guide_4.md) for informati
 - ❗️✨&nbsp;&nbsp;Added: String extension to allow `toUri()` usage when importing the library. Since `http` dropped support for string url usage and since Dart does not yet support function overloading, we had to implement an alternative through extensions.
 - ✨&nbsp;&nbsp;Added: Flutter web support 🌐 &nbsp;&nbsp;(`badCertificateCallback` and `findProxy` features are not supported on Flutter Web due to browser limitations)
 - 🛠&nbsp;&nbsp;Changed: Upgraded `http` to `0.13.0`.
-- 🛠&nbsp;&nbsp;Changed: Upgraded `meta` to `1.3.0`.
 - 🛠&nbsp;&nbsp;Changed: Upgraded `effective_dart` to `1.3.0`.
 - 🛠&nbsp;&nbsp;Changed: Upgraded Dart `sdk` to `>=2.12.0 <3.0.0`. (Yay! Sound null safety! 🎉)
 - 🗑&nbsp;&nbsp;Removed: `meta` is removed since Dart's null safety now covers all uses inside this plugin
