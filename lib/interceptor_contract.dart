@@ -29,7 +29,7 @@ import 'package:http_interceptor/models/models.dart';
 ///}
 ///```
 abstract class InterceptorContract {
-  Future<RequestData> interceptRequest({RequestData data});
+  Future<RequestData> interceptRequest({required RequestData data});
 
-  Future<ResponseData> interceptResponse({ResponseData data});
+  Future<ResponseData> interceptResponse({required ResponseData data});
 }

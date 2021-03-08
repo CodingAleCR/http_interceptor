@@ -25,6 +25,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   WeatherRepository repository = WeatherRepository(
     HttpClientWithInterceptor.build(interceptors: [
+      LoggerInterceptor(),
       WeatherApiInterceptor(),
     ]),
   );
@@ -258,8 +259,8 @@ class WeatherRepository {
   Future<Map<String, dynamic>> fetchCityWeather(int id) async {
     var parsedWeather;
     try {
-      final response = await client
-          .get(Uri.parse("$baseUrl/weather"), params: {'id': "$id"});
+      final response =
+          await client.get("$baseUrl/weather".toUri(), params: {'id': "$id"});
       if (response.statusCode == 200) {
         parsedWeather = json.decode(response.body);
       } else {
@@ -277,6 +278,22 @@ class WeatherRepository {
     }
 
     return parsedWeather;
+  }
+}
+
+class LoggerInterceptor implements InterceptorContract {
+  @override
+  Future<RequestData> interceptRequest({RequestData data}) async {
+    print("----- Request -----");
+    print(data.toString());
+    return data;
+  }
+
+  @override
+  Future<ResponseData> interceptResponse({ResponseData data}) async {
+    print("----- Response -----");
+    print(data.toString());
+    return data;
   }
 }
 

@@ -2,14 +2,14 @@ import 'package:http/http.dart';
 import 'package:http_interceptor/http_methods.dart';
 
 class ResponseData {
-  String url;
-  int statusCode;
-  Method method;
-  Map<String, String> headers;
-  String body;
-  int contentLength;
-  bool isRedirect;
-  bool persistentConnection;
+  String? url;
+  int? statusCode;
+  Method? method;
+  Map<String, String>? headers;
+  String? body;
+  int? contentLength;
+  bool? isRedirect;
+  bool? persistentConnection;
 
   ResponseData({
     this.method,
@@ -29,22 +29,22 @@ class ResponseData {
       body: response.body,
       contentLength: response.contentLength,
       isRedirect: response.isRedirect,
-      url: response.request.url.toString(),
-      method: methodFromString(response.request.method),
+      url: response.request!.url.toString(),
+      method: methodFromString(response.request!.method),
       persistentConnection: response.persistentConnection,
     );
   }
 
   Response toHttpResponse() {
     return Response(
-      body,
-      statusCode,
-      headers: headers,
-      persistentConnection: persistentConnection,
-      isRedirect: isRedirect,
+      body!,
+      statusCode!,
+      headers: headers!,
+      persistentConnection: persistentConnection!,
+      isRedirect: isRedirect!,
       request: Request(
-        methodToString(method),
-        Uri.parse(url),
+        methodToString(method!),
+        Uri.parse(url!),
       ),
     );
   }

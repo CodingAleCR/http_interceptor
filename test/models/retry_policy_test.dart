@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 
 main() {
-  RetryPolicy testObject;
+  late RetryPolicy testObject;
 
   setUp(() {
     testObject = TestRetryPolicy();
@@ -16,13 +16,17 @@ main() {
 
   group("shouldAttemptRetryOnException", () {
     test("returns false by default", () {
-      expect(testObject.shouldAttemptRetryOnException(null), false);
+      expect(
+          testObject
+              .shouldAttemptRetryOnException(Exception("Test Exception.")),
+          false);
     });
   });
 
   group("shouldAttemptRetryOnResponse", () {
     test("returns false by default", () async {
-      expect(await testObject.shouldAttemptRetryOnResponse(null), false);
+      expect(
+          await testObject.shouldAttemptRetryOnResponse(ResponseData()), false);
     });
   });
 }
