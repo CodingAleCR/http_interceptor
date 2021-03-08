@@ -25,8 +25,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   WeatherRepository repository = WeatherRepository(
     HttpClientWithInterceptor.build(interceptors: [
-      LoggerInterceptor(),
       WeatherApiInterceptor(),
+      LoggerInterceptor(),
     ]),
   );
 
@@ -75,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class WeatherSearch extends SearchDelegate<String> {
+class WeatherSearch extends SearchDelegate<String?> {
   int selected = -1;
   WeatherRepository repo;
 
@@ -125,23 +125,23 @@ class WeatherSearch extends SearchDelegate<String> {
         return ListTile(
           onTap: () {
             selected = index;
-            query = cities[selected]["name"];
+            query = cities[selected]["name"] as String;
             showResults(context);
           },
-          title: Text(suggestionList[index]['name']),
-          subtitle: Text(suggestionList[index]['country']),
+          title: Text(suggestionList[index]['name'] as String),
+          subtitle: Text(suggestionList[index]['country'] as String),
         );
       },
     );
   }
 
   Widget buildWeatherCard(final city) {
-    return FutureBuilder(
+    return FutureBuilder<Map<String, dynamic>>(
       future: repo.fetchCityWeather(city["id"]),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Center(
-            child: Text(snapshot.error),
+            child: Text(snapshot.error as String),
           );
         }
 
@@ -151,7 +151,7 @@ class WeatherSearch extends SearchDelegate<String> {
           );
         }
         final weather = snapshot.data;
-        final iconWeather = weather["weather"][0]["icon"];
+        final iconWeather = weather!["weather"][0]["icon"];
         final main = weather["main"];
         final wind = weather["wind"];
         return Card(
@@ -256,7 +256,7 @@ class WeatherRepository {
   //   return parsedWeather;
   // }
 
-  Future<Map<String, dynamic>> fetchCityWeather(int id) async {
+  Future<Map<String, dynamic>> fetchCityWeather(int? id) async {
     var parsedWeather;
     try {
       final response =
@@ -273,7 +273,8 @@ class WeatherRepository {
       return Future.error('No Internet connection 😑');
     } on FormatException {
       return Future.error('Bad response format 👎');
-    } on Exception {
+    } on Exception catch (error) {
+      print(error);
       return Future.error('Unexpected error 😢');
     }
 
@@ -283,14 +284,14 @@ class WeatherRepository {
 
 class LoggerInterceptor implements InterceptorContract {
   @override
-  Future<RequestData> interceptRequest({RequestData data}) async {
+  Future<RequestData> interceptRequest({required RequestData data}) async {
     print("----- Request -----");
     print(data.toString());
     return data;
   }
 
   @override
-  Future<ResponseData> interceptResponse({ResponseData data}) async {
+  Future<ResponseData> interceptResponse({required ResponseData data}) async {
     print("----- Response -----");
     print(data.toString());
     return data;
@@ -299,11 +300,11 @@ class LoggerInterceptor implements InterceptorContract {
 
 class WeatherApiInterceptor implements InterceptorContract {
   @override
-  Future<RequestData> interceptRequest({RequestData data}) async {
+  Future<RequestData> interceptRequest({required RequestData data}) async {
     try {
-      data.params['appid'] = OPEN_WEATHER_API_KEY;
-      data.params['units'] = 'metric';
-      data.headers[HttpHeaders.contentTypeHeader] = "application/json";
+      data.params!['appid'] = OPEN_WEATHER_API_KEY;
+      data.params!['units'] = 'metric';
+      data.headers![HttpHeaders.contentTypeHeader] = "application/json";
     } catch (e) {
       print(e);
     }
@@ -312,5 +313,6 @@ class WeatherApiInterceptor implements InterceptorContract {
   }
 
   @override
-  Future<ResponseData> interceptResponse({ResponseData data}) async => data;
+  Future<ResponseData> interceptResponse({required ResponseData data}) async =>
+      data;
 }
