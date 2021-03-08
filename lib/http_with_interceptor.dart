@@ -61,7 +61,7 @@ class HttpWithInterceptor {
   }
 
   Future<Response> get(url,
-      {Map<String, String> headers, Map<String, String> params}) async {
+      {Map<String, String> headers, Map<String, dynamic> params}) async {
     return _withClient(
         (client) => client.get(url, headers: headers, params: params));
   }

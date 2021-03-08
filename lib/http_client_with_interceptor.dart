@@ -87,7 +87,7 @@ class HttpClientWithInterceptor extends BaseClient {
       );
 
   Future<Response> get(url,
-          {Map<String, String> headers, Map<String, String> params}) =>
+          {Map<String, String> headers, Map<String, dynamic> params}) =>
       _sendUnstreamed(
         method: Method.GET,
         url: url,
@@ -157,7 +157,7 @@ class HttpClientWithInterceptor extends BaseClient {
     @required Method method,
     @required url,
     @required Map<String, String> headers,
-    Map<String, String> params,
+    Map<String, dynamic> params,
     dynamic body,
     Encoding encoding,
   }) async {
