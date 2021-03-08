@@ -10,7 +10,7 @@ This is a plugin that lets you intercept the different requests and responses fr
 
 ## Quick Reference
 
-**Already using `http_interceptor`? Check out the [0.4.0 migration guide](./docs/migration_guide_4.md) for quick reference on the changes made and how to migrate your code.**
+**Already using `http_interceptor`? Check out the [0.4.0 migration guide](./guides/migration_guide_4.md) for quick reference on the changes made and how to migrate your code.**
 
 - [Installation](#installation)
 - [Usage](#usage)
