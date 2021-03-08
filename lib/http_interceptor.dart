@@ -5,3 +5,4 @@ export 'package:http_interceptor/http_methods.dart';
 export 'package:http_interceptor/interceptor_contract.dart';
 export 'package:http_interceptor/http_client_with_interceptor.dart';
 export 'package:http_interceptor/http_with_interceptor.dart';
+export 'package:http_interceptor/extensions/extensions.dart';

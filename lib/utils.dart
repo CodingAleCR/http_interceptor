@@ -1,10 +1,10 @@
 /// When having an URL as String and no parameters sent then it adds
 /// them to the string.
-String addParametersToStringUrl(String url, Map<String, String> parameters) {
+String addParametersToStringUrl(String url, Map<String, String>? parameters) {
   return buildUrlString(url, parameters);
 }
 
-Uri addParametersToUrl(Uri url, Map<String, String> parameters) {
+Uri addParametersToUrl(Uri url, Map<String, String>? parameters) {
   if (parameters == null) return url;
 
   String paramUrl = url.origin + url.path;
@@ -22,7 +22,7 @@ Uri addParametersToUrl(Uri url, Map<String, String> parameters) {
   return Uri.parse(buildUrlString(paramUrl, newParameters));
 }
 
-String buildUrlString(String url, Map<String, String> parameters) {
+String buildUrlString(String url, Map<String, String>? parameters) {
   // Avoids unnecessary processing.
   if (parameters == null) return url;
 

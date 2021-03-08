@@ -10,26 +10,23 @@ import 'package:http_interceptor/models/models.dart';
 ///Example (Simple logging):
 ///
 ///```dart
-///class CustomInterceptor extends InterceptorContract {
-///    @override
-///    Function(http.Response) interceptRequest({RequestData data}) {
-///        print("${data.method} Url: ${data.url}")
-///        return (response) {
-///            print("POST Status: ${}")
-///        };
-///    }
+/// class LoggingInterceptor implements InterceptorContract {
+///  @override
+///  Future<RequestData> interceptRequest({RequestData data}) async {
+///    print(data.toString());
+///    return data;
+///  }
 ///
-///    @override
-///    Function(http.Response) interceptResponse({ResponseData data}) {
-///        print("${data.method}: ${response}")
-///        return (response) {
-///            print("POST Status: ${}")
-///        };
-///    }
+///  @override
+///  Future<ResponseData> interceptResponse({ResponseData data}) async {
+///      print(data.toString());
+///      return data;
+///  }
+///
 ///}
 ///```
 abstract class InterceptorContract {
-  Future<RequestData> interceptRequest({RequestData data});
+  Future<RequestData> interceptRequest({required RequestData data});
 
-  Future<ResponseData> interceptResponse({ResponseData data});
+  Future<ResponseData> interceptResponse({required ResponseData data});
 }

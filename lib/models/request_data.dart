@@ -7,20 +7,19 @@ import 'package:http_interceptor/utils.dart';
 class RequestData {
   Method method;
   String baseUrl;
-  Map<String, String> headers;
-  Map<String, String> params;
-  dynamic body;
-  Encoding encoding;
+  Map<String, String>? headers;
+  Map<String, String>? params;
+  dynamic? body;
+  Encoding? encoding;
 
   RequestData({
-    this.method,
-    this.baseUrl,
+    required this.method,
+    required this.baseUrl,
     this.headers,
     this.params,
     this.body,
     this.encoding,
-  })  : assert(method != null),
-        assert(baseUrl != null);
+  });
 
   String get url => addParametersToStringUrl(baseUrl, params);
 
@@ -35,8 +34,8 @@ class RequestData {
       encoding: request.encoding,
       body: request.body,
       baseUrl: baseUrl,
-      headers: request.headers ?? <String, String>{},
-      params: params ?? <String, String>{},
+      headers: request.headers,
+      params: params,
     );
   }
 
@@ -45,13 +44,13 @@ class RequestData {
 
     Request request = new Request(methodToString(method), reqUrl);
 
-    if (headers != null) request.headers.addAll(headers);
-    if (encoding != null) request.encoding = encoding;
+    if (headers != null) request.headers.addAll(headers!);
+    if (encoding != null) request.encoding = encoding!;
     if (body != null) {
       if (body is String) {
         request.body = body;
       } else if (body is List) {
-        request.bodyBytes = body.cast<int>();
+        request.bodyBytes = body?.cast<int>();
       } else if (body is Map) {
         request.bodyFields = body.cast<String, String>();
       } else {

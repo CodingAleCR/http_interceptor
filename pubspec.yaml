@@ -1,20 +1,19 @@
 name: http_interceptor
 description: A lightweight, simple plugin that allows you to intercept request and response objects and modify them if desired.
-version: 0.3.3
+version: 0.4.0
 homepage: https://github.com/CodingAleCR/http_interceptor
 issue_tracker: https://github.com/CodingAleCR/http_interceptor/issues
 repository: https://github.com/CodingAleCR/http_interceptor
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  http: ^0.12.2
-  meta: ^1.1.8
+  http: ^0.13.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  effective_dart: ^1.2.1
+  effective_dart: ^1.3.0
