@@ -4,7 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:http/http.dart';
-import 'package:http/io_client.dart';
+import 'package:http_interceptor/functions/functions.dart';
 import 'package:http_interceptor/interceptor_contract.dart';
 import 'package:http_interceptor/models/models.dart';
 import 'package:http_interceptor/utils.dart';
@@ -56,10 +56,9 @@ class HttpClientWithInterceptor extends BaseClient {
     if (client != null) {
       _client = client;
     } else {
-      _client = IOClient(
-        HttpClient()
-          ..badCertificateCallback = badCertificateCallback
-          ..findProxy = findProxy,
+      _client = initializeClient(
+        badCertificateCallback,
+        findProxy,
       );
     }
   }
