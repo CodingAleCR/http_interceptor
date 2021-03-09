@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:http/http.dart';
 import 'package:http_interceptor/http_methods.dart';
 
@@ -7,6 +9,9 @@ class ResponseData {
   Method? method;
   Map<String, String>? headers;
   String? body;
+
+  /// The bytes comprising the body of this response.
+  Uint8List bodyBytes;
   int? contentLength;
   bool? isRedirect;
   bool? persistentConnection;
@@ -17,6 +22,7 @@ class ResponseData {
     this.statusCode,
     this.headers,
     this.body,
+    required this.bodyBytes,
     this.contentLength,
     this.isRedirect,
     this.persistentConnection,
@@ -27,6 +33,7 @@ class ResponseData {
       statusCode: response.statusCode,
       headers: response.headers,
       body: response.body,
+      bodyBytes: response.bodyBytes,
       contentLength: response.contentLength,
       isRedirect: response.isRedirect,
       url: response.request!.url.toString(),
@@ -36,8 +43,8 @@ class ResponseData {
   }
 
   Response toHttpResponse() {
-    return Response(
-      body!,
+    return Response.bytes(
+      bodyBytes,
       statusCode!,
       headers: headers!,
       persistentConnection: persistentConnection!,
