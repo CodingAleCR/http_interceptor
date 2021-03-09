@@ -1,5 +1,3 @@
-
-
 class HttpInterceptorException implements Exception {
   final message;
 

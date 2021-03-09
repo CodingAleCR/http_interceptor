@@ -24,7 +24,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   WeatherRepository repository = WeatherRepository(
-    HttpClientWithInterceptor.build(interceptors: [
+    InterceptedClient.build(interceptors: [
       WeatherApiInterceptor(),
       LoggerInterceptor(),
     ]),
@@ -233,16 +233,16 @@ class WeatherSearch extends SearchDelegate<String?> {
 const baseUrl = "https://api.openweathermap.org/data/2.5";
 
 class WeatherRepository {
-  HttpClientWithInterceptor client;
+  InterceptedClient client;
 
   WeatherRepository(this.client);
 
   // Alternatively you can forget about using the Client and just doing the HTTP request with
-  // the HttpWithInterceptor.build() call.
+  // the InterceptedHttp.build() call.
   // Future<Map<String, dynamic>> fetchCityWeather(int id) async {
   //   var parsedWeather;
   //   try {
-  //     var response = await HttpWithInterceptor.build(
+  //     var response = await InterceptedHttp.build(
   //             interceptors: [WeatherApiInterceptor()])
   //         .get("$baseUrl/weather", params: {'id': "$id"});
   //     if (response.statusCode == 200) {

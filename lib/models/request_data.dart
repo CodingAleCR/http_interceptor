@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart';
 
-import 'package:http_interceptor/http_methods.dart';
-import 'package:http_interceptor/utils.dart';
+import 'package:http_interceptor/extensions/extensions.dart';
+import 'package:http_interceptor/http/http.dart';
+import 'package:http_interceptor/utils/utils.dart';
 
 class RequestData {
   Method method;
@@ -21,7 +22,7 @@ class RequestData {
     this.encoding,
   });
 
-  String get url => addParametersToStringUrl(baseUrl, params);
+  String get url => buildUrlString(baseUrl, params);
 
   factory RequestData.fromHttpRequest(Request request) {
     var params = Map<String, String>();
@@ -40,9 +41,9 @@ class RequestData {
   }
 
   Request toHttpRequest() {
-    var reqUrl = Uri.parse(addParametersToStringUrl(baseUrl, params));
+    var reqUrl = buildUrlString(baseUrl, params);
 
-    Request request = new Request(methodToString(method), reqUrl);
+    Request request = new Request(methodToString(method), reqUrl.toUri());
 
     if (headers != null) request.headers.addAll(headers!);
     if (encoding != null) request.encoding = encoding!;

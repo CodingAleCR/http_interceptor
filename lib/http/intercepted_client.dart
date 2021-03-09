@@ -5,22 +5,22 @@ import 'dart:typed_data';
 
 import 'package:http/http.dart';
 import 'package:http_interceptor/functions/functions.dart';
-import 'package:http_interceptor/interceptor_contract.dart';
 import 'package:http_interceptor/models/models.dart';
-import 'package:http_interceptor/utils.dart';
+import 'package:http_interceptor/extensions/extensions.dart';
 
 import 'http_methods.dart';
+import 'interceptor_contract.dart';
 
 ///Class to be used by the user to set up a new `http.Client` with interceptor supported.
 ///call the `build()` constructor passing in the list of interceptors.
 ///Example:
 ///```dart
-/// HttpClientWithInterceptor httpClient = HttpClientWithInterceptor.build(interceptors: [
+/// InterceptedClient httpClient = InterceptedClient.build(interceptors: [
 ///     Logger(),
 /// ]);
 ///```
 ///
-///Then call the functions you want to, on the created `http` object.
+///Then call the functions you want to, on the created `httpClient` object.
 ///```dart
 /// httpClient.get(...);
 /// httpClient.post(...);
@@ -30,12 +30,13 @@ import 'http_methods.dart';
 /// httpClient.patch(...);
 /// httpClient.read(...);
 /// httpClient.readBytes(...);
-/// httpClient.send(...);
 /// httpClient.close();
 ///```
 ///Don't forget to close the client once you are done, as a client keeps
 ///the connection alive with the server.
-class HttpClientWithInterceptor extends BaseClient {
+///
+///Note: `send` method is not currently supported.
+class InterceptedClient extends BaseClient {
   List<InterceptorContract> interceptors;
   Duration? requestTimeout;
   RetryPolicy? retryPolicy;
@@ -45,7 +46,7 @@ class HttpClientWithInterceptor extends BaseClient {
   int _retryCount = 0;
   late Client _client;
 
-  HttpClientWithInterceptor._internal({
+  InterceptedClient._internal({
     required this.interceptors,
     this.requestTimeout,
     this.retryPolicy,
@@ -63,7 +64,7 @@ class HttpClientWithInterceptor extends BaseClient {
     }
   }
 
-  factory HttpClientWithInterceptor.build({
+  factory InterceptedClient.build({
     required List<InterceptorContract> interceptors,
     Duration? requestTimeout,
     RetryPolicy? retryPolicy,
@@ -71,7 +72,7 @@ class HttpClientWithInterceptor extends BaseClient {
     String Function(Uri)? findProxy,
     Client? client,
   }) =>
-      HttpClientWithInterceptor._internal(
+      InterceptedClient._internal(
         interceptors: interceptors,
         requestTimeout: requestTimeout,
         retryPolicy: retryPolicy,
@@ -161,7 +162,7 @@ class HttpClientWithInterceptor extends BaseClient {
     Object? body,
     Encoding? encoding,
   }) async {
-    url = addParametersToUrl(url, params);
+    url = url.addParameters(params);
 
     Request request = new Request(methodToString(method), url);
     if (headers != null) request.headers.addAll(headers);

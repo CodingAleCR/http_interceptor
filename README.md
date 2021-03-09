@@ -82,17 +82,17 @@ class WeatherApiInterceptor implements InterceptorContract {
 
 ### Using your interceptor
 
-Now that you actually have your interceptor implemented, now you need to use it. There are two general ways in which you can use them: by using the `HttpWithInterceptor` to do separate connections for different requests or using a `HttpClientWithInterceptor` for keeping a connection alive while making the different `http` calls. The ideal place to use them is in the service/provider class or the repository class (if you are not using services or providers); if you don't know about the repository pattern you can just google it and you'll know what I'm talking about. 😉
+Now that you actually have your interceptor implemented, now you need to use it. There are two general ways in which you can use them: by using the `InterceptedHttp` to do separate connections for different requests or using a `InterceptedClient` for keeping a connection alive while making the different `http` calls. The ideal place to use them is in the service/provider class or the repository class (if you are not using services or providers); if you don't know about the repository pattern you can just google it and you'll know what I'm talking about. 😉
 
 #### Using interceptors with Client
 
 Normally, this approach is taken because of its ability to be tested and mocked.
 
-Here is an example with a repository using the `HttpClientWithInterceptor` class.
+Here is an example with a repository using the `InterceptedClient` class.
 
 ```dart
 class WeatherRepository {
-  Client client = HttpClientWithInterceptor.build(interceptors: [
+  Client client = InterceptedClient.build(interceptors: [
       WeatherApiInterceptor(),
   ]);
 
@@ -119,7 +119,7 @@ class WeatherRepository {
 
 This is mostly the straight forward approach for a one-and-only call that you might need intercepted.
 
-Here is an example with a repository using the `HttpWithInterceptor` class.
+Here is an example with a repository using the `InterceptedHttp` class.
 
 ```dart
 class WeatherRepository {
@@ -127,7 +127,7 @@ class WeatherRepository {
     Future<Map<String, dynamic>> fetchCityWeather(int id) async {
     var parsedWeather;
     try {
-      WeatherApiInterceptor http = HttpWithInterceptor.build(interceptors: [
+      WeatherApiInterceptor http = InterceptedHttp.build(interceptors: [
           Logger(),
       ]);
       final response =
@@ -185,7 +185,7 @@ class WeatherRepository {
   Future<Map<String, dynamic>> fetchCityWeather(int id) async {
     var parsedWeather;
     try {
-      var response = await HttpWithInterceptor.build(
+      var response = await InterceptedHttp.build(
               interceptors: [WeatherApiInterceptor()],
               badCertificateCallback: (certificate, host, port) => true)
           .get("$baseUrl/weather", params: {'id': "$id"});
