@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart';
+import 'package:http_interceptor/http/http.dart';
 import 'package:http_interceptor/models/request_data.dart';
-import 'package:http_interceptor/http_methods.dart';
 
 main() {
   group("Initialization: ", () {
@@ -44,7 +44,8 @@ main() {
       // Assert
       expect(requestData, isNotNull);
       expect(requestData.method, equals(Method.GET));
-      expect(requestData.url, equals("https://www.google.com/helloworld/foo/bar"));
+      expect(
+          requestData.url, equals("https://www.google.com/helloworld/foo/bar"));
     });
     test("can be instantiated from HTTP GET Request with parameters", () {
       // Arrange

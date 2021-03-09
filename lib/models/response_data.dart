@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:http/http.dart';
-import 'package:http_interceptor/http_methods.dart';
+import 'package:http_interceptor/http/http.dart';
 
 class ResponseData {
   String? url;

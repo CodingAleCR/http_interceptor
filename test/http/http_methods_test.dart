@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:http_interceptor/http_methods.dart';
+import 'package:http_interceptor/http/http_methods.dart';
 
 main() {
   group("Can parse from string", () {
@@ -72,7 +72,7 @@ main() {
   });
 
   group("Can parse to string", () {
-    test("to 'HEAD' string." , () {
+    test("to 'HEAD' string.", () {
       // Arrange
       String methodString;
       Method method = Method.HEAD;
@@ -83,7 +83,7 @@ main() {
       // Assert
       expect(methodString, equals("HEAD"));
     });
-    test("to 'GET' string." , () {
+    test("to 'GET' string.", () {
       // Arrange
       String methodString;
       Method method = Method.GET;
@@ -94,7 +94,7 @@ main() {
       // Assert
       expect(methodString, equals("GET"));
     });
-    test("to 'POST' string." , () {
+    test("to 'POST' string.", () {
       // Arrange
       String methodString;
       Method method = Method.POST;
@@ -105,7 +105,7 @@ main() {
       // Assert
       expect(methodString, equals("POST"));
     });
-    test("to 'PUT' string." , () {
+    test("to 'PUT' string.", () {
       // Arrange
       String methodString;
       Method method = Method.PUT;
@@ -116,7 +116,7 @@ main() {
       // Assert
       expect(methodString, equals("PUT"));
     });
-    test("to 'PATCH' string." , () {
+    test("to 'PATCH' string.", () {
       // Arrange
       String methodString;
       Method method = Method.PATCH;
@@ -127,7 +127,7 @@ main() {
       // Assert
       expect(methodString, equals("PATCH"));
     });
-    test("to 'DELETE' string." , () {
+    test("to 'DELETE' string.", () {
       // Arrange
       String methodString;
       Method method = Method.DELETE;
@@ -137,6 +137,17 @@ main() {
 
       // Assert
       expect(methodString, equals("DELETE"));
+    });
+  });
+
+  group("Can control unsupported values", () {
+    test("Throws when string is unsupported", () {
+      // Arrange
+      String methodString = "UNSUPPORTED";
+
+      // Act
+      // Assert
+      expect(() => methodFromString(methodString), throwsArgumentError);
     });
   });
 }

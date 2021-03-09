@@ -4,13 +4,15 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:http/http.dart';
 import 'package:http_interceptor/http_interceptor.dart';
-import 'package:http_interceptor/interceptor_contract.dart';
+
+import 'intercepted_client.dart';
+import 'interceptor_contract.dart';
 
 ///Class to be used by the user as a replacement for 'http' with interceptor supported.
 ///call the `build()` constructor passing in the list of interceptors.
 ///Example:
 ///```dart
-/// HttpWithInterceptor http = HttpWithInterceptor.build(interceptors: [
+/// InterceptedHttp http = InterceptedHttp.build(interceptors: [
 ///     Logger(),
 /// ]);
 ///```
@@ -25,7 +27,7 @@ import 'package:http_interceptor/interceptor_contract.dart';
 /// http.read(...);
 /// http.readBytes(...);
 ///```
-class HttpWithInterceptor {
+class InterceptedHttp {
   List<InterceptorContract> interceptors;
   Duration? requestTimeout;
   RetryPolicy? retryPolicy;
@@ -33,7 +35,7 @@ class HttpWithInterceptor {
   String Function(Uri)? findProxy;
   Client? client;
 
-  HttpWithInterceptor._internal({
+  InterceptedHttp._internal({
     required this.interceptors,
     this.requestTimeout,
     this.retryPolicy,
@@ -42,7 +44,7 @@ class HttpWithInterceptor {
     this.client,
   });
 
-  factory HttpWithInterceptor.build({
+  factory InterceptedHttp.build({
     required List<InterceptorContract> interceptors,
     Duration? requestTimeout,
     RetryPolicy? retryPolicy,
@@ -50,12 +52,13 @@ class HttpWithInterceptor {
     String Function(Uri)? findProxy,
     Client? client,
   }) =>
-      HttpWithInterceptor._internal(
+      InterceptedHttp._internal(
         interceptors: interceptors,
         requestTimeout: requestTimeout,
         retryPolicy: retryPolicy,
         badCertificateCallback: badCertificateCallback,
         findProxy: findProxy,
+        client: client,
       );
 
   Future<Response> head(url, {Map<String, String>? headers}) async {
@@ -100,9 +103,9 @@ class HttpWithInterceptor {
       _withClient((client) => client.readBytes(url, headers: headers));
 
   Future<T> _withClient<T>(
-    Future<T> fn(HttpClientWithInterceptor client),
+    Future<T> fn(InterceptedClient client),
   ) async {
-    final client = HttpClientWithInterceptor.build(
+    final client = InterceptedClient.build(
       interceptors: interceptors,
       requestTimeout: requestTimeout,
       retryPolicy: retryPolicy,
