@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 
@@ -26,7 +28,11 @@ main() {
   group("shouldAttemptRetryOnResponse", () {
     test("returns false by default", () async {
       expect(
-          await testObject.shouldAttemptRetryOnResponse(ResponseData()), false);
+        await testObject.shouldAttemptRetryOnResponse(
+          ResponseData(bodyBytes: Uint8List(0)),
+        ),
+        false,
+      );
     });
   });
 }

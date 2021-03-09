@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http_interceptor/models/response_data.dart';
 
@@ -8,7 +10,7 @@ main() {
       ResponseData requestData;
 
       // Act
-      requestData = ResponseData();
+      requestData = ResponseData(bodyBytes: Uint8List(0));
 
       // Assert
       expect(requestData, isNotNull);
