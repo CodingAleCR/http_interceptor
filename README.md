@@ -10,6 +10,8 @@ This is a plugin that lets you intercept the different requests and responses fr
 
 ## Quick Reference
 
+**Already using `http_interceptor`? Check out the [0.4.0 migration guide](./guides/migration_guide_4.md) for quick reference on the changes made and how to migrate your code.**
+
 - [Installation](#installation)
 - [Usage](#usage)
   - [Building your own interceptor](#building-your-own-interceptor)
@@ -25,7 +27,7 @@ This is a plugin that lets you intercept the different requests and responses fr
 Include the package with the latest version available in your `pubspec.yaml`.
 
 ```dart
-    http_interceptor: any
+    http_interceptor: ^0.4.0
 ```
 
 ## Usage
@@ -44,13 +46,13 @@ In order to implement `http_interceptor` you need to implement the `InterceptorC
 class LoggingInterceptor implements InterceptorContract {
   @override
   Future<RequestData> interceptRequest({RequestData data}) async {
-    print(data);
+    print(data.toString());
     return data;
   }
 
   @override
   Future<ResponseData> interceptResponse({ResponseData data}) async {
-      print(data);
+      print(data.toString());
       return data;
   }
 
@@ -98,7 +100,7 @@ class WeatherRepository {
     var parsedWeather;
     try {
       final response =
-          await client.get("$baseUrl/weather", params: {'id': "$id"});
+          await client.get("$baseUrl/weather".toUri(), params: {'id': "$id"});
       if (response.statusCode == 200) {
         parsedWeather = json.decode(response.body);
       } else {
@@ -125,8 +127,11 @@ class WeatherRepository {
     Future<Map<String, dynamic>> fetchCityWeather(int id) async {
     var parsedWeather;
     try {
+      WeatherApiInterceptor http = HttpWithInterceptor.build(interceptors: [
+          Logger(),
+      ]);
       final response =
-          await client.get("$baseUrl/weather", params: {'id': "$id"});
+          await http.get("$baseUrl/weather".toUri(), params: {'id': "$id"});
       if (response.statusCode == 200) {
         parsedWeather = json.decode(response.body);
       } else {
@@ -170,9 +175,9 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
 
 You can also set the maximum amount of retry attempts with `maxRetryAttempts` property or override the `shouldAttemptRetryOnException` if you want to retry the request after it failed with an exception.
 
-### Using self signed certificates
+### Using self signed certificates (Only on iOS and Android)
 
-This plugin allows you to override the default `badCertificateCallback` provided by Dart's `io` package, this is really useful when working with self-signed certificates in your server. This can be done by sending a the callback to the HttpInterceptor builder functions. This feature is marked as experimental and **might be subject to change before release 1.0.0 comes**.
+This plugin allows you to override the default `badCertificateCallback` provided by Dart's `io` package, this is really useful when working with self-signed certificates in your server. This can be done by sending a the callback to the HttpInterceptor builder functions. This feature is marked as experimental and **will be subject to change before release 1.0.0 comes**.
 
 ```dart
 class WeatherRepository {

@@ -4,11 +4,10 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:http/http.dart';
-import 'package:http/io_client.dart';
+import 'package:http_interceptor/functions/functions.dart';
 import 'package:http_interceptor/interceptor_contract.dart';
 import 'package:http_interceptor/models/models.dart';
 import 'package:http_interceptor/utils.dart';
-import 'package:meta/meta.dart';
 
 import 'http_methods.dart';
 
@@ -38,56 +37,58 @@ import 'http_methods.dart';
 ///the connection alive with the server.
 class HttpClientWithInterceptor extends BaseClient {
   List<InterceptorContract> interceptors;
-  Duration requestTimeout;
-  RetryPolicy retryPolicy;
-  bool Function(X509Certificate, String, int) badCertificateCallback;
-  String Function(Uri) findProxy;
+  Duration? requestTimeout;
+  RetryPolicy? retryPolicy;
+  bool Function(X509Certificate, String, int)? badCertificateCallback;
+  String Function(Uri)? findProxy;
 
   int _retryCount = 0;
-  Client _client;
-
-  void _initializeClient() {
-    var ioClient = new HttpClient()
-      ..badCertificateCallback = badCertificateCallback
-      ..findProxy = findProxy;
-    _client = IOClient(ioClient);
-  }
+  late Client _client;
 
   HttpClientWithInterceptor._internal({
-    this.interceptors,
+    required this.interceptors,
     this.requestTimeout,
     this.retryPolicy,
     this.badCertificateCallback,
     this.findProxy,
-  });
+    Client? client,
+  }) {
+    if (client != null) {
+      _client = client;
+    } else {
+      _client = initializeClient(
+        badCertificateCallback,
+        findProxy,
+      );
+    }
+  }
 
   factory HttpClientWithInterceptor.build({
-    @required List<InterceptorContract> interceptors,
-    Duration requestTimeout,
-    RetryPolicy retryPolicy,
-    bool Function(X509Certificate, String, int) badCertificateCallback,
-    String Function(Uri) findProxy,
-  }) {
-    assert(interceptors != null);
-
-    //Remove any value that is null.
-    interceptors.removeWhere((interceptor) => interceptor == null);
-    return HttpClientWithInterceptor._internal(
+    required List<InterceptorContract> interceptors,
+    Duration? requestTimeout,
+    RetryPolicy? retryPolicy,
+    bool Function(X509Certificate, String, int)? badCertificateCallback,
+    String Function(Uri)? findProxy,
+    Client? client,
+  }) =>
+      HttpClientWithInterceptor._internal(
         interceptors: interceptors,
         requestTimeout: requestTimeout,
         retryPolicy: retryPolicy,
         badCertificateCallback: badCertificateCallback,
-        findProxy: findProxy);
-  }
+        findProxy: findProxy,
+        client: client,
+      );
 
-  Future<Response> head(url, {Map<String, String> headers}) => _sendUnstreamed(
+  Future<Response> head(Uri url, {Map<String, String>? headers}) =>
+      _sendUnstreamed(
         method: Method.HEAD,
         url: url,
         headers: headers,
       );
 
-  Future<Response> get(url,
-          {Map<String, String> headers, Map<String, String> params}) =>
+  Future<Response> get(Uri url,
+          {Map<String, String>? headers, Map<String, String>? params}) =>
       _sendUnstreamed(
         method: Method.GET,
         url: url,
@@ -95,8 +96,8 @@ class HttpClientWithInterceptor extends BaseClient {
         params: params,
       );
 
-  Future<Response> post(url,
-          {Map<String, String> headers, body, Encoding encoding}) =>
+  Future<Response> post(Uri url,
+          {Map<String, String>? headers, Object? body, Encoding? encoding}) =>
       _sendUnstreamed(
         method: Method.POST,
         url: url,
@@ -105,8 +106,8 @@ class HttpClientWithInterceptor extends BaseClient {
         encoding: encoding,
       );
 
-  Future<Response> put(url,
-          {Map<String, String> headers, body, Encoding encoding}) =>
+  Future<Response> put(Uri url,
+          {Map<String, String>? headers, Object? body, Encoding? encoding}) =>
       _sendUnstreamed(
         method: Method.PUT,
         url: url,
@@ -115,8 +116,8 @@ class HttpClientWithInterceptor extends BaseClient {
         encoding: encoding,
       );
 
-  Future<Response> patch(url,
-          {Map<String, String> headers, body, Encoding encoding}) =>
+  Future<Response> patch(Uri url,
+          {Map<String, String>? headers, Object? body, Encoding? encoding}) =>
       _sendUnstreamed(
         method: Method.PATCH,
         url: url,
@@ -125,50 +126,42 @@ class HttpClientWithInterceptor extends BaseClient {
         encoding: encoding,
       );
 
-  Future<Response> delete(url, {Map<String, String> headers}) =>
+  Future<Response> delete(Uri url,
+          {Map<String, String>? headers, Object? body, Encoding? encoding}) =>
       _sendUnstreamed(
         method: Method.DELETE,
         url: url,
         headers: headers,
       );
 
-  Future<String> read(url, {Map<String, String> headers}) {
+  Future<String> read(Uri url, {Map<String, String>? headers}) {
     return get(url, headers: headers).then((response) {
       _checkResponseSuccess(url, response);
       return response.body;
     });
   }
 
-  Future<Uint8List> readBytes(url, {Map<String, String> headers}) {
+  Future<Uint8List> readBytes(Uri url, {Map<String, String>? headers}) {
     return get(url, headers: headers).then((response) {
       _checkResponseSuccess(url, response);
       return response.bodyBytes;
     });
   }
 
+  // TODO: Implement interception from `send` method.
   Future<StreamedResponse> send(BaseRequest request) {
-    if (_client == null) {
-      _initializeClient();
-    }
     return _client.send(request);
   }
 
   Future<Response> _sendUnstreamed({
-    @required Method method,
-    @required url,
-    @required Map<String, String> headers,
-    Map<String, String> params,
-    dynamic body,
-    Encoding encoding,
+    required Method method,
+    required Uri url,
+    Map<String, String>? headers,
+    Map<String, String>? params,
+    Object? body,
+    Encoding? encoding,
   }) async {
-    if (url is String) {
-      url = Uri.parse(addParametersToStringUrl(url, params));
-    } else if (url is Uri) {
-      url = addParametersToUrl(url, params);
-    } else {
-      throw HttpInterceptorException(
-          "Malformed URL parameter. Check that the url used is either a String or a Uri instance.");
-    }
+    url = addParametersToUrl(url, params);
 
     Request request = new Request(methodToString(method), url);
     if (headers != null) request.headers.addAll(headers);
@@ -193,16 +186,17 @@ class HttpClientWithInterceptor extends BaseClient {
     return response;
   }
 
-  void _checkResponseSuccess(url, Response response) {
+  void _checkResponseSuccess(Uri url, Response response) {
     if (response.statusCode < 400) return;
     var message = "Request to $url failed with status ${response.statusCode}";
     if (response.reasonPhrase != null) {
       message = "$message: ${response.reasonPhrase}";
     }
-    if (url is String) url = Uri.parse(url);
     throw new ClientException("$message.", url);
   }
 
+  /// Attempts to perform the request and intercept the data
+  /// of the response
   Future<Response> _attemptRequest(Request request) async {
     var response;
     try {
@@ -211,20 +205,20 @@ class HttpClientWithInterceptor extends BaseClient {
 
       var stream = requestTimeout == null
           ? await send(request)
-          : await send(request).timeout(requestTimeout);
+          : await send(request).timeout(requestTimeout!);
 
       response = await Response.fromStream(stream);
       if (retryPolicy != null &&
-          retryPolicy.maxRetryAttempts > _retryCount &&
-          await retryPolicy.shouldAttemptRetryOnResponse(
+          retryPolicy!.maxRetryAttempts > _retryCount &&
+          await retryPolicy!.shouldAttemptRetryOnResponse(
               ResponseData.fromHttpResponse(response))) {
         _retryCount += 1;
         return _attemptRequest(request);
       }
-    } catch (error) {
+    } on Exception catch (error) {
       if (retryPolicy != null &&
-          retryPolicy.maxRetryAttempts > _retryCount &&
-          retryPolicy.shouldAttemptRetryOnException(error)) {
+          retryPolicy!.maxRetryAttempts > _retryCount &&
+          retryPolicy!.shouldAttemptRetryOnException(error)) {
         _retryCount += 1;
         return _attemptRequest(request);
       } else {
@@ -261,9 +255,6 @@ class HttpClientWithInterceptor extends BaseClient {
   }
 
   void close() {
-    if (_client == null) {
-      _initializeClient();
-    }
     _client.close();
   }
 }

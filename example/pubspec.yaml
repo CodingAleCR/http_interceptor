@@ -1,22 +1,21 @@
 name: http_interceptor_example
 description: Demonstrates how to use the http_interceptor plugin.
 version: 0.0.1+1
-publish_to: 'none'
+publish_to: "none"
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^0.1.2
+  http_interceptor:
+    path: ../
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  http_interceptor:
-    path: ../
 
 flutter:
   uses-material-design: true

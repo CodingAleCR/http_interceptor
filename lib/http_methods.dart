@@ -22,7 +22,7 @@ Method methodFromString(String method) {
     case "DELETE":
       return Method.DELETE;
   }
-  return null;
+  throw ArgumentError.value(method, "method", "Must be a valid HTTP Method.");
 }
 
 String methodToString(Method method) {
@@ -39,6 +39,7 @@ String methodToString(Method method) {
       return "PATCH";
     case Method.DELETE:
       return "DELETE";
+    default:
+      return method.toString();
   }
-  return null;
 }
