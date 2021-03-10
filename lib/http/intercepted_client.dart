@@ -202,11 +202,11 @@ class InterceptedClient extends BaseClient {
     var response;
     try {
       // Intercept request
-      request = await _interceptRequest(request);
+      final interceptedRequest = await _interceptRequest(request);
 
       var stream = requestTimeout == null
-          ? await send(request)
-          : await send(request).timeout(requestTimeout!);
+          ? await send(interceptedRequest)
+          : await send(interceptedRequest).timeout(requestTimeout!);
 
       response = await Response.fromStream(stream);
       if (retryPolicy != null &&
