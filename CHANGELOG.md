@@ -8,6 +8,10 @@
 - ✨&nbsp;&nbsp;Added: Support for multipart requests.
 - 80% code coverage
 
+## 0.4.1
+
+- 🛠&nbsp;&nbsp;Changed: Pre initialized `headers` and `params` on `RequestData`. This was a missed change on null-safety migration.
+
 ## 0.4.0
 
 Check out [our 0.4.0 migration guide](./guides/migration_guide_4.md) for information on how to migrate your code.

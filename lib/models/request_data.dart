@@ -8,19 +8,20 @@ import 'package:http_interceptor/utils/utils.dart';
 class RequestData {
   Method method;
   String baseUrl;
-  Map<String, String>? headers;
-  Map<String, String>? params;
+  Map<String, String> headers;
+  Map<String, String> params;
   dynamic? body;
   Encoding? encoding;
 
   RequestData({
     required this.method,
     required this.baseUrl,
-    this.headers,
-    this.params,
+    Map<String, String>? headers,
+    Map<String, String>? params,
     this.body,
     this.encoding,
-  });
+  })  : headers = headers ?? {},
+        params = params ?? {};
 
   String get url => buildUrlString(baseUrl, params);
 
@@ -45,7 +46,7 @@ class RequestData {
 
     Request request = new Request(methodToString(method), reqUrl.toUri());
 
-    if (headers != null) request.headers.addAll(headers!);
+    request.headers.addAll(headers);
     if (encoding != null) request.encoding = encoding!;
     if (body != null) {
       if (body is String) {

@@ -302,9 +302,9 @@ class WeatherApiInterceptor implements InterceptorContract {
   @override
   Future<RequestData> interceptRequest({required RequestData data}) async {
     try {
-      data.params!['appid'] = OPEN_WEATHER_API_KEY;
-      data.params!['units'] = 'metric';
-      data.headers![HttpHeaders.contentTypeHeader] = "application/json";
+      data.params['appid'] = OPEN_WEATHER_API_KEY;
+      data.params['units'] = 'metric';
+      data.headers[HttpHeaders.contentTypeHeader] = "application/json";
     } catch (e) {
       print(e);
     }
