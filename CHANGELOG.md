@@ -6,6 +6,8 @@
 - ❗️🛠&nbsp;&nbsp;Changed: Renamed `HttpWithInterceptor` to `InterceptedHttp`.
 - ✨&nbsp;&nbsp;Added: Response Transformation (useful for background json decoding/encoding).
 - ✨&nbsp;&nbsp;Added: Support for multipart requests.
+- ✨&nbsp;&nbsp;Added: Array parameters on RequestData.
+- ✨&nbsp;&nbsp;Changed: ResponseData now has bodyBytes to allow encoding or decoding in the format needed.
 - 80% code coverage
 
 ## 0.4.1
