@@ -1,12 +1,8 @@
 # Changelog
 
-## Unreleased
-
-- ✨&nbsp;&nbsp;Added: Response Transformation (useful for background json decoding/encoding).
-- ✨&nbsp;&nbsp;Added: Support for streamed requests and `send` method.
-- ✨&nbsp;&nbsp;Changed: 80% code coverage.
-
 ## 1.0.0
+
+Check out the [1.0.0 migration guide](./guides/migration_guide_1.0.0.md) for information on how to migrate your code.
 
 - ❗️🛠&nbsp;&nbsp;Changed: Renamed `HttpClientWithInterceptor` to `InterceptedClient`.
 - ❗️🛠&nbsp;&nbsp;Changed: Renamed `HttpWithInterceptor` to `InterceptedHttp`.
@@ -14,10 +10,8 @@
 - ✨&nbsp;&nbsp;Added: Array parameters on `RequestData` following a similar principle than `http`'s `queryParametersAll` .
 - ✨&nbsp;&nbsp;Changed: `ResponseData` now has `bodyBytes` to allow encoding or decoding in the format desired.
 - ✨&nbsp;&nbsp;Changed: Migrated tests to use `test` package instead of `flutter_test`.
-- ✨&nbsp;&nbsp;Changed: Package no longer depends on Flutter, which means that it can be used with standalone Dart projects.
 - ✨&nbsp;&nbsp;Changed: More tests and coverage, this is a work in progress.
-
-Check out the [1.0.0 migration guide](./guides/migration_guide_1.0.0.md) for information on how to migrate your code.
+- 🗑&nbsp;&nbsp;Removed: Package no longer depends on Flutter, which means that it can be used with standalone Dart projects.
 
 ## 0.4.1
 
