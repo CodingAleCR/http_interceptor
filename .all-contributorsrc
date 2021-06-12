@@ -29,6 +29,17 @@
       "contributions": [
         "ideas"
       ]
+    },
+    {
+      "login": "Virus1908",
+      "name": "Virus1908",
+      "avatar_url": "https://avatars.githubusercontent.com/u/4580305?v=4",
+      "profile": "https://github.com/Virus1908",
+      "contributions": [
+        "ideas",
+        "code",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
