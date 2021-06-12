@@ -9,7 +9,7 @@
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-6-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-7-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
@@ -260,6 +260,7 @@ Thanks to all the wonderful people contributing to improve this package. Check t
     <td align="center"><a href="https://github.com/AsynchronySuperWes"><img src="https://avatars.githubusercontent.com/u/13644053?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Wes Ehrlichman</b></sub></a><br /><a href="#ideas-AsynchronySuperWes" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=AsynchronySuperWes" title="Code">💻</a> <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=AsynchronySuperWes" title="Tests">⚠️</a></td>
     <td align="center"><a href="http://www.fyrastudio.com"><img src="https://avatars.githubusercontent.com/u/3067603?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Jan Lübeck</b></sub></a><br /><a href="#ideas-jlubeck" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=jlubeck" title="Code">💻</a> <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=jlubeck" title="Tests">⚠️</a></td>
     <td align="center"><a href="http://lucalves.me/"><img src="https://avatars.githubusercontent.com/u/17712401?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Lucas Alves</b></sub></a><br /><a href="#ideas-lucalves" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=lucalves" title="Code">💻</a> <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=lucalves" title="Tests">⚠️</a></td>
+    <td align="center"><a href="https://github.com/stewemetal"><img src="https://avatars.githubusercontent.com/u/5860632?v=4?s=100" width="100px;" alt=""/><br /><sub><b>István Juhos</b></sub></a><br /><a href="#ideas-stewemetal" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=stewemetal" title="Code">💻</a> <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=stewemetal" title="Tests">⚠️</a></td>
   </tr>
 </table>
 
