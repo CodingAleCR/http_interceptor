@@ -40,6 +40,17 @@
         "code",
         "test"
       ]
+    },
+    {
+      "login": "AsynchronySuperWes",
+      "name": "Wes Ehrlichman",
+      "avatar_url": "https://avatars.githubusercontent.com/u/13644053?v=4",
+      "profile": "https://github.com/AsynchronySuperWes",
+      "contributions": [
+        "ideas",
+        "code",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
