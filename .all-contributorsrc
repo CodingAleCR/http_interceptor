@@ -1,6 +1,6 @@
 {
-  "projectName": "react-hooks",
-  "projectOwner": "kentcdodds",
+  "projectName": "http_interceptor",
+  "projectOwner": "CodingAleCR",
   "repoType": "github",
   "files": [
     "README.md"
@@ -19,6 +19,15 @@
         "test",
         "ideas",
         "maintenance"
+      ]
+    },
+    {
+      "login": "caseyryan",
+      "name": "Konstantin Serov",
+      "avatar_url": "https://avatars.githubusercontent.com/u/4113558?v=4",
+      "profile": "https://softmaestri.com/en/",
+      "contributions": [
+        "ideas"
       ]
     }
   ],
