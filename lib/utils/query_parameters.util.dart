@@ -1,4 +1,4 @@
-String buildUrlString(String url, Map<String, String>? parameters) {
+String buildUrlString(String url, Map<String, dynamic>? parameters) {
   // Avoids unnecessary processing.
   if (parameters == null) return url;
 
@@ -13,7 +13,13 @@ String buildUrlString(String url, Map<String, String>? parameters) {
 
     // Concat every parameter to the string url.
     parameters.forEach((key, value) {
-      url += "$key=$value&";
+      if (value is List<String>) {
+        for (String singleValue in value) {
+          url += "$key=$singleValue&";
+        }
+      } else if (value is String) {
+        url += "$key=$value&";
+      }
     });
 
     // Remove last '&' character.

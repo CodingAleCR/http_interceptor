@@ -1,21 +1,22 @@
 import 'package:http_interceptor/utils/utils.dart';
+import 'package:http_interceptor/extensions/extensions.dart';
 
 extension AddParameters on Uri {
-  Uri addParameters(Map<String, String>? parameters) {
+  Uri addParameters(Map<String, dynamic>? parameters) {
     if (parameters == null) return this;
 
     String paramUrl = origin + path;
 
-    Map<String, String> newParameters = {};
+    Map<String, dynamic> newParameters = {};
 
-    queryParameters.forEach((key, value) {
-      newParameters[key] = value;
+    queryParametersAll.forEach((key, values) {
+      newParameters[key] = values;
     });
 
     parameters.forEach((key, value) {
       newParameters[key] = value;
     });
 
-    return Uri.parse(buildUrlString(paramUrl, newParameters));
+    return buildUrlString(paramUrl, newParameters).toUri();
   }
 }

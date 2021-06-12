@@ -9,7 +9,7 @@ class RequestData {
   Method method;
   String baseUrl;
   Map<String, String> headers;
-  Map<String, String> params;
+  Map<String, dynamic> params;
   dynamic? body;
   Encoding? encoding;
 
@@ -17,7 +17,7 @@ class RequestData {
     required this.method,
     required this.baseUrl,
     Map<String, String>? headers,
-    Map<String, String>? params,
+    Map<String, dynamic>? params,
     this.body,
     this.encoding,
   })  : headers = headers ?? {},
@@ -26,7 +26,7 @@ class RequestData {
   String get url => buildUrlString(baseUrl, params);
 
   factory RequestData.fromHttpRequest(Request request) {
-    var params = Map<String, String>();
+    var params = Map<String, dynamic>();
     request.url.queryParameters.forEach((key, value) {
       params[key] = value;
     });

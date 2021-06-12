@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:http/http.dart';
-import 'package:http_interceptor/functions/functions.dart';
 import 'package:http_interceptor/models/models.dart';
 import 'package:http_interceptor/extensions/extensions.dart';
 
@@ -40,35 +38,23 @@ class InterceptedClient extends BaseClient {
   List<InterceptorContract> interceptors;
   Duration? requestTimeout;
   RetryPolicy? retryPolicy;
-  bool Function(X509Certificate, String, int)? badCertificateCallback;
   String Function(Uri)? findProxy;
 
   int _retryCount = 0;
-  late Client _client;
+  late Client _inner;
 
   InterceptedClient._internal({
     required this.interceptors,
     this.requestTimeout,
     this.retryPolicy,
-    this.badCertificateCallback,
     this.findProxy,
     Client? client,
-  }) {
-    if (client != null) {
-      _client = client;
-    } else {
-      _client = initializeClient(
-        badCertificateCallback,
-        findProxy,
-      );
-    }
-  }
+  }) : _inner = client ?? Client();
 
   factory InterceptedClient.build({
     required List<InterceptorContract> interceptors,
     Duration? requestTimeout,
     RetryPolicy? retryPolicy,
-    bool Function(X509Certificate, String, int)? badCertificateCallback,
     String Function(Uri)? findProxy,
     Client? client,
   }) =>
@@ -76,20 +62,26 @@ class InterceptedClient extends BaseClient {
         interceptors: interceptors,
         requestTimeout: requestTimeout,
         retryPolicy: retryPolicy,
-        badCertificateCallback: badCertificateCallback,
         findProxy: findProxy,
         client: client,
       );
 
-  Future<Response> head(Uri url, {Map<String, String>? headers}) =>
+  @override
+  Future<Response> head(
+    Uri url, {
+    Map<String, String>? headers,
+  }) =>
       _sendUnstreamed(
         method: Method.HEAD,
         url: url,
         headers: headers,
       );
 
-  Future<Response> get(Uri url,
-          {Map<String, String>? headers, Map<String, String>? params}) =>
+  Future<Response> get(
+    Uri url, {
+    Map<String, String>? headers,
+    Map<String, dynamic>? params,
+  }) =>
       _sendUnstreamed(
         method: Method.GET,
         url: url,
@@ -97,8 +89,13 @@ class InterceptedClient extends BaseClient {
         params: params,
       );
 
-  Future<Response> post(Uri url,
-          {Map<String, String>? headers, Object? body, Encoding? encoding}) =>
+  @override
+  Future<Response> post(
+    Uri url, {
+    Map<String, String>? headers,
+    Object? body,
+    Encoding? encoding,
+  }) =>
       _sendUnstreamed(
         method: Method.POST,
         url: url,
@@ -107,8 +104,13 @@ class InterceptedClient extends BaseClient {
         encoding: encoding,
       );
 
-  Future<Response> put(Uri url,
-          {Map<String, String>? headers, Object? body, Encoding? encoding}) =>
+  @override
+  Future<Response> put(
+    Uri url, {
+    Map<String, String>? headers,
+    Object? body,
+    Encoding? encoding,
+  }) =>
       _sendUnstreamed(
         method: Method.PUT,
         url: url,
@@ -117,8 +119,13 @@ class InterceptedClient extends BaseClient {
         encoding: encoding,
       );
 
-  Future<Response> patch(Uri url,
-          {Map<String, String>? headers, Object? body, Encoding? encoding}) =>
+  @override
+  Future<Response> patch(
+    Uri url, {
+    Map<String, String>? headers,
+    Object? body,
+    Encoding? encoding,
+  }) =>
       _sendUnstreamed(
         method: Method.PATCH,
         url: url,
@@ -127,22 +134,35 @@ class InterceptedClient extends BaseClient {
         encoding: encoding,
       );
 
-  Future<Response> delete(Uri url,
-          {Map<String, String>? headers, Object? body, Encoding? encoding}) =>
+  @override
+  Future<Response> delete(
+    Uri url, {
+    Map<String, String>? headers,
+    Object? body,
+    Encoding? encoding,
+  }) =>
       _sendUnstreamed(
         method: Method.DELETE,
         url: url,
         headers: headers,
       );
 
-  Future<String> read(Uri url, {Map<String, String>? headers}) {
+  @override
+  Future<String> read(
+    Uri url, {
+    Map<String, String>? headers,
+  }) {
     return get(url, headers: headers).then((response) {
       _checkResponseSuccess(url, response);
       return response.body;
     });
   }
 
-  Future<Uint8List> readBytes(Uri url, {Map<String, String>? headers}) {
+  @override
+  Future<Uint8List> readBytes(
+    Uri url, {
+    Map<String, String>? headers,
+  }) {
     return get(url, headers: headers).then((response) {
       _checkResponseSuccess(url, response);
       return response.bodyBytes;
@@ -150,15 +170,16 @@ class InterceptedClient extends BaseClient {
   }
 
   // TODO: Implement interception from `send` method.
+  @override
   Future<StreamedResponse> send(BaseRequest request) {
-    return _client.send(request);
+    return _inner.send(request);
   }
 
   Future<Response> _sendUnstreamed({
     required Method method,
     required Uri url,
     Map<String, String>? headers,
-    Map<String, String>? params,
+    Map<String, dynamic>? params,
     Object? body,
     Encoding? encoding,
   }) async {
@@ -256,6 +277,6 @@ class InterceptedClient extends BaseClient {
   }
 
   void close() {
-    _client.close();
+    _inner.close();
   }
 }

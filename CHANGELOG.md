@@ -2,13 +2,22 @@
 
 ## Unreleased
 
+- ✨&nbsp;&nbsp;Added: Response Transformation (useful for background json decoding/encoding).
+- ✨&nbsp;&nbsp;Added: Support for streamed requests and `send` method.
+- ✨&nbsp;&nbsp;Changed: 80% code coverage.
+
+## 1.0.0
+
 - ❗️🛠&nbsp;&nbsp;Changed: Renamed `HttpClientWithInterceptor` to `InterceptedClient`.
 - ❗️🛠&nbsp;&nbsp;Changed: Renamed `HttpWithInterceptor` to `InterceptedHttp`.
-- ✨&nbsp;&nbsp;Added: Response Transformation (useful for background json decoding/encoding).
-- ✨&nbsp;&nbsp;Added: Support for multipart requests.
-- ✨&nbsp;&nbsp;Added: Array parameters on RequestData.
-- ✨&nbsp;&nbsp;Changed: ResponseData now has bodyBytes to allow encoding or decoding in the format needed.
-- 80% code coverage
+- ❗️🛠&nbsp;&nbsp;Removed: `badCertificateCallback` from `InterceptedClient` and `InterceptedHttp` in order to fully support Flutter Web 🌐 . In order to use refer to the migration guide.
+- ✨&nbsp;&nbsp;Added: Array parameters on `RequestData` following a similar principle than `http`'s `queryParametersAll` .
+- ✨&nbsp;&nbsp;Changed: `ResponseData` now has `bodyBytes` to allow encoding or decoding in the format desired.
+- ✨&nbsp;&nbsp;Changed: Migrated tests to use `test` package instead of `flutter_test`.
+- ✨&nbsp;&nbsp;Changed: Package no longer depends on Flutter, which means that it can be used with standalone Dart projects.
+- ✨&nbsp;&nbsp;Changed: More tests and coverage, this is a work in progress.
+
+Check out the [1.0.0 migration guide](./guides/migration_guide_1.0.0.md) for information on how to migrate your code.
 
 ## 0.4.1
 
@@ -16,7 +25,7 @@
 
 ## 0.4.0
 
-Check out [our 0.4.0 migration guide](./guides/migration_guide_4.md) for information on how to migrate your code.
+Check out [our 0.4.0 migration guide](./guides/migration_guide_0.4.0.md) for information on how to migrate your code.
 
 - ❗️✨&nbsp;&nbsp;Added: String extension to allow `toUri()` usage when importing the library. Since `http` dropped support for string url usage and since Dart does not yet support function overloading, we had to implement an alternative through extensions.
 - ✨&nbsp;&nbsp;Added: Flutter web support 🌐 &nbsp;&nbsp;(`badCertificateCallback` and `findProxy` features are not supported on Flutter Web due to browser limitations)

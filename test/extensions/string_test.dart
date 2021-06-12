@@ -1,4 +1,4 @@
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart';
 import 'package:http_interceptor/extensions/string.extensions.dart';
 
 void main() {

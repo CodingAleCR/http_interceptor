@@ -6,13 +6,22 @@
 [![codecov](https://codecov.io/gh/CodingAleCR/http_interceptor/branch/master/graph/badge.svg)](https://codecov.io/gh/CodingAleCR/http_interceptor)
 [![Star on GitHub](https://img.shields.io/github/stars/codingalecr/http_interceptor.svg?style=flat&logo=github&colorB=deeppink&label=stars)](https://github.com/codingalecr/http_interceptor)
 
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
 This is a plugin that lets you intercept the different requests and responses from Dart's http package. You can use to add headers, modify query params, or print a log of the response.
 
 ## Quick Reference
 
-**Already using `http_interceptor`? Check out the [0.4.0 migration guide](./guides/migration_guide_4.md) for quick reference on the changes made and how to migrate your code.**
+**Already using `http_interceptor`? Check out the [1.0.0 migration guide](./guides/migration_guide_1.0.0.md) for quick reference on the changes made and how to migrate your code.**
 
 - [Installation](#installation)
+- [Features](#features)
 - [Usage](#usage)
   - [Building your own interceptor](#building-your-own-interceptor)
   - [Using your interceptor](#using-your-interceptor)
@@ -27,8 +36,19 @@ This is a plugin that lets you intercept the different requests and responses fr
 Include the package with the latest version available in your `pubspec.yaml`.
 
 ```dart
-    http_interceptor: ^0.4.0
+http_interceptor: ^1.0.0
 ```
+
+## Features
+
+- 🚦 Intercept & change unstreamed requests and responses.
+- ✨ Retrying requests when an error occurs or when the response does not match the desired (useful for handling custom error responses).
+- 👓 `GET` requests with separated parameters.
+- ⚡️ Standard `bodyBytes` on `ResponseData` to encode or decode in the desired format.
+- 🙌🏼 Array parameters on requests.
+- 🖋 Supports self-signed certificates (except on Flutter Web).
+- 🍦 Compatible with vanilla Dart projects or Flutter projects.
+- 🎉 Null-safety.
 
 ## Usage
 
@@ -127,8 +147,8 @@ class WeatherRepository {
     Future<Map<String, dynamic>> fetchCityWeather(int id) async {
     var parsedWeather;
     try {
-      WeatherApiInterceptor http = InterceptedHttp.build(interceptors: [
-          Logger(),
+      final http = InterceptedHttp.build(interceptors: [
+          WeatherApiInterceptor(),
       ]);
       final response =
           await http.get("$baseUrl/weather".toUri(), params: {'id': "$id"});
@@ -175,33 +195,41 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
 
 You can also set the maximum amount of retry attempts with `maxRetryAttempts` property or override the `shouldAttemptRetryOnException` if you want to retry the request after it failed with an exception.
 
-### Using self signed certificates (Only on iOS and Android)
+### Using self signed certificates
 
-This plugin allows you to override the default `badCertificateCallback` provided by Dart's `io` package, this is really useful when working with self-signed certificates in your server. This can be done by sending a the callback to the HttpInterceptor builder functions. This feature is marked as experimental and **will be subject to change before release 1.0.0 comes**.
+You can achieve support for self-signed certificates by providing `InterceptedHttp` or `InterceptedClient` with the `client` parameter when using the `build` method on either of those, it should look something like this:
+
+### InterceptedClient
 
 ```dart
-class WeatherRepository {
-
-  Future<Map<String, dynamic>> fetchCityWeather(int id) async {
-    var parsedWeather;
-    try {
-      var response = await InterceptedHttp.build(
-              interceptors: [WeatherApiInterceptor()],
-              badCertificateCallback: (certificate, host, port) => true)
-          .get("$baseUrl/weather", params: {'id': "$id"});
-      if (response.statusCode == 200) {
-        parsedWeather = json.decode(response.body);
-      } else {
-        throw Exception("Error while fetching. \n ${response.body}");
-      }
-    } catch (e) {
-      print(e);
-    }
-    return parsedWeather;
-  }
-
-}
+Client client = InterceptedClient.build(
+  interceptors: [
+    WeatherApiInterceptor(),
+  ],
+  client: IOClient(
+    HttpClient()
+      ..badCertificateCallback = badCertificateCallback
+      ..findProxy = findProxy,
+  );
+);
 ```
+
+### InterceptedHttp
+
+```dart
+final http = InterceptedHttp.build(
+  interceptors: [
+    WeatherApiInterceptor(),
+  ],
+  client: IOClient(
+    HttpClient()
+      ..badCertificateCallback = badCertificateCallback
+      ..findProxy = findProxy,
+  );
+);
+```
+
+_**Note:** It is important to know that since both HttpClient and IOClient are part of `dart:io` package, this will not be a feature that you can perform on Flutter Web (due to `BrowserClient` and browser limitations)._
 
 ## Roadmap
 
@@ -215,15 +243,33 @@ Open an issue and tell me, I will be happy to help you out as soon as I can.
 
 ## Contributions
 
-Contributions are always welcomed and encouraged, we will always give you credit for your work on this section. If you are interested in maintaining the project on a regular basis drop me a line at me@codingale.dev.
-
-### Team
-
-- Alejandro Ulate ([@CodingAleCR](https://github.com/CodingAleCR))
+Contributions are always welcomed and encouraged, we will always give you credit for your work on this section. If you are interested in maintaining the project on a regular basis drop me a line at [me@codingale.dev](mailto:me@codingale.dev).
 
 ### Contributors
 
-- Wes Ehrlichman ([@AsynchronySuperWes](https://github.com/AsynchronySuperWes))
-- Jan Lübeck ([@jlubeck](https://github.com/jlubeck))
-- Lucas Alves ([@lucalves](https://github.com/lucalves))
-- István Juhos ([@stewemetal](https://github.com/stewemetal))
+Thanks to all the wonderful people contributing to improve this package. Check the [Emoji Key](https://github.com/kentcdodds/all-contributors#emoji-key) for reference on what means what!
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://codingale.dev">
+      <img src="https://avatars.githubusercontent.com/u/12262852?v=3?s=100" width="100px;" alt=""/>
+      <br />
+      <sub><b>Alejandro Ulate F.</b></sub></a>
+      <br />
+      <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=CodingAleCR" title="Maintainer">🚧</a> 
+      <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=CodingAleCR" title="Code">💻</a> 
+      <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=CodingAleCR" title="Documentation">📖</a> 
+      <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=CodingAleCR" title="Tests">⚠️</a>
+      <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=CodingAleCR" title="Ideas">🤔</a>
+    </td>
+  </tr>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->

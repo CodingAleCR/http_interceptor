@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:http/http.dart';
 import 'package:http_interceptor/http_interceptor.dart';
@@ -31,7 +30,6 @@ class InterceptedHttp {
   List<InterceptorContract> interceptors;
   Duration? requestTimeout;
   RetryPolicy? retryPolicy;
-  bool Function(X509Certificate, String, int)? badCertificateCallback;
   String Function(Uri)? findProxy;
   Client? client;
 
@@ -39,7 +37,6 @@ class InterceptedHttp {
     required this.interceptors,
     this.requestTimeout,
     this.retryPolicy,
-    this.badCertificateCallback,
     this.findProxy,
     this.client,
   });
@@ -48,7 +45,6 @@ class InterceptedHttp {
     required List<InterceptorContract> interceptors,
     Duration? requestTimeout,
     RetryPolicy? retryPolicy,
-    bool Function(X509Certificate, String, int)? badCertificateCallback,
     String Function(Uri)? findProxy,
     Client? client,
   }) =>
@@ -56,7 +52,6 @@ class InterceptedHttp {
         interceptors: interceptors,
         requestTimeout: requestTimeout,
         retryPolicy: retryPolicy,
-        badCertificateCallback: badCertificateCallback,
         findProxy: findProxy,
         client: client,
       );
@@ -66,7 +61,7 @@ class InterceptedHttp {
   }
 
   Future<Response> get(url,
-      {Map<String, String>? headers, Map<String, String>? params}) async {
+      {Map<String, String>? headers, Map<String, dynamic>? params}) async {
     return _withClient(
         (client) => client.get(url, headers: headers, params: params));
   }
@@ -109,7 +104,6 @@ class InterceptedHttp {
       interceptors: interceptors,
       requestTimeout: requestTimeout,
       retryPolicy: retryPolicy,
-      badCertificateCallback: badCertificateCallback,
       findProxy: findProxy,
       client: this.client,
     );

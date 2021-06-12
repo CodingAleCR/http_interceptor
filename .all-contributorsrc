@@ -1,0 +1,28 @@
+{
+  "projectName": "react-hooks",
+  "projectOwner": "kentcdodds",
+  "repoType": "github",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "codingalecr",
+      "name": "Alejandro Ulate Fallas",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1500684?v=3",
+      "profile": "https://codingale.dev",
+      "contributions": [
+        "code",
+        "doc",
+        "test",
+        "ideas",
+        "maintenance"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
