@@ -51,6 +51,17 @@
         "code",
         "test"
       ]
+    },
+    {
+      "login": "jlubeck",
+      "name": "Jan Lübeck",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3067603?v=4",
+      "profile": "http://www.fyrastudio.com",
+      "contributions": [
+        "ideas",
+        "code",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
