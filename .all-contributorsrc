@@ -51,6 +51,57 @@
         "code",
         "test"
       ]
+    },
+    {
+      "login": "jlubeck",
+      "name": "Jan Lübeck",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3067603?v=4",
+      "profile": "http://www.fyrastudio.com",
+      "contributions": [
+        "ideas",
+        "code",
+        "test"
+      ]
+    },
+    {
+      "login": "lucalves",
+      "name": "Lucas Alves",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17712401?v=4",
+      "profile": "http://lucalves.me/",
+      "contributions": [
+        "ideas",
+        "code",
+        "test"
+      ]
+    },
+    {
+      "login": "stewemetal",
+      "name": "István Juhos",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5860632?v=4",
+      "profile": "https://github.com/stewemetal",
+      "contributions": [
+        "ideas",
+        "code",
+        "test"
+      ]
+    },
+    {
+      "login": "shyndman",
+      "name": "Scott Hyndman",
+      "avatar_url": "https://avatars.githubusercontent.com/u/42326?v=4",
+      "profile": "https://github.com/shyndman",
+      "contributions": [
+        "ideas"
+      ]
+    },
+    {
+      "login": "II11II",
+      "name": "Islam Akhrarov",
+      "avatar_url": "https://avatars.githubusercontent.com/u/45257709?v=4",
+      "profile": "https://github.com/II11II",
+      "contributions": [
+        "ideas"
+      ]
     }
   ],
   "contributorsPerLine": 7,
