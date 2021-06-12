@@ -9,7 +9,7 @@
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-4-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
@@ -257,6 +257,7 @@ Thanks to all the wonderful people contributing to improve this package. Check t
     <td align="center"><a href="https://codingale.dev"><img src="https://avatars.githubusercontent.com/u/1500684?v=3?s=100" width="100px;" alt=""/><br /><sub><b>Alejandro Ulate Fallas</b></sub></a><br /><a href="https://github.com/CodingAleCR/http_interceptor/commits?author=codingalecr" title="Code">💻</a> <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=codingalecr" title="Documentation">📖</a> <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=codingalecr" title="Tests">⚠️</a> <a href="#ideas-codingalecr" title="Ideas, Planning, & Feedback">🤔</a> <a href="#maintenance-codingalecr" title="Maintenance">🚧</a></td>
     <td align="center"><a href="https://softmaestri.com/en/"><img src="https://avatars.githubusercontent.com/u/4113558?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Konstantin Serov</b></sub></a><br /><a href="#ideas-caseyryan" title="Ideas, Planning, & Feedback">🤔</a></td>
     <td align="center"><a href="https://github.com/Virus1908"><img src="https://avatars.githubusercontent.com/u/4580305?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Virus1908</b></sub></a><br /><a href="#ideas-Virus1908" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=Virus1908" title="Code">💻</a> <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=Virus1908" title="Tests">⚠️</a></td>
+    <td align="center"><a href="https://github.com/AsynchronySuperWes"><img src="https://avatars.githubusercontent.com/u/13644053?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Wes Ehrlichman</b></sub></a><br /><a href="#ideas-AsynchronySuperWes" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=AsynchronySuperWes" title="Code">💻</a> <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=AsynchronySuperWes" title="Tests">⚠️</a></td>
   </tr>
 </table>
 
