@@ -27,7 +27,7 @@ class RequestData {
 
   factory RequestData.fromHttpRequest(Request request) {
     var params = Map<String, dynamic>();
-    request.url.queryParameters.forEach((key, value) {
+    request.url.queryParametersAll.forEach((key, value) {
       params[key] = value;
     });
     String baseUrl = request.url.origin + request.url.path;
