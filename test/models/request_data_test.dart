@@ -67,6 +67,23 @@ main() {
           equals(
               "https://www.google.com/helloworld?key=123ABC&name=Hugo&type=3"));
     });
+    test("can be instantiated from HTTP GET Request with multiple parameters with same key", () {
+      // Arrange
+      Uri url = Uri.parse(
+          "https://www.google.com/helloworld?name=Hugo&type=2&type=3&type=4");
+
+      Request request = Request("GET", url);
+      RequestData requestData;
+
+      // Act
+      requestData = RequestData.fromHttpRequest(request);
+
+      // Assert
+      expect(
+          requestData.url,
+          equals(
+              "https://www.google.com/helloworld?name=Hugo&type=2&type=3&type=4"));
+    });
     test("correctly creates the request URL string", () {
       // Arrange
       Uri url = Uri.parse(
