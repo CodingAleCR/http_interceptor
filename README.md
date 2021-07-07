@@ -9,7 +9,7 @@
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-10-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-11-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
@@ -266,6 +266,7 @@ Thanks to all the wonderful people contributing to improve this package. Check t
     <td align="center"><a href="https://github.com/shyndman"><img src="https://avatars.githubusercontent.com/u/42326?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Scott Hyndman</b></sub></a><br /><a href="#ideas-shyndman" title="Ideas, Planning, & Feedback">🤔</a></td>
     <td align="center"><a href="https://github.com/II11II"><img src="https://avatars.githubusercontent.com/u/45257709?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Islam Akhrarov</b></sub></a><br /><a href="#ideas-II11II" title="Ideas, Planning, & Feedback">🤔</a></td>
     <td align="center"><a href="https://github.com/meysammahfouzi"><img src="https://avatars.githubusercontent.com/u/14848008?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Meysam</b></sub></a><br /><a href="https://github.com/CodingAleCR/http_interceptor/commits?author=meysammahfouzi" title="Documentation">📖</a></td>
+    <td align="center"><a href="https://github.com/Mawi137"><img src="https://avatars.githubusercontent.com/u/5464100?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Martijn</b></sub></a><br /><a href="https://github.com/CodingAleCR/http_interceptor/commits?author=Mawi137" title="Tests">⚠️</a> <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=Mawi137" title="Code">💻</a></td>
   </tr>
 </table>
 
