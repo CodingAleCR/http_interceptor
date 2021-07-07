@@ -111,6 +111,16 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "Mawi137",
+      "name": "Martijn",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5464100?v=4",
+      "profile": "https://github.com/Mawi137",
+      "contributions": [
+        "test",
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
