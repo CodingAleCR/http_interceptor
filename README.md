@@ -3,7 +3,7 @@
 [![Pub](https://img.shields.io/pub/v/http_interceptor.svg)](https://pub.dev/packages/http_interceptor)
 [![style: effective dart](https://img.shields.io/badge/style-effective_dart-40c4ff.svg)](https://github.com/tenhobi/effective_dart)
 [![License: MIT](https://img.shields.io/badge/license-MIT-purple.svg)](https://opensource.org/licenses/MIT)
-[![codecov](https://codecov.io/gh/CodingAleCR/http_interceptor/branch/master/graph/badge.svg)](https://codecov.io/gh/CodingAleCR/http_interceptor)
+[![codecov](https://codecov.io/gh/CodingAleCR/http_interceptor/branch/main/graph/badge.svg?token=hgsnPctaDz)](https://codecov.io/gh/CodingAleCR/http_interceptor)
 [![Star on GitHub](https://img.shields.io/github/stars/codingalecr/http_interceptor.svg?style=flat&logo=github&colorB=deeppink&label=stars)](https://github.com/codingalecr/http_interceptor)
 
 <!-- prettier-ignore-start -->
