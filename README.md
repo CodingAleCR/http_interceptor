@@ -65,13 +65,13 @@ In order to implement `http_interceptor` you need to implement the `InterceptorC
 ```dart
 class LoggingInterceptor implements InterceptorContract {
   @override
-  Future<RequestData> interceptRequest({RequestData data}) async {
+  Future<RequestData> interceptRequest({required RequestData data}) async {
     print(data.toString());
     return data;
   }
 
   @override
-  Future<ResponseData> interceptResponse({ResponseData data}) async {
+  Future<ResponseData> interceptResponse({required ResponseData data}) async {
       print(data.toString());
       return data;
   }
@@ -84,7 +84,7 @@ class LoggingInterceptor implements InterceptorContract {
 ```dart
 class WeatherApiInterceptor implements InterceptorContract {
   @override
-  Future<RequestData> interceptRequest({RequestData data}) async {
+  Future<RequestData> interceptRequest({required RequestData data}) async {
     try {
       data.params['appid'] = OPEN_WEATHER_API_KEY;
       data.params['units'] = 'metric';
@@ -96,7 +96,7 @@ class WeatherApiInterceptor implements InterceptorContract {
   }
 
   @override
-  Future<ResponseData> interceptResponse({ResponseData data}) async => data;
+  Future<ResponseData> interceptResponse({required ResponseData data}) async => data;
 }
 ```
 
