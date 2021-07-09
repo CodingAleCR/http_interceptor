@@ -10,7 +10,7 @@ class RequestData {
   String baseUrl;
   Map<String, String> headers;
   Map<String, dynamic> params;
-  dynamic? body;
+  dynamic body;
   Encoding? encoding;
 
   RequestData({
@@ -26,6 +26,7 @@ class RequestData {
   String get url => buildUrlString(baseUrl, params);
 
   factory RequestData.fromHttpRequest(Request request) {
+    
     var params = Map<String, dynamic>();
     request.url.queryParametersAll.forEach((key, value) {
       params[key] = value;
@@ -50,7 +51,7 @@ class RequestData {
     if (encoding != null) request.encoding = encoding!;
     if (body != null) {
       if (body is String) {
-        request.body = body;
+        request.body = body as String;
       } else if (body is List) {
         request.bodyBytes = body?.cast<int>();
       } else if (body is Map) {
