@@ -29,7 +29,7 @@ main() {
     test("returns false by default", () async {
       expect(
         await testObject.shouldAttemptRetryOnResponse(
-          ResponseData(bodyBytes: Uint8List(0)),
+          ResponseData(Uint8List(0), 200),
         ),
         false,
       );

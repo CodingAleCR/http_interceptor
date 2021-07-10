@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.1
+
+- ✨&nbsp;&nbsp;Changed: `ResponseData` now has `request` to allow checking on the request that triggered the response. Thanks to @II11II
+- 🐞&nbsp;&nbsp;Fixed: Use `queryParametersAll` when creating `RequestData`. Thanks to @Mawi137
+- 📖&nbsp;&nbsp;Fixed: `README` to include `required` keywords needed. Thanks to @meysammahfouzi
+- 🚦&nbsp;&nbsp;Tests: Improved testing and documentation.
+
 ## 1.0.0
 
 Check out the [1.0.0 migration guide](./guides/migration_guide_1.0.0.md) for information on how to migrate your code.
