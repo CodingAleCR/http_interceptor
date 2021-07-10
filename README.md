@@ -36,7 +36,7 @@ This is a plugin that lets you intercept the different requests and responses fr
 Include the package with the latest version available in your `pubspec.yaml`.
 
 ```dart
-http_interceptor: ^1.0.0
+http_interceptor: ^1.0.1
 ```
 
 ## Features
