@@ -169,7 +169,7 @@ class InterceptedClient extends BaseClient {
     });
   }
 
-  // TODO: Implement interception from `send` method.
+  // TODO(codingalecr): Implement interception from `send` method.
   @override
   Future<StreamedResponse> send(BaseRequest request) {
     return _inner.send(request);
