@@ -3,13 +3,13 @@
 [![Pub](https://img.shields.io/pub/v/http_interceptor.svg)](https://pub.dev/packages/http_interceptor)
 [![style: effective dart](https://img.shields.io/badge/style-effective_dart-40c4ff.svg)](https://github.com/tenhobi/effective_dart)
 [![License: MIT](https://img.shields.io/badge/license-MIT-purple.svg)](https://opensource.org/licenses/MIT)
-[![codecov](https://codecov.io/gh/CodingAleCR/http_interceptor/branch/master/graph/badge.svg)](https://codecov.io/gh/CodingAleCR/http_interceptor)
+[![codecov](https://codecov.io/gh/CodingAleCR/http_interceptor/branch/main/graph/badge.svg?token=hgsnPctaDz)](https://codecov.io/gh/CodingAleCR/http_interceptor)
 [![Star on GitHub](https://img.shields.io/github/stars/codingalecr/http_interceptor.svg?style=flat&logo=github&colorB=deeppink&label=stars)](https://github.com/codingalecr/http_interceptor)
 
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-9-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-11-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
@@ -65,13 +65,13 @@ In order to implement `http_interceptor` you need to implement the `InterceptorC
 ```dart
 class LoggingInterceptor implements InterceptorContract {
   @override
-  Future<RequestData> interceptRequest({RequestData data}) async {
+  Future<RequestData> interceptRequest({required RequestData data}) async {
     print(data.toString());
     return data;
   }
 
   @override
-  Future<ResponseData> interceptResponse({ResponseData data}) async {
+  Future<ResponseData> interceptResponse({required ResponseData data}) async {
       print(data.toString());
       return data;
   }
@@ -84,7 +84,7 @@ class LoggingInterceptor implements InterceptorContract {
 ```dart
 class WeatherApiInterceptor implements InterceptorContract {
   @override
-  Future<RequestData> interceptRequest({RequestData data}) async {
+  Future<RequestData> interceptRequest({required RequestData data}) async {
     try {
       data.params['appid'] = OPEN_WEATHER_API_KEY;
       data.params['units'] = 'metric';
@@ -96,7 +96,7 @@ class WeatherApiInterceptor implements InterceptorContract {
   }
 
   @override
-  Future<ResponseData> interceptResponse({ResponseData data}) async => data;
+  Future<ResponseData> interceptResponse({required ResponseData data}) async => data;
 }
 ```
 
@@ -265,6 +265,8 @@ Thanks to all the wonderful people contributing to improve this package. Check t
   <tr>
     <td align="center"><a href="https://github.com/shyndman"><img src="https://avatars.githubusercontent.com/u/42326?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Scott Hyndman</b></sub></a><br /><a href="#ideas-shyndman" title="Ideas, Planning, & Feedback">🤔</a></td>
     <td align="center"><a href="https://github.com/II11II"><img src="https://avatars.githubusercontent.com/u/45257709?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Islam Akhrarov</b></sub></a><br /><a href="#ideas-II11II" title="Ideas, Planning, & Feedback">🤔</a></td>
+    <td align="center"><a href="https://github.com/meysammahfouzi"><img src="https://avatars.githubusercontent.com/u/14848008?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Meysam</b></sub></a><br /><a href="https://github.com/CodingAleCR/http_interceptor/commits?author=meysammahfouzi" title="Documentation">📖</a></td>
+    <td align="center"><a href="https://github.com/Mawi137"><img src="https://avatars.githubusercontent.com/u/5464100?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Martijn</b></sub></a><br /><a href="https://github.com/CodingAleCR/http_interceptor/commits?author=Mawi137" title="Tests">⚠️</a> <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=Mawi137" title="Code">💻</a></td>
   </tr>
 </table>
 
