@@ -144,6 +144,7 @@ class InterceptedClient extends BaseClient {
       _sendUnstreamed(
         method: Method.DELETE,
         url: url,
+        body: body,
         headers: headers,
       );
 
