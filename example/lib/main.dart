@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http_interceptor/http_interceptor.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'credentials.dart'; // If you are going to run this example you need to replace the key.
 import 'cities.dart'; // This is just a List of Maps that contains the suggested cities.
 
@@ -24,11 +25,33 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   WeatherRepository repository = WeatherRepository(
-    InterceptedClient.build(interceptors: [
-      WeatherApiInterceptor(),
-      LoggerInterceptor(),
-    ]),
+    InterceptedClient.build(
+      interceptors: [
+        WeatherApiInterceptor(),
+        LoggerInterceptor(),
+      ],
+      retryPolicy: ExpiredTokenRetryPolicy(),
+    ),
   );
+
+  @override
+  void initState() {
+    super.initState();
+
+    clearStorageForDemoPurposes();
+  }
+
+  Future<void> clearStorageForDemoPurposes() async {
+    final cache = await SharedPreferences.getInstance();
+
+    cache.setString(appToken, OPEN_WEATHER_EXPIRED_API_KEY);
+  }
+
+  @override
+  void dispose() {
+    repository.client.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -298,11 +321,15 @@ class LoggerInterceptor implements InterceptorContract {
   }
 }
 
+const String appToken = "TOKEN";
+
 class WeatherApiInterceptor implements InterceptorContract {
   @override
   Future<RequestData> interceptRequest({required RequestData data}) async {
     try {
-      data.params['appid'] = OPEN_WEATHER_API_KEY;
+      final cache = await SharedPreferences.getInstance();
+
+      data.params['appid'] = cache.getString(appToken);
       data.params['units'] = 'metric';
       data.headers[HttpHeaders.contentTypeHeader] = "application/json";
     } catch (e) {
@@ -315,4 +342,30 @@ class WeatherApiInterceptor implements InterceptorContract {
   @override
   Future<ResponseData> interceptResponse({required ResponseData data}) async =>
       data;
+}
+
+class ExpiredTokenRetryPolicy extends RetryPolicy {
+  @override
+  int get maxRetryAttempts => 2;
+
+  @override
+  bool shouldAttemptRetryOnException(Exception reason) {
+    print(reason);
+
+    return false;
+  }
+
+  @override
+  Future<bool> shouldAttemptRetryOnResponse(ResponseData response) async {
+    if (response.statusCode == 401) {
+      print("Retrying request...");
+      final cache = await SharedPreferences.getInstance();
+
+      cache.setString(appToken, OPEN_WEATHER_API_KEY);
+
+      return true;
+    }
+
+    return false;
+  }
 }
