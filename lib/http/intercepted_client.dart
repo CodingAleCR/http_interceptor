@@ -154,6 +154,7 @@ class InterceptedClient extends BaseClient {
         headers: headers,
         params: params,
         body: body,
+        encoding: encoding,
       );
 
   @override
