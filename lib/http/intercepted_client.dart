@@ -160,8 +160,9 @@ class InterceptedClient extends BaseClient {
   Future<String> read(
     Uri url, {
     Map<String, String>? headers,
+    Map<String, dynamic>? params,
   }) {
-    return get(url, headers: headers).then((response) {
+    return get(url, headers: headers, params: params).then((response) {
       _checkResponseSuccess(url, response);
       return response.body;
     });
@@ -171,8 +172,9 @@ class InterceptedClient extends BaseClient {
   Future<Uint8List> readBytes(
     Uri url, {
     Map<String, String>? headers,
+    Map<String, dynamic>? params,
   }) {
-    return get(url, headers: headers).then((response) {
+    return get(url, headers: headers, params: params).then((response) {
       _checkResponseSuccess(url, response);
       return response.bodyBytes;
     });

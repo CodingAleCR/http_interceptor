@@ -81,12 +81,14 @@ class InterceptedHttp {
   Future<Response> post(
     url, {
     Map<String, String>? headers,
+    Map<String, dynamic>? params,
     Object? body,
     Encoding? encoding,
   }) async {
     return _withClient((client) => client.post(
           url,
           headers: headers,
+          params: params,
           body: body,
           encoding: encoding,
         ));
@@ -95,12 +97,14 @@ class InterceptedHttp {
   Future<Response> put(
     url, {
     Map<String, String>? headers,
+    Map<String, dynamic>? params,
     Object? body,
     Encoding? encoding,
   }) async {
     return _withClient((client) => client.put(
           url,
           headers: headers,
+          params: params,
           body: body,
           encoding: encoding,
         ));
@@ -109,12 +113,14 @@ class InterceptedHttp {
   Future<Response> patch(
     url, {
     Map<String, String>? headers,
+    Map<String, dynamic>? params,
     Object? body,
     Encoding? encoding,
   }) async {
     return _withClient((client) => client.patch(
           url,
           headers: headers,
+          params: params,
           body: body,
           encoding: encoding,
         ));
@@ -123,12 +129,14 @@ class InterceptedHttp {
   Future<Response> delete(
     url, {
     Map<String, String>? headers,
+    Map<String, dynamic>? params,
     Object? body,
     Encoding? encoding,
   }) async {
     return _withClient((client) => client.delete(
           url,
           headers: headers,
+          params: params,
           body: body,
           encoding: encoding,
         ));
@@ -137,20 +145,24 @@ class InterceptedHttp {
   Future<String> read(
     url, {
     Map<String, String>? headers,
+    Map<String, dynamic>? params,
   }) {
     return _withClient((client) => client.read(
           url,
           headers: headers,
+          params: params,
         ));
   }
 
   Future<Uint8List> readBytes(
     url, {
     Map<String, String>? headers,
+    Map<String, dynamic>? params,
   }) =>
       _withClient((client) => client.readBytes(
             url,
             headers: headers,
+            params: params,
           ));
 
   Future<T> _withClient<T>(
