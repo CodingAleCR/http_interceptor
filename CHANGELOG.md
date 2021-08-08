@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.2
+
+- 📖&nbsp;&nbsp;Changed: example project to showcase `RetryPolicy` usage.
+- 🐞&nbsp;&nbsp;Fixed: `parameters` were missing in requests of type `POST`, `PUT`, `PATCH`, and `DELETE`.
+- 🐞&nbsp;&nbsp;Fixed: `int` or other non-string parameters are not being added to request. Thanks to @
+  Contributor
+  meysammahfouzi
+- 🐞&nbsp;&nbsp;Fixed: `body` is not sent in delete requests despite being accepted as parameter. Thanks to @MaciejZuk
+
 ## 1.0.1
 
 - ✨&nbsp;&nbsp;Changed: `ResponseData` now has `request` to allow checking on the request that triggered the response. Thanks to @II11II

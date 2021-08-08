@@ -93,6 +93,7 @@ class InterceptedClient extends BaseClient {
   Future<Response> post(
     Uri url, {
     Map<String, String>? headers,
+    Map<String, dynamic>? params,
     Object? body,
     Encoding? encoding,
   }) =>
@@ -100,6 +101,7 @@ class InterceptedClient extends BaseClient {
         method: Method.POST,
         url: url,
         headers: headers,
+        params: params,
         body: body,
         encoding: encoding,
       );
@@ -108,6 +110,7 @@ class InterceptedClient extends BaseClient {
   Future<Response> put(
     Uri url, {
     Map<String, String>? headers,
+    Map<String, dynamic>? params,
     Object? body,
     Encoding? encoding,
   }) =>
@@ -115,6 +118,7 @@ class InterceptedClient extends BaseClient {
         method: Method.PUT,
         url: url,
         headers: headers,
+        params: params,
         body: body,
         encoding: encoding,
       );
@@ -123,6 +127,7 @@ class InterceptedClient extends BaseClient {
   Future<Response> patch(
     Uri url, {
     Map<String, String>? headers,
+    Map<String, dynamic>? params,
     Object? body,
     Encoding? encoding,
   }) =>
@@ -130,6 +135,7 @@ class InterceptedClient extends BaseClient {
         method: Method.PATCH,
         url: url,
         headers: headers,
+        params: params,
         body: body,
         encoding: encoding,
       );
@@ -138,6 +144,7 @@ class InterceptedClient extends BaseClient {
   Future<Response> delete(
     Uri url, {
     Map<String, String>? headers,
+    Map<String, dynamic>? params,
     Object? body,
     Encoding? encoding,
   }) =>
@@ -145,14 +152,18 @@ class InterceptedClient extends BaseClient {
         method: Method.DELETE,
         url: url,
         headers: headers,
+        params: params,
+        body: body,
+        encoding: encoding,
       );
 
   @override
   Future<String> read(
     Uri url, {
     Map<String, String>? headers,
+    Map<String, dynamic>? params,
   }) {
-    return get(url, headers: headers).then((response) {
+    return get(url, headers: headers, params: params).then((response) {
       _checkResponseSuccess(url, response);
       return response.body;
     });
@@ -162,8 +173,9 @@ class InterceptedClient extends BaseClient {
   Future<Uint8List> readBytes(
     Uri url, {
     Map<String, String>? headers,
+    Map<String, dynamic>? params,
   }) {
-    return get(url, headers: headers).then((response) {
+    return get(url, headers: headers, params: params).then((response) {
       _checkResponseSuccess(url, response);
       return response.bodyBytes;
     });
