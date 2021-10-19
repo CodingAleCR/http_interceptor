@@ -3,8 +3,9 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:http/http.dart';
-import 'package:http_interceptor/models/models.dart';
 import 'package:http_interceptor/extensions/extensions.dart';
+import 'package:http_interceptor/models/models.dart';
+import 'package:pool/pool.dart';
 
 import 'http_methods.dart';
 import 'interceptor_contract.dart';
@@ -42,6 +43,7 @@ class InterceptedClient extends BaseClient {
 
   int _retryCount = 0;
   late Client _inner;
+  late Pool _pool;
 
   InterceptedClient._internal({
     required this.interceptors,
@@ -49,7 +51,9 @@ class InterceptedClient extends BaseClient {
     this.retryPolicy,
     this.findProxy,
     Client? client,
-  }) : _inner = client ?? Client();
+    int? maxActiveRequests,
+  })  : _inner = client ?? Client(),
+        _pool = Pool(maxActiveRequests ?? 32);
 
   factory InterceptedClient.build({
     required List<InterceptorContract> interceptors,
@@ -57,6 +61,7 @@ class InterceptedClient extends BaseClient {
     RetryPolicy? retryPolicy,
     String Function(Uri)? findProxy,
     Client? client,
+    int? maxActiveRequests,
   }) =>
       InterceptedClient._internal(
         interceptors: interceptors,
@@ -64,6 +69,7 @@ class InterceptedClient extends BaseClient {
         retryPolicy: retryPolicy,
         findProxy: findProxy,
         client: client,
+        maxActiveRequests: maxActiveRequests,
       );
 
   @override
@@ -183,8 +189,8 @@ class InterceptedClient extends BaseClient {
 
   // TODO(codingalecr): Implement interception from `send` method.
   @override
-  Future<StreamedResponse> send(BaseRequest request) {
-    return _inner.send(request);
+  Future<StreamedResponse> send(BaseRequest request) async {
+    return await _inner.send(request);
   }
 
   Future<Response> _sendUnstreamed({
@@ -195,9 +201,10 @@ class InterceptedClient extends BaseClient {
     Object? body,
     Encoding? encoding,
   }) async {
+    var resource = await _pool.request();
     url = url.addParameters(params);
 
-    Request request = new Request(methodToString(method), url);
+    Request request = Request(methodToString(method), url);
     if (headers != null) request.headers.addAll(headers);
     if (encoding != null) request.encoding = encoding;
     if (body != null) {
@@ -208,6 +215,7 @@ class InterceptedClient extends BaseClient {
       } else if (body is Map) {
         request.bodyFields = body.cast<String, String>();
       } else {
+        resource.release();
         throw new ArgumentError('Invalid request body "$body".');
       }
     }
@@ -217,6 +225,7 @@ class InterceptedClient extends BaseClient {
     // Intercept response
     response = await _interceptResponse(response);
 
+    resource.release();
     return response;
   }
 
