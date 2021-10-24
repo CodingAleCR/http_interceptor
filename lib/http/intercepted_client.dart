@@ -182,7 +182,6 @@ class InterceptedClient extends BaseClient {
     });
   }
 
-  // TODO(codingalecr): Implement interception from `send` method.
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
     var response = await _attemptStreamedRequest(request);
@@ -243,8 +242,8 @@ class InterceptedClient extends BaseClient {
       final interceptedRequest = await _interceptRequest(request);
 
       var stream = requestTimeout == null
-          ? await send(interceptedRequest)
-          : await send(interceptedRequest).timeout(requestTimeout!);
+          ? await _inner.send(interceptedRequest)
+          : await _inner.send(interceptedRequest).timeout(requestTimeout!);
 
       response = await Response.fromStream(stream);
       if (retryPolicy != null &&
@@ -277,8 +276,8 @@ class InterceptedClient extends BaseClient {
       final interceptedRequest = await _interceptRequest(request);
 
       response = requestTimeout == null
-          ? await send(interceptedRequest)
-          : await send(interceptedRequest).timeout(requestTimeout!);
+          ? await _inner.send(interceptedRequest)
+          : await _inner.send(interceptedRequest).timeout(requestTimeout!);
 
       if (retryPolicy != null &&
           retryPolicy!.maxRetryAttempts > _retryCount &&

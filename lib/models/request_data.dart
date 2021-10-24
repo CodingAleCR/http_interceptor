@@ -5,6 +5,12 @@ import 'package:http_interceptor/extensions/extensions.dart';
 import 'package:http_interceptor/http/http.dart';
 import 'package:http_interceptor/utils/utils.dart';
 
+class MultipartBody {
+  Map<String, String>? fields;
+  List<MultipartFile>? files;
+  MultipartBody({this.fields, this.files});
+}
+
 /// A class that mimics HTTP Request in order to intercept it's data.
 class RequestData {
   /// The HTTP method of the request.
@@ -45,8 +51,8 @@ class RequestData {
 
   /// Creates a new request data from an HTTP request.
   ///
-  /// For now it only supports [Request].
-  /// TODO(codingalecr): Support for [MultipartRequest] and [StreamedRequest].
+  /// For now it only supports [Request] and [MultipartRequest].
+  /// TODO(codingalecr): Support for [StreamedRequest].
   factory RequestData.fromHttpRequest(BaseRequest request) {
     var params = Map<String, dynamic>();
     request.url.queryParametersAll.forEach((key, value) {
@@ -63,6 +69,14 @@ class RequestData {
         encoding: request.encoding,
         params: params,
       );
+    } else if (request is MultipartRequest) {
+      return RequestData(
+        method: methodFromString(request.method),
+        baseUrl: baseUrl,
+        headers: request.headers,
+        body: MultipartBody(fields: request.fields, files: request.files),
+        params: params,
+      );
     }
 
     throw UnsupportedError(
@@ -71,24 +85,34 @@ class RequestData {
   }
 
   /// Converts this request data to an HTTP request.
-  Request toHttpRequest() {
+  BaseRequest toHttpRequest() {
     var reqUrl = buildUrlString(baseUrl, params);
 
-    Request request = new Request(methodToString(method), reqUrl.toUri());
+    // Request request = new Request();
 
-    request.headers.addAll(headers);
-    if (encoding != null) request.encoding = encoding!;
+    late BaseRequest request;
+
     if (body != null) {
-      if (body is String) {
-        request.body = body as String;
-      } else if (body is List) {
-        request.bodyBytes = body?.cast<int>();
-      } else if (body is Map) {
-        request.bodyFields = body.cast<String, String>();
+      if (body is MultipartBody) {
+        final _body = body as MultipartBody;
+        request = MultipartRequest(methodToString(method), reqUrl.toUri())
+          ..files.addAll(_body.files ?? [])
+          ..fields.addAll(_body.fields ?? {});
       } else {
-        throw new ArgumentError('Invalid request body "$body".');
+        if (body is String) {
+          request = Request(methodToString(method), reqUrl.toUri())..body = body as String;
+        } else if (body is List) {
+          request = Request(methodToString(method), reqUrl.toUri())..bodyBytes = body?.cast<int>();
+        } else if (body is Map) {
+          request = Request(methodToString(method), reqUrl.toUri())..bodyFields = body.cast<String, String>();
+        } else {
+          throw new ArgumentError('Invalid request body "$body".');
+        }
+        if (encoding != null) (request as Request).encoding = encoding!;
       }
     }
+
+    request.headers.addAll(headers);
 
     return request;
   }
