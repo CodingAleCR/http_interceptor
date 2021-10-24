@@ -5,7 +5,6 @@ import 'dart:typed_data';
 import 'package:http/http.dart';
 import 'package:http_interceptor/models/models.dart';
 import 'package:http_interceptor/extensions/extensions.dart';
-import 'package:http_interceptor/models/streamed_response_data.dart';
 
 import 'http_methods.dart';
 import 'interceptor_contract.dart';

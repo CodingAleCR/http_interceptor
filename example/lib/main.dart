@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http_interceptor/http_interceptor.dart';
-import 'package:http_interceptor/models/streamed_response_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'credentials.dart'; // If you are going to run this example you need to replace the key.
 import 'cities.dart'; // This is just a List of Maps that contains the suggested cities.
