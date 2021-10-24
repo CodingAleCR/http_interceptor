@@ -1,4 +1,5 @@
 import 'package:http_interceptor/models/models.dart';
+import 'package:http_interceptor/models/streamed_response_data.dart';
 
 ///Interceptor interface to create custom Interceptor for http.
 ///Extend this class and override the functions that you want
@@ -29,4 +30,9 @@ abstract class InterceptorContract {
   Future<RequestData> interceptRequest({required RequestData data});
 
   Future<ResponseData> interceptResponse({required ResponseData data});
+
+  Future<StreamedResponseData> interceptStreamedResponse({required StreamedResponseData data}) async {
+    final response = await interceptResponse(data: data.toResponseData());
+    return StreamedResponseData.fromResponseData(response, data.stream);
+  }
 }

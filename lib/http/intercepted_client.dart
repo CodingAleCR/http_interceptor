@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:http/http.dart';
 import 'package:http_interceptor/models/models.dart';
 import 'package:http_interceptor/extensions/extensions.dart';
+import 'package:http_interceptor/models/streamed_response_data.dart';
 
 import 'http_methods.dart';
 import 'interceptor_contract.dart';
@@ -183,8 +184,12 @@ class InterceptedClient extends BaseClient {
 
   // TODO(codingalecr): Implement interception from `send` method.
   @override
-  Future<StreamedResponse> send(BaseRequest request) {
-    return _inner.send(request);
+  Future<StreamedResponse> send(BaseRequest request) async {
+    var response = await _attemptStreamedRequest(request);
+
+    response = await _interceptStreamedResponse(response);
+
+    return response;
   }
 
   Future<Response> _sendUnstreamed({
@@ -244,8 +249,7 @@ class InterceptedClient extends BaseClient {
       response = await Response.fromStream(stream);
       if (retryPolicy != null &&
           retryPolicy!.maxRetryAttempts > _retryCount &&
-          await retryPolicy!.shouldAttemptRetryOnResponse(
-              ResponseData.fromHttpResponse(response))) {
+          await retryPolicy!.shouldAttemptRetryOnResponse(ResponseData.fromHttpResponse(response))) {
         _retryCount += 1;
         return _attemptRequest(request);
       }
@@ -264,8 +268,42 @@ class InterceptedClient extends BaseClient {
     return response;
   }
 
+  /// Attempts to perform the request and intercept the data
+  /// of the response
+  Future<StreamedResponse> _attemptStreamedRequest(BaseRequest request) async {
+    StreamedResponse response;
+    try {
+      // Intercept request
+      final interceptedRequest = await _interceptRequest(request);
+
+      response = requestTimeout == null
+          ? await send(interceptedRequest)
+          : await send(interceptedRequest).timeout(requestTimeout!);
+
+      if (retryPolicy != null &&
+          retryPolicy!.maxRetryAttempts > _retryCount &&
+          await retryPolicy!
+              .shouldAttemptRetryOnResponse(StreamedResponseData.fromHttpResponse(response).toResponseData())) {
+        _retryCount += 1;
+        return _attemptStreamedRequest(request);
+      }
+    } on Exception catch (error) {
+      if (retryPolicy != null &&
+          retryPolicy!.maxRetryAttempts > _retryCount &&
+          retryPolicy!.shouldAttemptRetryOnException(error)) {
+        _retryCount += 1;
+        return _attemptStreamedRequest(request);
+      } else {
+        rethrow;
+      }
+    }
+
+    _retryCount = 0;
+    return response;
+  }
+
   /// This internal function intercepts the request.
-  Future<Request> _interceptRequest(Request request) async {
+  Future<BaseRequest> _interceptRequest(BaseRequest request) async {
     for (InterceptorContract interceptor in interceptors) {
       RequestData interceptedData = await interceptor.interceptRequest(
         data: RequestData.fromHttpRequest(request),
@@ -281,6 +319,18 @@ class InterceptedClient extends BaseClient {
     for (InterceptorContract interceptor in interceptors) {
       ResponseData responseData = await interceptor.interceptResponse(
         data: ResponseData.fromHttpResponse(response),
+      );
+      response = responseData.toHttpResponse();
+    }
+
+    return response;
+  }
+
+  /// This internal function intercepts the response.
+  Future<StreamedResponse> _interceptStreamedResponse(StreamedResponse response) async {
+    for (InterceptorContract interceptor in interceptors) {
+      StreamedResponseData responseData = await interceptor.interceptStreamedResponse(
+        data: StreamedResponseData.fromHttpResponse(response),
       );
       response = responseData.toHttpResponse();
     }
