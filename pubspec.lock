@@ -198,7 +198,7 @@ packages:
     source: hosted
     version: "1.11.1"
   pool:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: pool
       url: "https://pub.dartlang.org"

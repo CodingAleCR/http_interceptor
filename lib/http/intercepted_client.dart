@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:http/http.dart';
-import 'package:http_interceptor/models/models.dart';
 import 'package:http_interceptor/extensions/extensions.dart';
+import 'package:http_interceptor/managers/pool_manager.dart';
+import 'package:http_interceptor/models/models.dart';
+import 'package:pool/pool.dart';
 
 import 'http_methods.dart';
 import 'interceptor_contract.dart';
@@ -35,10 +37,13 @@ import 'interceptor_contract.dart';
 ///
 ///Note: `send` method is not currently supported.
 class InterceptedClient extends BaseClient {
+  static const String kSkipPoolHeader = 'Intercepted-Client-Skip-Pool-Manager';
+
   List<InterceptorContract> interceptors;
   Duration? requestTimeout;
   RetryPolicy? retryPolicy;
   String Function(Uri)? findProxy;
+  PoolManager? poolManager;
 
   int _retryCount = 0;
   late Client _inner;
@@ -48,6 +53,7 @@ class InterceptedClient extends BaseClient {
     this.requestTimeout,
     this.retryPolicy,
     this.findProxy,
+    this.poolManager,
     Client? client,
   }) : _inner = client ?? Client();
 
@@ -57,6 +63,7 @@ class InterceptedClient extends BaseClient {
     RetryPolicy? retryPolicy,
     String Function(Uri)? findProxy,
     Client? client,
+    PoolManager? poolManager,
   }) =>
       InterceptedClient._internal(
         interceptors: interceptors,
@@ -64,6 +71,7 @@ class InterceptedClient extends BaseClient {
         retryPolicy: retryPolicy,
         findProxy: findProxy,
         client: client,
+        poolManager: poolManager,
       );
 
   @override
@@ -195,6 +203,8 @@ class InterceptedClient extends BaseClient {
     Object? body,
     Encoding? encoding,
   }) async {
+    PoolResource? poolResource = await _addToRequestPool(headers);
+
     url = url.addParameters(params);
 
     Request request = new Request(methodToString(method), url);
@@ -208,11 +218,19 @@ class InterceptedClient extends BaseClient {
       } else if (body is Map) {
         request.bodyFields = body.cast<String, String>();
       } else {
+        poolResource?.release();
         throw new ArgumentError('Invalid request body "$body".');
       }
     }
 
-    var response = await _attemptRequest(request);
+    late Response response;
+    try {
+      response = await _attemptRequest(request);
+      poolResource?.release();
+    } catch (_) {
+      poolResource?.release();
+      rethrow;
+    }
 
     // Intercept response
     response = await _interceptResponse(response);
@@ -290,5 +308,19 @@ class InterceptedClient extends BaseClient {
 
   void close() {
     _inner.close();
+  }
+
+  /// Add a new request to the pool.
+  /// If [kSkipPoolHeader] is found in the headers, the pool is skipped so
+  /// the request is executed immediately.
+  Future<PoolResource?> _addToRequestPool(Map<String, String>? headers) async {
+    if (headers?.keys.contains(kSkipPoolHeader) == true) {
+      return null;
+    }
+
+    if (poolManager == null) {
+      return null;
+    }
+    return await poolManager!.request();
   }
 }
