@@ -223,6 +223,8 @@ class InterceptedClient extends BaseClient {
       }
     }
 
+    request.headers.remove(kSkipPoolHeader);
+
     late Response response;
     try {
       response = await _attemptRequest(request);
