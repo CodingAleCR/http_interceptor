@@ -41,7 +41,7 @@ made and how to migrate your code.**
 Include the package with the latest version available in your `pubspec.yaml`.
 
 ```dart  
-http_interceptor: ^1.0.1  
+http_interceptor: ^1.1.0 
 ```  
 
 ## Features
@@ -173,8 +173,9 @@ class TokenRetryPolicy extends RetryPolicy {
     if (response.statusCode == 401) {
       // Need to get a new token  
       await poolManager.requestUpdateToken();
-      /*  
-		--- YOUR TOKEN REFRESH LOGIC --- */
+
+      /*  --- YOUR TOKEN REFRESH LOGIC --- */
+
       poolManager.releaseUpdateToken();
       return true;
     }
