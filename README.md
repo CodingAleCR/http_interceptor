@@ -20,16 +20,23 @@ This is a plugin that lets you intercept the different requests and responses fr
 
 **Already using `http_interceptor`? Check out the [1.0.0 migration guide](./guides/migration_guide_1.0.0.md) for quick reference on the changes made and how to migrate your code.**
 
-- [Installation](#installation)
-- [Features](#features)
-- [Usage](#usage)
-  - [Building your own interceptor](#building-your-own-interceptor)
-  - [Using your interceptor](#using-your-interceptor)
-  - [Retrying requests](#retrying-requests)
-  - [Using self-signed certificates](#using-self-signed-certificates)
-- [Having trouble? Fill an issue](#troubleshooting)
-- [Roadmap](https://doc.clickup.com/p/h/82gtq-119/f552a826792c049)
-- [Contribution](#contributions)
+- [http_interceptor](#http_interceptor)
+  - [Quick Reference](#quick-reference)
+  - [Installation](#installation)
+  - [Features](#features)
+  - [Usage](#usage)
+    - [Building your own interceptor](#building-your-own-interceptor)
+    - [Using your interceptor](#using-your-interceptor)
+      - [Using interceptors with Client](#using-interceptors-with-client)
+      - [Using interceptors without Client](#using-interceptors-without-client)
+    - [Retrying requests](#retrying-requests)
+    - [Using self signed certificates](#using-self-signed-certificates)
+    - [InterceptedClient](#interceptedclient)
+    - [InterceptedHttp](#interceptedhttp)
+  - [Roadmap](#roadmap)
+  - [Troubleshooting](#troubleshooting)
+  - [Contributions](#contributions)
+    - [Contributors](#contributors)
 
 ## Installation
 
@@ -65,15 +72,15 @@ In order to implement `http_interceptor` you need to implement the `InterceptorC
 ```dart
 class LoggingInterceptor implements InterceptorContract {
   @override
-  Future<RequestData> interceptRequest({required RequestData data}) async {
-    print(data.toString());
-    return data;
+  Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
+    print(request.toString());
+    return request;
   }
 
   @override
-  Future<ResponseData> interceptResponse({required ResponseData data}) async {
-      print(data.toString());
-      return data;
+  Future<BaseResponse> interceptResponse({required BaseResponse response}) async {
+      print(response.toString());
+      return response;
   }
 
 }
@@ -84,19 +91,43 @@ class LoggingInterceptor implements InterceptorContract {
 ```dart
 class WeatherApiInterceptor implements InterceptorContract {
   @override
-  Future<RequestData> interceptRequest({required RequestData data}) async {
+  Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
     try {
-      data.params['appid'] = OPEN_WEATHER_API_KEY;
-      data.params['units'] = 'metric';
-      data.headers["Content-Type"] = "application/json";
+      request.url.queryParameters['appid'] = OPEN_WEATHER_API_KEY;
+      request.url.queryParameters['units'] = 'metric';
+      request.headers[HttpHeaders.contentTypeHeader] = "application/json";
     } catch (e) {
       print(e);
     }
-    return data;
+    return request;
   }
 
   @override
-  Future<ResponseData> interceptResponse({required ResponseData data}) async => data;
+  Future<BaseResponse> interceptResponse({required BaseResponse response}) async => response;
+}
+```
+
+- You can also react to and modify specific types of requests and responses, such as `StreamedRequest`,`StreamedResponse`, or `MultipartRequest` :
+
+```dart
+class MultipartRequestInterceptor implements InterceptorContract {
+  @override
+  Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
+    if(request is MultipartRequest){
+      request.fields['app_version'] = await PackageInfo.fromPlatform().version;
+    }
+    return request;
+  }
+
+  @override
+  Future<BaseResponse> interceptResponse({required BaseResponse response}) async {
+    if(response is StreamedResponse){
+      response.stream.asBroadcastStream().listen((data){
+        print(data);
+      });
+    }
+    return response;
+  }
 }
 ```
 
@@ -181,7 +212,7 @@ Sometimes you need to retry a request due to different circumstances, an expired
 ```dart
 class ExpiredTokenRetryPolicy extends RetryPolicy {
   @override
-  Future<bool> shouldAttemptRetryOnResponse(ResponseData response) async {
+  Future<bool> shouldAttemptRetryOnResponse(BaseResponse response) async {
     if (response.statusCode == 401) {
       // Perform your token refresh here.
 
