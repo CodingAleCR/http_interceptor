@@ -1,7 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:http/http.dart';
 import 'package:flutter/material.dart';
+import 'package:http/src/base_response.dart';
+import 'package:http/src/base_request.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'credentials.dart'; // If you are going to run this example you need to replace the key.
@@ -139,9 +142,8 @@ class WeatherSearch extends SearchDelegate<String?> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    final suggestionList = query.isEmpty
-        ? cities
-        : cities.where((p) => p["name"].toString().startsWith(query)).toList();
+    final suggestionList =
+        query.isEmpty ? cities : cities.where((p) => p["name"].toString().startsWith(query)).toList();
     return ListView.builder(
       itemCount: suggestionList.length,
       itemBuilder: (context, index) {
@@ -187,8 +189,7 @@ class WeatherSearch extends SearchDelegate<String?> {
               children: <Widget>[
                 ListTile(
                   leading: Tooltip(
-                    child: Image.network(
-                        "https://openweathermap.org/img/w/$iconWeather.png"),
+                    child: Image.network("https://openweathermap.org/img/w/$iconWeather.png"),
                     message: weather["weather"][0]["main"],
                   ),
                   title: Text(city["name"]),
@@ -282,8 +283,7 @@ class WeatherRepository {
   Future<Map<String, dynamic>> fetchCityWeather(int? id) async {
     var parsedWeather;
     try {
-      final response =
-          await client.get("$baseUrl/weather".toUri(), params: {'id': "$id"});
+      final response = await client.get("$baseUrl/weather".toUri(), params: {'id': "$id"});
       if (response.statusCode == 200) {
         parsedWeather = json.decode(response.body);
       } else {
@@ -307,17 +307,17 @@ class WeatherRepository {
 
 class LoggerInterceptor implements InterceptorContract {
   @override
-  Future<RequestData> interceptRequest({required RequestData data}) async {
+  Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
     print("----- Request -----");
-    print(data.toString());
-    return data;
+    print(request.toString());
+    return request;
   }
 
   @override
-  Future<ResponseData> interceptResponse({required ResponseData data}) async {
+  Future<BaseResponse> interceptResponse({required BaseResponse response}) async {
     print("----- Response -----");
-    print(data.toString());
-    return data;
+    print(response.toString());
+    return response;
   }
 }
 
@@ -325,23 +325,24 @@ const String appToken = "TOKEN";
 
 class WeatherApiInterceptor implements InterceptorContract {
   @override
-  Future<RequestData> interceptRequest({required RequestData data}) async {
-    try {
-      final cache = await SharedPreferences.getInstance();
+  Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
+    if (request is Request) {
+      try {
+        final cache = await SharedPreferences.getInstance();
 
-      data.params['appid'] = cache.getString(appToken);
-      data.params['units'] = 'metric';
-      data.headers[HttpHeaders.contentTypeHeader] = "application/json";
-    } catch (e) {
-      print(e);
+        request.url.queryParameters['appid'] = cache.getString(appToken) ?? '';
+        request.url.queryParameters['units'] = 'metric';
+        request.headers[HttpHeaders.contentTypeHeader] = "application/json";
+      } catch (e) {
+        print(e);
+      }
+      print(request.url.queryParameters);
     }
-    print(data.params);
-    return data;
+    return request;
   }
 
   @override
-  Future<ResponseData> interceptResponse({required ResponseData data}) async =>
-      data;
+  Future<BaseResponse> interceptResponse({required BaseResponse response}) async => response;
 }
 
 class ExpiredTokenRetryPolicy extends RetryPolicy {
@@ -356,7 +357,7 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
   }
 
   @override
-  Future<bool> shouldAttemptRetryOnResponse(ResponseData response) async {
+  Future<bool> shouldAttemptRetryOnResponse(BaseResponse response) async {
     if (response.statusCode == 401) {
       print("Retrying request...");
       final cache = await SharedPreferences.getInstance();
