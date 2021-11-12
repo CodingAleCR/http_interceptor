@@ -246,7 +246,8 @@ class InterceptedClient extends BaseClient {
           ? await _inner.send(interceptedRequest)
           : await _inner.send(interceptedRequest).timeout(requestTimeout!);
 
-      response = request is Request ? await Response.fromStream(stream) : stream;
+      response =
+          request is Request ? await Response.fromStream(stream) : stream;
 
       if (retryPolicy != null &&
           retryPolicy!.maxRetryAttempts > _retryCount &&
@@ -271,7 +272,7 @@ class InterceptedClient extends BaseClient {
 
   /// This internal function intercepts the request.
   Future<BaseRequest> _interceptRequest(BaseRequest request) async {
-    BaseRequest interceptedRequest = request;
+    BaseRequest interceptedRequest = request.clone();
     for (InterceptorContract interceptor in interceptors) {
       interceptedRequest = await interceptor.interceptRequest(
         request: interceptedRequest,

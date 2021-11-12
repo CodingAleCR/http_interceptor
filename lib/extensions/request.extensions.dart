@@ -2,6 +2,21 @@ import 'dart:convert';
 
 import 'package:http/http.dart';
 
+extension BaseRequestClone on BaseRequest {
+  BaseRequest clone() {
+    if (this is Request) {
+      return (this as Request).copyWith();
+    } else if (this is StreamedRequest) {
+      return (this as Request).copyWith();
+    } else if (this is MultipartRequest) {
+      return (this as Request).copyWith();
+    }
+
+    throw UnsupportedError(
+        'Cannot clone unsupported type of request ${this.runtimeType}');
+  }
+}
+
 extension RequestCopyWith on Request {
   Request copyWith({
     String? method,
@@ -28,8 +43,9 @@ extension RequestCopyWith on Request {
         req.bodyBytes = body;
       } else if (body is Map<String, String>) {
         req.bodyFields = body;
+      } else {
+        throw new ArgumentError('Invalid request body "$body".');
       }
-      throw UnsupportedError('Unsupported body type: ${body.runtimeType}');
     }
     if (encoding != null) {
       req.encoding = encoding;

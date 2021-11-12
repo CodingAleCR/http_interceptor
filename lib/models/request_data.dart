@@ -46,7 +46,6 @@ class RequestData {
   /// Creates a new request data from an HTTP request.
   ///
   /// For now it only supports [Request].
-  /// TODO(codingalecr): Support for [MultipartRequest] and [StreamedRequest].
   factory RequestData.fromHttpRequest(BaseRequest request) {
     var params = Map<String, dynamic>();
     request.url.queryParametersAll.forEach((key, value) {

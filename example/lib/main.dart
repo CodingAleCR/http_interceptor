@@ -142,8 +142,9 @@ class WeatherSearch extends SearchDelegate<String?> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    final suggestionList =
-        query.isEmpty ? cities : cities.where((p) => p["name"].toString().startsWith(query)).toList();
+    final suggestionList = query.isEmpty
+        ? cities
+        : cities.where((p) => p["name"].toString().startsWith(query)).toList();
     return ListView.builder(
       itemCount: suggestionList.length,
       itemBuilder: (context, index) {
@@ -166,7 +167,7 @@ class WeatherSearch extends SearchDelegate<String?> {
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Center(
-            child: Text(snapshot.error as String),
+            child: Text(snapshot.error?.toString() ?? 'Error'),
           );
         }
 
@@ -189,7 +190,8 @@ class WeatherSearch extends SearchDelegate<String?> {
               children: <Widget>[
                 ListTile(
                   leading: Tooltip(
-                    child: Image.network("https://openweathermap.org/img/w/$iconWeather.png"),
+                    child: Image.network(
+                        "https://openweathermap.org/img/w/$iconWeather.png"),
                     message: weather["weather"][0]["main"],
                   ),
                   title: Text(city["name"]),
@@ -283,7 +285,8 @@ class WeatherRepository {
   Future<Map<String, dynamic>> fetchCityWeather(int? id) async {
     var parsedWeather;
     try {
-      final response = await client.get("$baseUrl/weather".toUri(), params: {'id': "$id"});
+      final response =
+          await client.get("$baseUrl/weather".toUri(), params: {'id': "$id"});
       if (response.statusCode == 200) {
         parsedWeather = json.decode(response.body);
       } else {
@@ -310,13 +313,16 @@ class LoggerInterceptor implements InterceptorContract {
   Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
     print("----- Request -----");
     print(request.toString());
+    if (request is Request) print(request.body.toString());
     return request;
   }
 
   @override
-  Future<BaseResponse> interceptResponse({required BaseResponse response}) async {
+  Future<BaseResponse> interceptResponse(
+      {required BaseResponse response}) async {
     print("----- Response -----");
-    print(response.toString());
+    print(response.statusCode);
+    print(response);
     return response;
   }
 }
@@ -330,9 +336,26 @@ class WeatherApiInterceptor implements InterceptorContract {
       try {
         final cache = await SharedPreferences.getInstance();
 
-        request.url.queryParameters['appid'] = cache.getString(appToken) ?? '';
-        request.url.queryParameters['units'] = 'metric';
-        request.headers[HttpHeaders.contentTypeHeader] = "application/json";
+        final Map<String, String>? headers = Map.from(request.headers);
+        headers?[HttpHeaders.contentTypeHeader] = "application/json";
+
+        Map<String, dynamic>? body = {};
+
+        if (request.body.isNotEmpty) {
+          body = jsonDecode(request.body) as Map<String, dynamic>?;
+        }
+
+        body?['hello'] = 'world';
+        final bodyJson = jsonEncode(body);
+
+        return request.copyWith(
+          url: request.url.addParameters({
+            'appid': cache.getString(appToken) ?? '',
+            'units': 'metric',
+          }),
+          headers: headers,
+          body: bodyJson,
+        );
       } catch (e) {
         print(e);
       }
@@ -342,7 +365,9 @@ class WeatherApiInterceptor implements InterceptorContract {
   }
 
   @override
-  Future<BaseResponse> interceptResponse({required BaseResponse response}) async => response;
+  Future<BaseResponse> interceptResponse(
+          {required BaseResponse response}) async =>
+      response;
 }
 
 class ExpiredTokenRetryPolicy extends RetryPolicy {
