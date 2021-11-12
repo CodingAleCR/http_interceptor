@@ -47,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> clearStorageForDemoPurposes() async {
     final cache = await SharedPreferences.getInstance();
 
-    cache.setString(appToken, OPEN_WEATHER_EXPIRED_API_KEY);
+    cache.setString(kAppToken, OPEN_WEATHER_EXPIRED_API_KEY);
   }
 
   @override
@@ -313,7 +313,6 @@ class LoggerInterceptor implements InterceptorContract {
   Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
     print("----- Request -----");
     print(request.toString());
-    if (request is Request) print(request.body.toString());
     return request;
   }
 
@@ -327,7 +326,7 @@ class LoggerInterceptor implements InterceptorContract {
   }
 }
 
-const String appToken = "TOKEN";
+const String kAppToken = "TOKEN";
 
 class WeatherApiInterceptor implements InterceptorContract {
   @override
@@ -339,22 +338,12 @@ class WeatherApiInterceptor implements InterceptorContract {
         final Map<String, String>? headers = Map.from(request.headers);
         headers?[HttpHeaders.contentTypeHeader] = "application/json";
 
-        Map<String, dynamic>? body = {};
-
-        if (request.body.isNotEmpty) {
-          body = jsonDecode(request.body) as Map<String, dynamic>?;
-        }
-
-        body?['hello'] = 'world';
-        final bodyJson = jsonEncode(body);
-
         return request.copyWith(
           url: request.url.addParameters({
-            'appid': cache.getString(appToken) ?? '',
+            'appid': cache.getString(kAppToken) ?? '',
             'units': 'metric',
           }),
           headers: headers,
-          body: bodyJson,
         );
       } catch (e) {
         print(e);
@@ -387,7 +376,7 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
       print("Retrying request...");
       final cache = await SharedPreferences.getInstance();
 
-      cache.setString(appToken, OPEN_WEATHER_API_KEY);
+      cache.setString(kAppToken, OPEN_WEATHER_API_KEY);
 
       return true;
     }
