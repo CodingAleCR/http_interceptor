@@ -1,15 +1,15 @@
 name: http_interceptor
 description: A lightweight, simple plugin that allows you to intercept request and response objects and modify them if desired.
-version: 1.0.2
+version: 2.0.0-beta.1
 homepage: https://github.com/CodingAleCR/http_interceptor
 issue_tracker: https://github.com/CodingAleCR/http_interceptor/issues
 repository: https://github.com/CodingAleCR/http_interceptor
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
-  http: ^0.13.3
+  http: ^0.13.4
 
 dev_dependencies:
   test: ^1.17.5
