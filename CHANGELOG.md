@@ -1,12 +1,22 @@
 # Changelog
 
+## 2.0.0-beta.1
+
+- ❗️🛠&nbsp;&nbsp;Changed: Renamed `Method` to use `HttpMethod` and refactored helper functions into extensions (`StringToMethod`, and `MethodToString`).
+- ❗️🛠&nbsp;&nbsp;Changed: `InterceptorContract` to use `BaseRequest` and `BaseResponse` instead of custom models.
+- ❗️🛠&nbsp;&nbsp;Removed: `RequestData` and `ResponseData` since the classes are no longer used.
+- ✨&nbsp;&nbsp;Added: Support for intercepting `Request`,`StreamedRequest` and `MultipartRequest`.
+- ✨&nbsp;&nbsp;Added: Support for intercepting `Response`,`StreamedResponse` and `MultipartRequest`.
+- ✨&nbsp;&nbsp;Added: Extensions for `BaseRequest`, `Request`,`StreamedRequest` and `MultipartRequest` that allows copying requests through a `copyWith` method.
+- ✨&nbsp;&nbsp;Added: Extensions for `BaseResponse`, `Response`,`StreamedResponse` and `IOStreamedResponse` that allows copying responses through a `copyWith` method.
+- 📖&nbsp;&nbsp;Changed: **example** project to showcase updated APIs.
+- 🚦&nbsp;&nbsp;Tests: Improved testing and documentation.
+
 ## 1.0.2
 
 - 📖&nbsp;&nbsp;Changed: example project to showcase `RetryPolicy` usage.
 - 🐞&nbsp;&nbsp;Fixed: `parameters` were missing in requests of type `POST`, `PUT`, `PATCH`, and `DELETE`.
-- 🐞&nbsp;&nbsp;Fixed: `int` or other non-string parameters are not being added to request. Thanks to @
-  Contributor
-  meysammahfouzi
+- 🐞&nbsp;&nbsp;Fixed: `int` or other non-string parameters are not being added to request. Thanks to @meysammahfouzi
 - 🐞&nbsp;&nbsp;Fixed: `body` is not sent in delete requests despite being accepted as parameter. Thanks to @MaciejZuk
 
 ## 1.0.1

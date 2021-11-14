@@ -1,4 +1,4 @@
-import 'package:http_interceptor/models/models.dart';
+import 'package:http/http.dart';
 
 ///Interceptor interface to create custom Interceptor for http.
 ///Extend this class and override the functions that you want
@@ -12,21 +12,21 @@ import 'package:http_interceptor/models/models.dart';
 ///```dart
 /// class LoggingInterceptor implements InterceptorContract {
 ///  @override
-///  Future<RequestData> interceptRequest({required RequestData data}) async {
-///    print(data.toString());
+///  Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
+///    print(request.toString());
 ///    return data;
 ///  }
 ///
 ///  @override
-///  Future<ResponseData> interceptResponse({required ResponseData data}) async {
-///      print(data.toString());
+///  Future<BaseResponse> interceptResponse({required BaseResponse response}) async {
+///      print(response.toString());
 ///      return data;
 ///  }
 ///
 ///}
 ///```
 abstract class InterceptorContract {
-  Future<RequestData> interceptRequest({required RequestData data});
+  Future<BaseRequest> interceptRequest({required BaseRequest request});
 
-  Future<ResponseData> interceptResponse({required ResponseData data});
+  Future<BaseResponse> interceptResponse({required BaseResponse response});
 }

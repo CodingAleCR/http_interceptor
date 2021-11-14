@@ -1,5 +1,4 @@
-import 'dart:typed_data';
-
+import 'package:http/http.dart';
 import 'package:test/test.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 
@@ -29,7 +28,7 @@ main() {
     test("returns false by default", () async {
       expect(
         await testObject.shouldAttemptRetryOnResponse(
-          ResponseData(Uint8List(0), 200),
+          Response('', 200),
         ),
         false,
       );
