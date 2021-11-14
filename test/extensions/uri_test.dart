@@ -1,5 +1,5 @@
+import 'package:http_interceptor/extensions/uri.dart';
 import 'package:test/test.dart';
-import 'package:http_interceptor/extensions/uri.extensions.dart';
 
 void main() {
   group("addParameters extension", () {

@@ -1,4 +1,10 @@
-export 'string.extensions.dart';
-export 'uri.extensions.dart';
-export 'request.extensions.dart';
-export 'response.extensions.dart';
+export 'base_request.dart';
+export 'base_response_none.dart' if (dart.library.io) 'base_response_io.dart';
+export 'multipart_request.dart';
+export 'request.dart';
+export 'request.dart';
+export 'response.dart';
+export 'streamed_request.dart';
+export 'streamed_response.dart';
+export 'string.dart';
+export 'uri.dart';

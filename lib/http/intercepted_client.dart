@@ -3,42 +3,50 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:http/http.dart';
-import 'package:http_interceptor/models/models.dart';
 import 'package:http_interceptor/extensions/extensions.dart';
+import 'package:http_interceptor/models/models.dart';
 
 import 'http_methods.dart';
 import 'interceptor_contract.dart';
 
-///Class to be used by the user to set up a new `http.Client` with interceptor supported.
-///call the `build()` constructor passing in the list of interceptors.
-///Example:
-///```dart
-/// InterceptedClient httpClient = InterceptedClient.build(interceptors: [
-///     Logger(),
-/// ]);
-///```
+/// Class to be used by the user to set up a new `http.Client` with interceptor
+/// support.
 ///
-///Then call the functions you want to, on the created `httpClient` object.
-///```dart
-/// httpClient.get(...);
-/// httpClient.post(...);
-/// httpClient.put(...);
-/// httpClient.delete(...);
-/// httpClient.head(...);
-/// httpClient.patch(...);
-/// httpClient.read(...);
-/// httpClient.readBytes(...);
-/// httpClient.close();
-///```
-///Don't forget to close the client once you are done, as a client keeps
-///the connection alive with the server.
+/// Call `build()` and pass list of interceptors as parameter.
 ///
-///Note: `send` method is not currently supported.
+/// Example:
+/// ```dart
+///  InterceptedClient client = InterceptedClient.build(interceptors: [
+///      LoggingInterceptor(),
+///  ]);
+/// ```
+///
+/// Then call the functions you want to, on the created `client` object.
+/// ```dart
+///  client.get(...);
+///  client.post(...);
+///  client.put(...);
+///  client.delete(...);
+///  client.head(...);
+///  client.patch(...);
+///  client.read(...);
+///  client.send(...);
+///  client.readBytes(...);
+///  client.close();
+/// ```
+///
+/// Don't forget to close the client once you are done, as a client keeps
+/// the connection alive with the server by default.
 class InterceptedClient extends BaseClient {
-  List<InterceptorContract> interceptors;
-  Duration? requestTimeout;
-  RetryPolicy? retryPolicy;
-  String Function(Uri)? findProxy;
+  /// List of interceptors that will be applied to the requests and responses.
+  final List<InterceptorContract> interceptors;
+
+  /// Maximum duration of a request.
+  final Duration? requestTimeout;
+
+  /// A policy that defines whether a request or response should trigger a
+  /// retry. This is useful for implementing JWT token expiration
+  final RetryPolicy? retryPolicy;
 
   int _retryCount = 0;
   late Client _inner;
@@ -47,22 +55,36 @@ class InterceptedClient extends BaseClient {
     required this.interceptors,
     this.requestTimeout,
     this.retryPolicy,
-    this.findProxy,
     Client? client,
   }) : _inner = client ?? Client();
 
+  /// Builds a new [InterceptedClient] instance.
+  ///
+  /// Interceptors are applied in a linear order. For example a list that looks
+  /// like this:
+  ///
+  /// ```dart
+  /// InterceptedClient.build(
+  ///   interceptors: [
+  ///     WeatherApiInterceptor(),
+  ///     LoggerInterceptor(),
+  ///   ],
+  /// ),
+  /// ```
+  ///
+  /// Will apply first the `WeatherApiInterceptor` interceptor, so when
+  /// `LoggerInterceptor` receives the request/response it has already been
+  /// intercepted.
   factory InterceptedClient.build({
     required List<InterceptorContract> interceptors,
     Duration? requestTimeout,
     RetryPolicy? retryPolicy,
-    String Function(Uri)? findProxy,
     Client? client,
   }) =>
       InterceptedClient._internal(
         interceptors: interceptors,
         requestTimeout: requestTimeout,
         retryPolicy: retryPolicy,
-        findProxy: findProxy,
         client: client,
       );
 
@@ -72,7 +94,7 @@ class InterceptedClient extends BaseClient {
     Map<String, String>? headers,
   }) async =>
       (await _sendUnstreamed(
-        method: Method.HEAD,
+        method: HttpMethod.HEAD,
         url: url,
         headers: headers,
       )) as Response;
@@ -83,7 +105,7 @@ class InterceptedClient extends BaseClient {
     Map<String, dynamic>? params,
   }) async =>
       (await _sendUnstreamed(
-        method: Method.GET,
+        method: HttpMethod.GET,
         url: url,
         headers: headers,
         params: params,
@@ -98,7 +120,7 @@ class InterceptedClient extends BaseClient {
     Encoding? encoding,
   }) async =>
       (await _sendUnstreamed(
-        method: Method.POST,
+        method: HttpMethod.POST,
         url: url,
         headers: headers,
         params: params,
@@ -115,7 +137,7 @@ class InterceptedClient extends BaseClient {
     Encoding? encoding,
   }) async =>
       (await _sendUnstreamed(
-        method: Method.PUT,
+        method: HttpMethod.PUT,
         url: url,
         headers: headers,
         params: params,
@@ -132,7 +154,7 @@ class InterceptedClient extends BaseClient {
     Encoding? encoding,
   }) async =>
       (await _sendUnstreamed(
-        method: Method.PATCH,
+        method: HttpMethod.PATCH,
         url: url,
         headers: headers,
         params: params,
@@ -149,7 +171,7 @@ class InterceptedClient extends BaseClient {
     Encoding? encoding,
   }) async =>
       (await _sendUnstreamed(
-        method: Method.DELETE,
+        method: HttpMethod.DELETE,
         url: url,
         headers: headers,
         params: params,
@@ -193,7 +215,7 @@ class InterceptedClient extends BaseClient {
   }
 
   Future<BaseResponse> _sendUnstreamed({
-    required Method method,
+    required HttpMethod method,
     required Uri url,
     Map<String, String>? headers,
     Map<String, dynamic>? params,
@@ -202,7 +224,7 @@ class InterceptedClient extends BaseClient {
   }) async {
     url = url.addParameters(params);
 
-    Request request = new Request(methodToString(method), url);
+    Request request = new Request(method.asString, url);
     if (headers != null) request.headers.addAll(headers);
     if (encoding != null) request.encoding = encoding;
     if (body != null) {
@@ -272,7 +294,7 @@ class InterceptedClient extends BaseClient {
 
   /// This internal function intercepts the request.
   Future<BaseRequest> _interceptRequest(BaseRequest request) async {
-    BaseRequest interceptedRequest = request.clone();
+    BaseRequest interceptedRequest = request.copyWith();
     for (InterceptorContract interceptor in interceptors) {
       interceptedRequest = await interceptor.interceptRequest(
         request: interceptedRequest,

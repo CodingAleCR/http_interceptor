@@ -1,1 +1,1 @@
-export 'query_parameters.util.dart';
+export 'query_parameters.dart';
