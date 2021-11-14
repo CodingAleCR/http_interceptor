@@ -9,7 +9,7 @@
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-12-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-13-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
@@ -299,6 +299,7 @@ Thanks to all the wonderful people contributing to improve this package. Check t
     <td align="center"><a href="https://github.com/meysammahfouzi"><img src="https://avatars.githubusercontent.com/u/14848008?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Meysam</b></sub></a><br /><a href="https://github.com/CodingAleCR/http_interceptor/commits?author=meysammahfouzi" title="Documentation">📖</a></td>
     <td align="center"><a href="https://github.com/Mawi137"><img src="https://avatars.githubusercontent.com/u/5464100?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Martijn</b></sub></a><br /><a href="https://github.com/CodingAleCR/http_interceptor/commits?author=Mawi137" title="Tests">⚠️</a> <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=Mawi137" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/MaciejZuk"><img src="https://avatars.githubusercontent.com/u/78476165?v=4?s=100" width="100px;" alt=""/><br /><sub><b>MaciejZuk</b></sub></a><br /><a href="https://github.com/CodingAleCR/http_interceptor/issues?q=author%3AMaciejZuk" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="http://lukaskurz.com"><img src="https://avatars.githubusercontent.com/u/22956519?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Lukas Kurz</b></sub></a><br /><a href="https://github.com/CodingAleCR/http_interceptor/commits?author=lukaskurz" title="Tests">⚠️</a> <a href="#ideas-lukaskurz" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=lukaskurz" title="Code">💻</a></td>
   </tr>
 </table>
 
