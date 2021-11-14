@@ -132,6 +132,17 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "lukaskurz",
+      "name": "Lukas Kurz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/22956519?v=4",
+      "profile": "http://lukaskurz.com",
+      "contributions": [
+        "test",
+        "ideas",
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
