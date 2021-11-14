@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.0-beta.2
+
+- 🐞&nbsp;&nbsp;Fixed: Changing `body` causes that the `headers` also change and ignore previous interceptions (i.e. content-type headers are overriden).
+
 ## 2.0.0-beta.1
 
 - ❗️🛠&nbsp;&nbsp;Changed: Renamed `Method` to use `HttpMethod` and refactored helper functions into extensions (`StringToMethod`, and `MethodToString`).

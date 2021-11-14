@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart';
 import 'package:http_interceptor/http_interceptor.dart';
@@ -10,7 +11,10 @@ main() {
 
   setUpAll(() {
     baseRequest = Request("GET", Uri.https("www.google.com", "/helloworld"))
-      ..body = jsonEncode(<String, String>{'some_param': 'some value'});
+      ..body = jsonEncode(<String, String>{'some_param': 'some value'})
+      ..headers.addAll({
+        HttpHeaders.contentTypeHeader: 'application/json; charset=utf-8',
+      });
     request = baseRequest as Request;
   });
 
@@ -154,7 +158,7 @@ main() {
     test('Request is copied overriding headers', () {
       // Arrange
       final newHeaders = Map<String, String>.from(request.headers);
-      newHeaders['content-type'] = 'application/json; charset=utf-8';
+      newHeaders['content-type'] = 'text/plain; charset=utf-8';
 
       // Act
       Request copied = request.copyWith(
@@ -202,10 +206,13 @@ main() {
       expect(copied.maxRedirects, equals(request.maxRedirects));
       expect(copied.persistentConnection, equals(request.persistentConnection));
     });
+
     test('Request is copied with different encoding', () {
       // Arrange
       final newEncoding = Encoding.getByName('latin1');
-      final changedHeaders = {'content-type': 'text/plain; charset=iso-8859-1'};
+      final changedHeaders = {
+        'content-type': 'application/json; charset=iso-8859-1'
+      };
 
       // Act
       Request copied = request.copyWith(
