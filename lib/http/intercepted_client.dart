@@ -205,9 +205,7 @@ class InterceptedClient extends BaseClient {
 
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
-    final interceptedRequest = await _interceptRequest(request);
-
-    final response = await _inner.send(interceptedRequest);
+    var response = await _attemptRequest(request);
 
     final interceptedResponse = await _interceptResponse(response);
 
