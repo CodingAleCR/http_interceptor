@@ -203,8 +203,6 @@ class InterceptedClient extends BaseClient {
     Object? body,
     Encoding? encoding,
   }) async {
-    PoolResource? poolResource = await _addToRequestPool(headers);
-
     url = url.addParameters(params);
 
     Request request = new Request(methodToString(method), url);
@@ -218,7 +216,6 @@ class InterceptedClient extends BaseClient {
       } else if (body is Map) {
         request.bodyFields = body.cast<String, String>();
       } else {
-        poolResource?.release();
         throw new ArgumentError('Invalid request body "$body".');
       }
     }
@@ -228,9 +225,7 @@ class InterceptedClient extends BaseClient {
     late Response response;
     try {
       response = await _attemptRequest(request);
-      poolResource?.release();
     } catch (_) {
-      poolResource?.release();
       rethrow;
     }
 
@@ -252,6 +247,8 @@ class InterceptedClient extends BaseClient {
   /// Attempts to perform the request and intercept the data
   /// of the response
   Future<Response> _attemptRequest(Request request) async {
+    PoolResource? poolResource = await _addToRequestPool(request.headers);
+
     var response;
     try {
       // Intercept request
@@ -267,6 +264,7 @@ class InterceptedClient extends BaseClient {
           await retryPolicy!.shouldAttemptRetryOnResponse(
               ResponseData.fromHttpResponse(response))) {
         _retryCount += 1;
+        poolResource?.release();
         return _attemptRequest(request);
       }
     } on Exception catch (error) {
@@ -274,13 +272,16 @@ class InterceptedClient extends BaseClient {
           retryPolicy!.maxRetryAttempts > _retryCount &&
           retryPolicy!.shouldAttemptRetryOnException(error)) {
         _retryCount += 1;
+        poolResource?.release();
         return _attemptRequest(request);
       } else {
+        poolResource?.release();
         rethrow;
       }
     }
 
     _retryCount = 0;
+    poolResource?.release();
     return response;
   }
 
