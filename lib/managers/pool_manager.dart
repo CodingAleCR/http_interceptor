@@ -20,6 +20,11 @@ class PoolManager {
   late Pool _tokenPool = Pool(1);
   PoolResource? _tokenResource;
 
+  bool _tokenUpdateRequested = true;
+
+  /// If a token update has been requested, and has not been released yet.
+  bool get tokenUpdateRequested => _tokenUpdateRequested;
+
   /// A new request for the main pool.
   Future<PoolResource> request() async {
     if (_tokenResource != null) {
@@ -38,6 +43,7 @@ class PoolManager {
   /// This will make other requests wait until the token pool is released
   /// by using [releaseUpdateToken].
   Future requestUpdateToken() async {
+    _tokenUpdateRequested = true;
     if (_tokenResource != null) {
       return;
     }
@@ -46,10 +52,11 @@ class PoolManager {
 
   /// Release the request of the token pool.
   void releaseUpdateToken() {
+    _tokenUpdateRequested = false;
     _tokenResource?.release();
     _tokenResource = null;
   }
-  
+
   /// Release all pending requests and create new pools.
   /// This will allow all pending requests to continue.
   Future reset() async {
