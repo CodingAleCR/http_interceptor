@@ -20,7 +20,7 @@ class PoolManager {
   late Pool _tokenPool = Pool(1);
   PoolResource? _tokenResource;
 
-  bool _tokenUpdateRequested = true;
+  bool _tokenUpdateRequested = false;
 
   /// If a token update has been requested, and has not been released yet.
   bool get tokenUpdateRequested => _tokenUpdateRequested;
