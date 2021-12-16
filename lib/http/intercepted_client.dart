@@ -264,7 +264,7 @@ class InterceptedClient extends BaseClient {
           await retryPolicy!.shouldAttemptRetryOnResponse(
               ResponseData.fromHttpResponse(response))) {
         _retryCount += 1;
-        poolResource?.release();
+        await _releasePoolRequest(poolResource);
         return _attemptRequest(request);
       }
     } on Exception catch (error) {
@@ -272,16 +272,16 @@ class InterceptedClient extends BaseClient {
           retryPolicy!.maxRetryAttempts > _retryCount &&
           retryPolicy!.shouldAttemptRetryOnException(error)) {
         _retryCount += 1;
-        poolResource?.release();
+        await _releasePoolRequest(poolResource);
         return _attemptRequest(request);
       } else {
-        poolResource?.release();
+        await _releasePoolRequest(poolResource);
         rethrow;
       }
     }
 
     _retryCount = 0;
-    poolResource?.release();
+    await _releasePoolRequest(poolResource);
     return response;
   }
 
@@ -324,6 +324,14 @@ class InterceptedClient extends BaseClient {
     if (poolManager == null) {
       return null;
     }
-    return await poolManager!.request();
+    return await poolManager?.request();
+  }
+
+  /// Release a [PoolRequest]
+  Future<void> _releasePoolRequest(PoolResource? poolResource) async {
+    if (poolResource == null) {
+      return;
+    }
+    await poolManager?.release(poolResource);
   }
 }
