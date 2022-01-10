@@ -19,7 +19,6 @@ extension MultipartRequestCopyWith on MultipartRequest {
         method?.asString ?? this.method,
         url ?? this.url,
       )
-        //TODO: PR
         ..headers.addAll(headers ?? this.headers)
         ..fields.addAll(fields ?? this.fields)
         ..files.addAll(files ?? this.files)

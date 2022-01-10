@@ -5,9 +5,6 @@ import 'dart:typed_data';
 import 'package:http/http.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 
-import 'intercepted_client.dart';
-import 'interceptor_contract.dart';
-
 /// Class to be used by the user as a replacement for 'http' with interceptor
 /// support.
 ///

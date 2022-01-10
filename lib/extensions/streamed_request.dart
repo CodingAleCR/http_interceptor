@@ -18,7 +18,6 @@ extension StreamedRequestCopyWith on StreamedRequest {
       method?.asString ?? this.method,
       url ?? this.url,
     )
-      //TODO: PR
       ..headers.addAll(headers ?? this.headers)
       ..followRedirects = followRedirects ?? this.followRedirects
       ..maxRedirects = maxRedirects ?? this.maxRedirects

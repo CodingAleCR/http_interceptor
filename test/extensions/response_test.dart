@@ -7,7 +7,13 @@ main() {
   late Response response;
 
   setUpAll(() {
-    baseResponse = Response("{'foo': 'bar'}", 200);
+    baseResponse = Response(
+      "{'foo': 'bar'}",
+      200,
+      headers: {
+        'some_header': 'header_value',
+      },
+    );
     response = baseResponse as Response;
   });
 

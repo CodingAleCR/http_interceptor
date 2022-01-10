@@ -21,7 +21,6 @@ extension RequestCopyWith on Request {
         method?.asString ?? this.method,
         url ?? this.url,
       )
-        //TODO: PR
         ..headers.addAll(headers ?? this.headers)
         ..encoding = encoding ?? this.encoding
         ..body = body ?? this.body
