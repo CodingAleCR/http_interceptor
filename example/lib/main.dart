@@ -1,11 +1,15 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:http/src/base_request.dart';
+import 'package:http/src/base_response.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'credentials.dart'; // If you are going to run this example you need to replace the key.
+
 import 'cities.dart'; // This is just a List of Maps that contains the suggested cities.
+import 'credentials.dart'; // If you are going to run this example you need to replace the key.
 
 void main() => runApp(MyApp());
 
@@ -44,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> clearStorageForDemoPurposes() async {
     final cache = await SharedPreferences.getInstance();
 
-    cache.setString(appToken, OPEN_WEATHER_EXPIRED_API_KEY);
+    cache.setString(kOWApiToken, OPEN_WEATHER_EXPIRED_API_KEY);
   }
 
   @override
@@ -164,7 +168,7 @@ class WeatherSearch extends SearchDelegate<String?> {
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Center(
-            child: Text(snapshot.error as String),
+            child: Text(snapshot.error?.toString() ?? 'Error'),
           );
         }
 
@@ -274,7 +278,7 @@ class WeatherRepository {
   //       throw Exception("Error while fetching. \n ${response.body}");
   //     }
   //   } catch (e) {
-  //     print(e);
+  //     log(e);
   //   }
   //   return parsedWeather;
   // }
@@ -297,7 +301,7 @@ class WeatherRepository {
     } on FormatException {
       return Future.error('Bad response format 👎');
     } on Exception catch (error) {
-      print(error);
+      log(error.toString());
       return Future.error('Unexpected error 😢');
     }
 
@@ -307,41 +311,45 @@ class WeatherRepository {
 
 class LoggerInterceptor implements InterceptorContract {
   @override
-  Future<RequestData> interceptRequest({required RequestData data}) async {
-    print("----- Request -----");
-    print(data.toString());
-    return data;
+  Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
+    log("----- Request -----");
+    log(request.toString());
+    return request;
   }
 
   @override
-  Future<ResponseData> interceptResponse({required ResponseData data}) async {
-    print("----- Response -----");
-    print(data.toString());
-    return data;
+  Future<BaseResponse> interceptResponse(
+      {required BaseResponse response}) async {
+    log("----- Response -----");
+    log('Err. Code: ${response.statusCode}');
+    log(response.toString());
+    return response;
   }
 }
 
-const String appToken = "TOKEN";
+const String kOWApiToken = "TOKEN";
 
 class WeatherApiInterceptor implements InterceptorContract {
   @override
-  Future<RequestData> interceptRequest({required RequestData data}) async {
-    try {
-      final cache = await SharedPreferences.getInstance();
+  Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
+    final cache = await SharedPreferences.getInstance();
 
-      data.params['appid'] = cache.getString(appToken);
-      data.params['units'] = 'metric';
-      data.headers[HttpHeaders.contentTypeHeader] = "application/json";
-    } catch (e) {
-      print(e);
-    }
-    print(data.params);
-    return data;
+    final Map<String, String>? headers = Map.from(request.headers);
+    headers?[HttpHeaders.contentTypeHeader] = "application/json";
+
+    return request.copyWith(
+      url: request.url.addParameters({
+        'appid': cache.getString(kOWApiToken) ?? '',
+        'units': 'metric',
+      }),
+      headers: headers,
+    );
   }
 
   @override
-  Future<ResponseData> interceptResponse({required ResponseData data}) async =>
-      data;
+  Future<BaseResponse> interceptResponse(
+          {required BaseResponse response}) async =>
+      response;
 }
 
 class ExpiredTokenRetryPolicy extends RetryPolicy {
@@ -350,18 +358,18 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
 
   @override
   bool shouldAttemptRetryOnException(Exception reason) {
-    print(reason);
+    log(reason.toString());
 
     return false;
   }
 
   @override
-  Future<bool> shouldAttemptRetryOnResponse(ResponseData response) async {
+  Future<bool> shouldAttemptRetryOnResponse(BaseResponse response) async {
     if (response.statusCode == 401) {
-      print("Retrying request...");
+      log("Retrying request...");
       final cache = await SharedPreferences.getInstance();
 
-      cache.setString(appToken, OPEN_WEATHER_API_KEY);
+      cache.setString(kOWApiToken, OPEN_WEATHER_API_KEY);
 
       return true;
     }

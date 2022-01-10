@@ -1,4 +1,3 @@
-
 # http_interceptor
 
 [![Pub](https://img.shields.io/pub/v/http_interceptor.svg)](https://pub.dev/packages/http_interceptor)
@@ -10,7 +9,7 @@
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-12-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-13-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
@@ -21,18 +20,23 @@ This is a plugin that lets you intercept the different requests and responses fr
 
 **Already using `http_interceptor`? Check out the [1.0.0 migration guide](./guides/migration_guide_1.0.0.md) for quick reference on the changes made and how to migrate your code.**
 
-- [Installation](#installation)
-- [Features](#features)
-- [Usage](#usage)
-  - [Building your own interceptor](#building-your-own-interceptor)
-  - [Using your interceptor](#using-your-interceptor)
-  - [Retrying requests](#retrying-requests)
-  - [Pool Manager](#pool-manager)
-    - [Refreshing a token](#refreshing-a-token)
-  - [Using self-signed certificates](#using-self-signed-certificates)
-- [Having trouble? Fill an issue](#troubleshooting)
-- [Roadmap](https://doc.clickup.com/p/h/82gtq-119/f552a826792c049)
-- [Contribution](#contributions)
+- [http_interceptor](#http_interceptor)
+  - [Quick Reference](#quick-reference)
+  - [Installation](#installation)
+  - [Features](#features)
+  - [Usage](#usage)
+    - [Building your own interceptor](#building-your-own-interceptor)
+    - [Using your interceptor](#using-your-interceptor)
+      - [Using interceptors with Client](#using-interceptors-with-client)
+      - [Using interceptors without Client](#using-interceptors-without-client)
+    - [Retrying requests](#retrying-requests)
+    - [Using self signed certificates](#using-self-signed-certificates)
+    - [InterceptedClient](#interceptedclient)
+    - [InterceptedHttp](#interceptedhttp)
+  - [Roadmap](#roadmap)
+  - [Troubleshooting](#troubleshooting)
+  - [Contributions](#contributions)
+    - [Contributors](#contributors)
 
 ## Installation
 
@@ -68,15 +72,15 @@ In order to implement `http_interceptor` you need to implement the `InterceptorC
 ```dart
 class LoggingInterceptor implements InterceptorContract {
   @override
-  Future<RequestData> interceptRequest({required RequestData data}) async {
-    print(data.toString());
-    return data;
+  Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
+    print(request.toString());
+    return request;
   }
 
   @override
-  Future<ResponseData> interceptResponse({required ResponseData data}) async {
-      print(data.toString());
-      return data;
+  Future<BaseResponse> interceptResponse({required BaseResponse response}) async {
+      print(response.toString());
+      return response;
   }
 
 }
@@ -87,19 +91,43 @@ class LoggingInterceptor implements InterceptorContract {
 ```dart
 class WeatherApiInterceptor implements InterceptorContract {
   @override
-  Future<RequestData> interceptRequest({required RequestData data}) async {
+  Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
     try {
-      data.params['appid'] = OPEN_WEATHER_API_KEY;
-      data.params['units'] = 'metric';
-      data.headers["Content-Type"] = "application/json";
+      request.url.queryParameters['appid'] = OPEN_WEATHER_API_KEY;
+      request.url.queryParameters['units'] = 'metric';
+      request.headers[HttpHeaders.contentTypeHeader] = "application/json";
     } catch (e) {
       print(e);
     }
-    return data;
+    return request;
   }
 
   @override
-  Future<ResponseData> interceptResponse({required ResponseData data}) async => data;
+  Future<BaseResponse> interceptResponse({required BaseResponse response}) async => response;
+}
+```
+
+- You can also react to and modify specific types of requests and responses, such as `StreamedRequest`,`StreamedResponse`, or `MultipartRequest` :
+
+```dart
+class MultipartRequestInterceptor implements InterceptorContract {
+  @override
+  Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
+    if(request is MultipartRequest){
+      request.fields['app_version'] = await PackageInfo.fromPlatform().version;
+    }
+    return request;
+  }
+
+  @override
+  Future<BaseResponse> interceptResponse({required BaseResponse response}) async {
+    if(response is StreamedResponse){
+      response.stream.asBroadcastStream().listen((data){
+        print(data);
+      });
+    }
+    return response;
+  }
 }
 ```
 
@@ -184,7 +212,7 @@ Sometimes you need to retry a request due to different circumstances, an expired
 ```dart
 class ExpiredTokenRetryPolicy extends RetryPolicy {
   @override
-  Future<bool> shouldAttemptRetryOnResponse(ResponseData response) async {
+  Future<bool> shouldAttemptRetryOnResponse(BaseResponse response) async {
     if (response.statusCode == 401) {
       // Perform your token refresh here.
 
@@ -194,65 +222,6 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
     return false;
   }
 }
-```
-
-### Pool Manager
-
-Using a `PoolManager` allows you to set the maximum amount of simultaneous requests, and pause  
-requests during token updates.
-
-Create a `PoolManager` and assign it to an `InterceptedClient`:
-
-```dart 
-final PoolManager poolManager = PoolManager(    
-  maxActiveConnections: 8, 
-);  
-  
-InterceptedClient.build(    
-  poolManager: poolManager, 
-);  
-```   
-In the above example only 8 requests can be active at once. By default this is 32.
-
-#### Skip the pool
-
-It is possible to skip a pool that is active, on hold, or blocked by a token update.
-This can be useful to, for example, update a token in a `RetryPolicy` while the pool is on hold.
-If the `InterceptedClient.kSkipPoolHeader` header is found in the request the pool will be skipped, so the request is executed immediately.
-
-To your headers, add for example:
-```dart
-headers[InterceptedClient.kSkipPoolHeader] = 'true';
-```
-
-The value of the header does not matter and the `InterceptedClient.kSkipPoolHeader` is filtered out of the request before being sent to the server.
-
-#### Refreshing a token
-
-If you use a `RetryPolicy` you can use the `PoolManager` to put new requests on hold until  
-the `RetryPolicy` has completed. Use `requestUpdateToken` to let the `PoolManager` know you want to  
-update the token and put new requests on hold. Once you have updated the token,  
-use `releaseUpdateToken` to resume requests.
-
-Be sure to add logic (through an interceptor) to update queued requests with the new token you got  
-in the `RetryPolicy`.
-
-`poolManager` in the example should be a reference to where you stored the `PoolManager` you  
-assigned to `InterceptedClient`.
-
-```dart  
-class TokenRetryPolicy extends RetryPolicy {  
-  @override Future<bool> shouldAttemptRetryOnResponse(ResponseData response) async { 
-    if (response.statusCode == 401) { 
-     // Need to get a new token 
-     await poolManager.requestUpdateToken();  
-     
-     /*  --- YOUR TOKEN REFRESH LOGIC --- */  
-     
-     poolManager.releaseUpdateToken(); return true; } 
-     return false; 
-   }
- }  
 ```
 
 You can also set the maximum amount of retry attempts with `maxRetryAttempts` property or override the `shouldAttemptRetryOnException` if you want to retry the request after it failed with an exception.
@@ -265,14 +234,14 @@ You can achieve support for self-signed certificates by providing `InterceptedHt
 
 ```dart
 Client client = InterceptedClient.build(
-        interceptors: [
-          WeatherApiInterceptor(),
-        ],
-        client: IOClient(
-          HttpClient()
-            ..badCertificateCallback = badCertificateCallback
-            ..findProxy = findProxy,
-        );
+  interceptors: [
+    WeatherApiInterceptor(),
+  ],
+  client: IOClient(
+    HttpClient()
+      ..badCertificateCallback = badCertificateCallback
+      ..findProxy = findProxy,
+  );
 );
 ```
 
@@ -280,14 +249,14 @@ Client client = InterceptedClient.build(
 
 ```dart
 final http = InterceptedHttp.build(
-        interceptors: [
-          WeatherApiInterceptor(),
-        ],
-        client: IOClient(
-          HttpClient()
-            ..badCertificateCallback = badCertificateCallback
-            ..findProxy = findProxy,
-        );
+  interceptors: [
+    WeatherApiInterceptor(),
+  ],
+  client: IOClient(
+    HttpClient()
+      ..badCertificateCallback = badCertificateCallback
+      ..findProxy = findProxy,
+  );
 );
 ```
 
@@ -330,6 +299,7 @@ Thanks to all the wonderful people contributing to improve this package. Check t
     <td align="center"><a href="https://github.com/meysammahfouzi"><img src="https://avatars.githubusercontent.com/u/14848008?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Meysam</b></sub></a><br /><a href="https://github.com/CodingAleCR/http_interceptor/commits?author=meysammahfouzi" title="Documentation">📖</a></td>
     <td align="center"><a href="https://github.com/Mawi137"><img src="https://avatars.githubusercontent.com/u/5464100?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Martijn</b></sub></a><br /><a href="https://github.com/CodingAleCR/http_interceptor/commits?author=Mawi137" title="Tests">⚠️</a> <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=Mawi137" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/MaciejZuk"><img src="https://avatars.githubusercontent.com/u/78476165?v=4?s=100" width="100px;" alt=""/><br /><sub><b>MaciejZuk</b></sub></a><br /><a href="https://github.com/CodingAleCR/http_interceptor/issues?q=author%3AMaciejZuk" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="http://lukaskurz.com"><img src="https://avatars.githubusercontent.com/u/22956519?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Lukas Kurz</b></sub></a><br /><a href="https://github.com/CodingAleCR/http_interceptor/commits?author=lukaskurz" title="Tests">⚠️</a> <a href="#ideas-lukaskurz" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=lukaskurz" title="Code">💻</a></td>
   </tr>
 </table>
 

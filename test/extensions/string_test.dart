@@ -1,5 +1,5 @@
+import 'package:http_interceptor/extensions/string.dart';
 import 'package:test/test.dart';
-import 'package:http_interceptor/extensions/string.extensions.dart';
 
 void main() {
   group("toUri extension", () {

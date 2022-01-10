@@ -1,3 +1,6 @@
+/// Takes a string and appends [parameters] as query parameters of [url].
+///
+/// It does not check if [url] is valid, it just appends the parameters.
 String buildUrlString(String url, Map<String, dynamic>? parameters) {
   // Avoids unnecessary processing.
   if (parameters == null) return url;

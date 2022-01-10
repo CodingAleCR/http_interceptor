@@ -1,5 +1,5 @@
-/// Enum representation of all http methods.
-enum Method {
+/// Enum representation of all available HTTP methods.
+enum HttpMethod {
   HEAD,
   GET,
   POST,
@@ -8,39 +8,45 @@ enum Method {
   DELETE,
 }
 
-/// Parses an string into a Method Enum value.
-Method methodFromString(String method) {
-  switch (method) {
-    case "HEAD":
-      return Method.HEAD;
-    case "GET":
-      return Method.GET;
-    case "POST":
-      return Method.POST;
-    case "PUT":
-      return Method.PUT;
-    case "PATCH":
-      return Method.PATCH;
-    case "DELETE":
-      return Method.DELETE;
+/// Extends [HttpMethod] to be initialized from a [String] value.
+extension StringToMethod on HttpMethod {
+  /// Parses an string into a Method Enum value.
+  static HttpMethod fromString(String method) {
+    switch (method) {
+      case "HEAD":
+        return HttpMethod.HEAD;
+      case "GET":
+        return HttpMethod.GET;
+      case "POST":
+        return HttpMethod.POST;
+      case "PUT":
+        return HttpMethod.PUT;
+      case "PATCH":
+        return HttpMethod.PATCH;
+      case "DELETE":
+        return HttpMethod.DELETE;
+    }
+    throw ArgumentError.value(method, "method", "Must be a valid HTTP Method.");
   }
-  throw ArgumentError.value(method, "method", "Must be a valid HTTP Method.");
 }
 
-// Parses a Method Enum value into a string.
-String methodToString(Method method) {
-  switch (method) {
-    case Method.HEAD:
-      return "HEAD";
-    case Method.GET:
-      return "GET";
-    case Method.POST:
-      return "POST";
-    case Method.PUT:
-      return "PUT";
-    case Method.PATCH:
-      return "PATCH";
-    case Method.DELETE:
-      return "DELETE";
+/// Extends [HttpMethod] to provide a [String] representation.
+extension MethodToString on HttpMethod {
+  // Parses a Method Enum value into a string.
+  String get asString {
+    switch (this) {
+      case HttpMethod.HEAD:
+        return "HEAD";
+      case HttpMethod.GET:
+        return "GET";
+      case HttpMethod.POST:
+        return "POST";
+      case HttpMethod.PUT:
+        return "PUT";
+      case HttpMethod.PATCH:
+        return "PATCH";
+      case HttpMethod.DELETE:
+        return "DELETE";
+    }
   }
 }
