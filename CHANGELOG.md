@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.0-beta.3
+
+- 🐞&nbsp;&nbsp;Fixed: `copyWith` was missing fields
+- 🚦&nbsp;&nbsp;Tests: Updated tests.
+
 ## 2.0.0-beta.1
 
 - ❗️🛠&nbsp;&nbsp;Changed: Renamed `Method` to use `HttpMethod` and refactored helper functions into extensions (`StringToMethod`, and `MethodToString`).
