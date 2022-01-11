@@ -55,7 +55,7 @@ class InterceptedClient extends BaseClient {
   /// Manage the requests in a Pool.
   PoolManager? poolManager;
 
-  int _retryCount = 0;
+  Map<BaseRequest, int> _retryCount = {};
   late Client _inner;
 
   InterceptedClient._internal({
@@ -281,6 +281,10 @@ class InterceptedClient extends BaseClient {
     PoolResource? poolResource = await _addToRequestPool(request.headers);
     request.headers.remove(kSkipPoolHeader);
 
+    if (!_retryCount.containsKey(request)) {
+      _retryCount[request] = 0;
+    }
+
     var response;
     try {
       // Intercept request
@@ -294,26 +298,35 @@ class InterceptedClient extends BaseClient {
           request is Request ? await Response.fromStream(stream) : stream;
 
       if (retryPolicy != null &&
-          retryPolicy!.maxRetryAttempts > _retryCount &&
+          retryPolicy!.maxRetryAttempts > _retryCount[request]! &&
           await retryPolicy!.shouldAttemptRetryOnResponse(response)) {
-        _retryCount += 1;
+        _retryCount[request] = _retryCount[request]! + 1;
+        response = await _attemptRequest(request);
         await _releasePoolRequest(poolResource);
-        return _attemptRequest(request);
+        return response;
       }
     } on Exception catch (error) {
       if (retryPolicy != null &&
-          retryPolicy!.maxRetryAttempts > _retryCount &&
+          retryPolicy!.maxRetryAttempts > _retryCount[request]! &&
           retryPolicy!.shouldAttemptRetryOnException(error)) {
-        _retryCount += 1;
-        await _releasePoolRequest(poolResource);
-        return _attemptRequest(request);
+        _retryCount[request] = _retryCount[request]! + 1;
+        try {
+          response = await _attemptRequest(request);
+          await _releasePoolRequest(poolResource);
+          return response;
+        } on Exception catch (_) {
+          _retryCount.remove(request);
+          await _releasePoolRequest(poolResource);
+          rethrow;
+        }
       } else {
+        _retryCount.remove(request);
         await _releasePoolRequest(poolResource);
         rethrow;
       }
     }
 
-    _retryCount = 0;
+    _retryCount.remove(request);
     await _releasePoolRequest(poolResource);
     return response;
   }
