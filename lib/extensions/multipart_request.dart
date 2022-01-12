@@ -19,9 +19,9 @@ extension MultipartRequestCopyWith on MultipartRequest {
         method?.asString ?? this.method,
         url ?? this.url,
       )
-        ..headers.addAll(headers ?? {})
-        ..fields.addAll(fields ?? {})
-        ..files.addAll(files ?? [])
+        ..headers.addAll(headers ?? this.headers)
+        ..fields.addAll(fields ?? this.fields)
+        ..files.addAll(files ?? this.files)
         ..followRedirects = followRedirects ?? this.followRedirects
         ..maxRedirects = maxRedirects ?? this.maxRedirects
         ..persistentConnection =

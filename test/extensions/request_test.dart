@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:http/http.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:test/test.dart';
 
@@ -210,12 +209,15 @@ main() {
     test('Request is copied with different encoding', () {
       // Arrange
       final newEncoding = Encoding.getByName('latin1');
-      final changedHeaders = {
-        'content-type': 'application/json; charset=iso-8859-1'
-      };
+      final changedHeaders = {'content-type': 'text/plain; charset=iso-8859-1'}
+        ..addAll(request.headers);
+
+      Request updatedHeadersRequest = request.copyWith(
+        headers: changedHeaders,
+      );
 
       // Act
-      Request copied = request.copyWith(
+      Request copied = updatedHeadersRequest.copyWith(
         encoding: newEncoding,
       );
 
@@ -223,7 +225,7 @@ main() {
       expect(copied.url, equals(request.url));
       expect(copied.method, equals(request.method));
       expect(copied.headers.length, equals(request.headers.length));
-      expect(copied.headers, equals(changedHeaders));
+      expect(updatedHeadersRequest.headers, equals(request.headers));
       expect(copied.body, equals(request.body));
       expect(
           copied.encoding,
