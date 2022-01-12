@@ -1,11 +1,16 @@
 # Changelog
 
-## 2.0.0-beta.2
+## 2.0.0-beta.3
 
 - 🐞&nbsp;&nbsp;Fixed: `MultipartRequest` does not get intercepted correctly (has missing fields).
 - 🐞&nbsp;&nbsp;Fixed: `MultipartRequest` ignores retry policy.
 - 🐞&nbsp;&nbsp;Fixed: Changing `body` causes that the `headers` also change and ignore previous interceptions (i.e. content-type headers are overriden).
 - 🐞&nbsp;&nbsp;Fixed: `copyWith` was missing fields
+- 🚦&nbsp;&nbsp;Tests: Updated tests.
+
+## 2.0.0-beta.2
+
+- 🐞&nbsp;&nbsp;Fixed: Changing `body` causes that the `headers` also change and ignore previous interceptions (i.e. content-type headers are overriden).
 - 🚦&nbsp;&nbsp;Tests: Updated tests.
 
 ## 2.0.0-beta.1
