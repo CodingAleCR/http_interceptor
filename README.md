@@ -9,7 +9,7 @@
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-14-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-15-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
@@ -301,6 +301,9 @@ Thanks to all the wonderful people contributing to improve this package. Check t
     <td align="center"><a href="https://github.com/MaciejZuk"><img src="https://avatars.githubusercontent.com/u/78476165?v=4?s=100" width="100px;" alt=""/><br /><sub><b>MaciejZuk</b></sub></a><br /><a href="https://github.com/CodingAleCR/http_interceptor/issues?q=author%3AMaciejZuk" title="Bug reports">🐛</a></td>
     <td align="center"><a href="http://lukaskurz.com"><img src="https://avatars.githubusercontent.com/u/22956519?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Lukas Kurz</b></sub></a><br /><a href="https://github.com/CodingAleCR/http_interceptor/commits?author=lukaskurz" title="Tests">⚠️</a> <a href="#ideas-lukaskurz" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=lukaskurz" title="Code">💻</a></td>
     <td align="center"><a href="http://www.glennruysschaert.com"><img src="https://avatars.githubusercontent.com/u/3032294?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Glenn Ruysschaert</b></sub></a><br /><a href="https://github.com/CodingAleCR/http_interceptor/commits?author=vixez" title="Code">💻</a> <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=vixez" title="Tests">⚠️</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/dexcell"><img src="https://avatars.githubusercontent.com/u/41800?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Erick</b></sub></a><br /><a href="https://github.com/CodingAleCR/http_interceptor/commits?author=dexcell" title="Code">💻</a> <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=dexcell" title="Tests">⚠️</a></td>
   </tr>
 </table>
 

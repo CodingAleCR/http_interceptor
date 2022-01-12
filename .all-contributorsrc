@@ -153,6 +153,16 @@
         "code",
         "test"
       ]
+    },
+    {
+      "login": "dexcell",
+      "name": "Erick",
+      "avatar_url": "https://avatars.githubusercontent.com/u/41800?v=4",
+      "profile": "https://github.com/dexcell",
+      "contributions": [
+        "code",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
