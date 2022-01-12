@@ -1,4 +1,3 @@
-import 'package:http/http.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:test/test.dart';
 
@@ -7,7 +6,13 @@ main() {
   late Response response;
 
   setUpAll(() {
-    baseResponse = Response("{'foo': 'bar'}", 200);
+    baseResponse = Response(
+      "{'foo': 'bar'}",
+      200,
+      headers: {
+        'some_header': 'header_value',
+      },
+    );
     response = baseResponse as Response;
   });
 

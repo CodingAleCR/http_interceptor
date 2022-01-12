@@ -18,7 +18,7 @@ extension StreamedRequestCopyWith on StreamedRequest {
       method?.asString ?? this.method,
       url ?? this.url,
     )
-      ..headers.addAll(headers ?? {})
+      ..headers.addAll(headers ?? this.headers)
       ..followRedirects = followRedirects ?? this.followRedirects
       ..maxRedirects = maxRedirects ?? this.maxRedirects
       ..persistentConnection =
