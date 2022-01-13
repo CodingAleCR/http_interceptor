@@ -280,7 +280,7 @@ class InterceptedClient extends BaseClient {
     } on Exception catch (error) {
       if (retryPolicy != null &&
           retryPolicy!.maxRetryAttempts > _retryCount &&
-          retryPolicy!.shouldAttemptRetryOnException(error)) {
+          retryPolicy!.shouldAttemptRetryOnException(error, request)) {
         _retryCount += 1;
         return _attemptRequest(request);
       } else {
