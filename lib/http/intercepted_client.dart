@@ -285,7 +285,7 @@ class InterceptedClient extends BaseClient {
       _retryCount[request] = 0;
     }
 
-    var response;
+    BaseResponse response;
     try {
       // Intercept request
       final interceptedRequest = await _interceptRequest(request);
@@ -308,7 +308,7 @@ class InterceptedClient extends BaseClient {
     } on Exception catch (error) {
       if (retryPolicy != null &&
           retryPolicy!.maxRetryAttempts > _retryCount[request]! &&
-          retryPolicy!.shouldAttemptRetryOnException(error)) {
+          retryPolicy!.shouldAttemptRetryOnException(error, request)) {
         _retryCount[request] = _retryCount[request]! + 1;
         try {
           response = await _attemptRequest(request);

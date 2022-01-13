@@ -3,8 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:http/src/base_request.dart';
-import 'package:http/src/base_response.dart';
+import 'package:http/http.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -357,7 +356,7 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
   int get maxRetryAttempts => 2;
 
   @override
-  bool shouldAttemptRetryOnException(Exception reason) {
+  bool shouldAttemptRetryOnException(Exception reason, BaseRequest request) {
     log(reason.toString());
 
     return false;
