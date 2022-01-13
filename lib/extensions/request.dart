@@ -21,9 +21,9 @@ extension RequestCopyWith on Request {
         method?.asString ?? this.method,
         url ?? this.url,
       )
-        ..headers.addAll(headers ?? {})
-        ..encoding = encoding ?? this.encoding
         ..body = body ?? this.body
+        ..headers.addAll(headers ?? this.headers)
+        ..encoding = encoding ?? this.encoding
         ..followRedirects = followRedirects ?? this.followRedirects
         ..maxRedirects = maxRedirects ?? this.maxRedirects
         ..persistentConnection =

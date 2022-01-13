@@ -143,6 +143,26 @@
         "ideas",
         "code"
       ]
+    },
+    {
+      "login": "vixez",
+      "name": "Glenn Ruysschaert",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3032294?v=4",
+      "profile": "http://www.glennruysschaert.com",
+      "contributions": [
+        "code",
+        "test"
+      ]
+    },
+    {
+      "login": "dexcell",
+      "name": "Erick",
+      "avatar_url": "https://avatars.githubusercontent.com/u/41800?v=4",
+      "profile": "https://github.com/dexcell",
+      "contributions": [
+        "code",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
