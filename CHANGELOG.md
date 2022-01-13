@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.0-beta.4
+
+- ❗️🛠&nbsp;&nbsp;Changed: `shouldAttemptRetryOnException` will now also pass the `BaseRequest`.
+- 🚦&nbsp;&nbsp;Tests: Updated tests.
+
 ## 2.0.0-beta.3
 
 - 🐞&nbsp;&nbsp;Fixed: `MultipartRequest` does not get intercepted correctly (has missing fields).
