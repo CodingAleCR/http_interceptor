@@ -273,7 +273,7 @@ class InterceptedClient extends BaseClient {
           : await _inner.send(interceptedRequest).timeout(requestTimeout!,
               onTimeout: () async {
               if (onRequestTimeout != null) onRequestTimeout!();
-              throw '';
+              throw TimeoutException('Request timeout error.');
             });
 
       response =
