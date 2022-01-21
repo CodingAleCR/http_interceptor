@@ -44,6 +44,9 @@ class InterceptedClient extends BaseClient {
   /// Maximum duration of a request.
   final Duration? requestTimeout;
 
+  /// Request timeout handler
+  final Function()? onRequestTimeout;
+
   /// A policy that defines whether a request or response should trigger a
   /// retry. This is useful for implementing JWT token expiration
   final RetryPolicy? retryPolicy;
@@ -54,6 +57,7 @@ class InterceptedClient extends BaseClient {
   InterceptedClient._internal({
     required this.interceptors,
     this.requestTimeout,
+    this.onRequestTimeout,
     this.retryPolicy,
     Client? client,
   }) : _inner = client ?? Client();
@@ -78,12 +82,14 @@ class InterceptedClient extends BaseClient {
   factory InterceptedClient.build({
     required List<InterceptorContract> interceptors,
     Duration? requestTimeout,
+    Function()? onRequestTimeout,
     RetryPolicy? retryPolicy,
     Client? client,
   }) =>
       InterceptedClient._internal(
         interceptors: interceptors,
         requestTimeout: requestTimeout,
+        onRequestTimeout: onRequestTimeout,
         retryPolicy: retryPolicy,
         client: client,
       );
@@ -264,7 +270,11 @@ class InterceptedClient extends BaseClient {
 
       var stream = requestTimeout == null
           ? await _inner.send(interceptedRequest)
-          : await _inner.send(interceptedRequest).timeout(requestTimeout!);
+          : await _inner.send(interceptedRequest).timeout(requestTimeout!,
+              onTimeout: () async {
+              if (onRequestTimeout != null) onRequestTimeout!();
+              throw '';
+            });
 
       response =
           request is Request ? await Response.fromStream(stream) : stream;
