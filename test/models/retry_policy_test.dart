@@ -17,8 +17,13 @@ main() {
   group("shouldAttemptRetryOnException", () {
     test("returns false by default", () {
       expect(
-          testObject
-              .shouldAttemptRetryOnException(Exception("Test Exception.")),
+          testObject.shouldAttemptRetryOnException(
+            Exception("Test Exception."),
+            Request(
+              'GET',
+              Uri(),
+            ),
+          ),
           false);
     });
   });
