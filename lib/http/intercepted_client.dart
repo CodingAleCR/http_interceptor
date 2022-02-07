@@ -349,10 +349,10 @@ class InterceptedClient extends BaseClient {
 
     completer.complete(_attemptRequest(request, poolResource));
     return await completer.operation.valueOrCancellation().then((value) {
-      if (completer.isCanceled) {
+      poolManager?.removeCancelableRequest(completer.operation);
+      if (completer.isCanceled && poolManager?.throwCanceledException == true) {
         throw RequestCancelledException(request);
       }
-      poolManager?.removeCancelableRequest(completer.operation);
       return value;
     });
   }
@@ -366,10 +366,10 @@ class InterceptedClient extends BaseClient {
 
     completer.complete(_inner.send(request));
     return await completer.operation.valueOrCancellation().then((value) {
-      if (completer.isCanceled) {
+      poolManager?.removeCancelableRequest(completer.operation);
+      if (completer.isCanceled && poolManager?.throwCanceledException == true) {
         throw RequestCancelledException(request);
       }
-      poolManager?.removeCancelableRequest(completer.operation);
       return value;
     });
   }

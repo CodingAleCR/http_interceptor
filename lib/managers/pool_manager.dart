@@ -62,6 +62,7 @@ class PoolManager {
 
   /// Keep track of the active requests through [CancelableOperation].
   List<CancelableOperation> _cancelableOperations = [];
+  bool throwCanceledException = true;
 
   /// A new request for the main pool.
   /// It is important to always release a request with the [release] method of
@@ -160,7 +161,11 @@ class PoolManager {
   /// This might also cancel retry attempts, so this could cancel for
   /// example a token request in a [RetryPolicy].
   /// The token pool can be force released with [forceReleaseUpdateToken];
-  void cancelRequests({bool? forceReleaseUpdateToken}) {
+  void cancelRequests({
+    bool? forceReleaseUpdateToken,
+    bool throwCanceledException = true,
+  }) {
+    this.throwCanceledException = throwCanceledException;
     // Copy the current list, so no requests are cancelled after cancelRequests
     // was called.
     List<CancelableOperation> requests = _cancelableOperations.toList();
