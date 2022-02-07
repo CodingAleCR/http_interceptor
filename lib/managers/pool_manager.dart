@@ -1,3 +1,5 @@
+import 'package:async/async.dart';
+import 'package:http_interceptor/http_interceptor.dart';
 import 'package:pool/pool.dart';
 
 /// An event type to signal the pool is empty.
@@ -57,6 +59,9 @@ class PoolManager {
 
   /// If a pause has been requested, and has not been released yet.
   bool get pauseRequested => _pauseRequested;
+
+  /// Keep track of the active requests through [CancelableOperation].
+  List<CancelableOperation> _cancelableOperations = [];
 
   /// A new request for the main pool.
   /// It is important to always release a request with the [release] method of
@@ -149,5 +154,33 @@ class PoolManager {
     );
     _tokenPool = Pool(1);
     _pausePool = Pool(1);
+  }
+
+  /// Cancel all requests that have not yet returned a response.
+  /// This might also cancel retry attempts, so this could cancel for
+  /// example a token request in a [RetryPolicy].
+  /// The token pool can be force released with [forceReleaseUpdateToken];
+  void cancelRequests({bool? forceReleaseUpdateToken}) {
+    // Copy the current list, so no requests are cancelled after cancelRequests
+    // was called.
+    List<CancelableOperation> requests = _cancelableOperations.toList();
+    for (CancelableOperation operation in requests) {
+      operation.cancel();
+      _cancelableOperations.remove(requests);
+    }
+
+    if (forceReleaseUpdateToken == true) {
+      releaseUpdateToken();
+    }
+  }
+
+  /// Add a [CancelableOperation] to the monitored list.
+  void addCancelableRequest(CancelableOperation cancelableOperation) {
+    _cancelableOperations.add(cancelableOperation);
+  }
+
+  /// Remove a [CancelableOperation] from the monitored list.
+  void removeCancelableRequest(CancelableOperation cancelableOperation) {
+    _cancelableOperations.remove(cancelableOperation);
   }
 }

@@ -2,12 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:async/async.dart';
 import 'package:http/http.dart';
 import 'package:http_interceptor/extensions/extensions.dart';
 import 'package:http_interceptor/managers/pool_manager.dart';
 import 'package:http_interceptor/models/models.dart';
 import 'package:pool/pool.dart';
 
+import '../exceptions/exceptions.dart';
 import 'http_methods.dart';
 import 'interceptor_contract.dart';
 
@@ -221,7 +223,10 @@ class InterceptedClient extends BaseClient {
     try {
       final interceptedRequest = await _interceptRequest(request);
 
-      final response = await _inner.send(interceptedRequest);
+      final response = await _cancellableSendRequest(
+        interceptedRequest,
+        poolResource,
+      );
 
       final interceptedResponse = await _interceptResponse(response);
 
@@ -258,7 +263,8 @@ class InterceptedClient extends BaseClient {
       }
     }
 
-    var response = await _attemptRequest(request);
+    PoolResource? poolResource = await _addToRequestPool(request.headers);
+    var response = await _cancellableAttemptRequest(request, poolResource);
 
     // Intercept response
     response = await _interceptResponse(response);
@@ -277,8 +283,8 @@ class InterceptedClient extends BaseClient {
 
   /// Attempts to perform the request and intercept the data
   /// of the response
-  Future<BaseResponse> _attemptRequest(BaseRequest request) async {
-    PoolResource? poolResource = await _addToRequestPool(request.headers);
+  Future<BaseResponse> _attemptRequest(
+      BaseRequest request, PoolResource? poolResource) async {
     request.headers.remove(kSkipPoolHeader);
 
     if (!_retryCount.containsKey(request)) {
@@ -301,18 +307,21 @@ class InterceptedClient extends BaseClient {
           retryPolicy!.maxRetryAttempts > _retryCount[request]! &&
           await retryPolicy!.shouldAttemptRetryOnResponse(response)) {
         _retryCount[request] = _retryCount[request]! + 1;
-        response = await _attemptRequest(request);
-        await _releasePoolRequest(poolResource);
+        response = await _attemptRequest(request, poolResource);
         return response;
       }
     } on Exception catch (error) {
+      if (error is RequestCancelledException) {
+        _retryCount.remove(request);
+        await _releasePoolRequest(poolResource);
+        rethrow;
+      }
       if (retryPolicy != null &&
           retryPolicy!.maxRetryAttempts > _retryCount[request]! &&
           retryPolicy!.shouldAttemptRetryOnException(error, request)) {
         _retryCount[request] = _retryCount[request]! + 1;
         try {
-          response = await _attemptRequest(request);
-          await _releasePoolRequest(poolResource);
+          response = await _attemptRequest(request, poolResource);
           return response;
         } on Exception catch (_) {
           _retryCount.remove(request);
@@ -329,6 +338,40 @@ class InterceptedClient extends BaseClient {
     _retryCount.remove(request);
     await _releasePoolRequest(poolResource);
     return response;
+  }
+
+  /// Attempt a request, but allow it to be cancelled.
+  Future<BaseResponse> _cancellableAttemptRequest(
+      BaseRequest request, PoolResource? poolResource) async {
+    CancelableCompleter completer = CancelableCompleter();
+
+    poolManager?.addCancelableRequest(completer.operation);
+
+    completer.complete(_attemptRequest(request, poolResource));
+    return await completer.operation.valueOrCancellation().then((value) {
+      if (completer.isCanceled) {
+        throw RequestCancelledException(request);
+      }
+      poolManager?.removeCancelableRequest(completer.operation);
+      return value;
+    });
+  }
+
+  /// Attempt a send request, but allow it to be cancelled.
+  Future<StreamedResponse> _cancellableSendRequest(
+      BaseRequest request, PoolResource? poolResource) async {
+    CancelableCompleter completer = CancelableCompleter();
+
+    poolManager?.addCancelableRequest(completer.operation);
+
+    completer.complete(_inner.send(request));
+    return await completer.operation.valueOrCancellation().then((value) {
+      if (completer.isCanceled) {
+        throw RequestCancelledException(request);
+      }
+      poolManager?.removeCancelableRequest(completer.operation);
+      return value;
+    });
   }
 
   /// This internal function intercepts the request.
