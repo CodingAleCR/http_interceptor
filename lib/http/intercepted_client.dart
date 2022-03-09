@@ -205,7 +205,7 @@ class InterceptedClient extends BaseClient {
 
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
-    final response = await _attemptRequest(request);
+    final response = await _attemptRequest(request, unstreamed: false);
 
     final interceptedResponse = await _interceptResponse(response);
 
@@ -256,7 +256,7 @@ class InterceptedClient extends BaseClient {
 
   /// Attempts to perform the request and intercept the data
   /// of the response
-  Future<BaseResponse> _attemptRequest(BaseRequest request) async {
+  Future<BaseResponse> _attemptRequest(BaseRequest request, {bool unstreamed = true}) async {
     BaseResponse response;
     try {
       // Intercept request
@@ -267,20 +267,20 @@ class InterceptedClient extends BaseClient {
           : await _inner.send(interceptedRequest).timeout(requestTimeout!);
 
       response =
-          request is Request ? await Response.fromStream(stream) : stream;
+          unstreamed ? await Response.fromStream(stream) : stream;
 
       if (retryPolicy != null &&
           retryPolicy!.maxRetryAttempts > _retryCount &&
           await retryPolicy!.shouldAttemptRetryOnResponse(response)) {
         _retryCount += 1;
-        return _attemptRequest(request);
+        return _attemptRequest(request, unstreamed: unstreamed);
       }
     } on Exception catch (error) {
       if (retryPolicy != null &&
           retryPolicy!.maxRetryAttempts > _retryCount &&
           retryPolicy!.shouldAttemptRetryOnException(error, request)) {
         _retryCount += 1;
-        return _attemptRequest(request);
+        return _attemptRequest(request, unstreamed: unstreamed);
       } else {
         rethrow;
       }
