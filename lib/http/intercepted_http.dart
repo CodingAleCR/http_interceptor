@@ -41,6 +41,9 @@ class InterceptedHttp {
   /// Maximum duration of a request.
   final Duration? requestTimeout;
 
+  /// Request timeout handler
+  TimeoutCallback? onRequestTimeout;
+
   /// A policy that defines whether a request or response should trigger a
   /// retry. This is useful for implementing JWT token expiration
   final RetryPolicy? retryPolicy;
@@ -54,6 +57,7 @@ class InterceptedHttp {
   InterceptedHttp._internal({
     required this.interceptors,
     this.requestTimeout,
+    this.onRequestTimeout,
     this.retryPolicy,
     this.client,
   });
@@ -79,12 +83,14 @@ class InterceptedHttp {
   factory InterceptedHttp.build({
     required List<InterceptorContract> interceptors,
     Duration? requestTimeout,
+    TimeoutCallback? onRequestTimeout,
     RetryPolicy? retryPolicy,
     Client? client,
   }) =>
       InterceptedHttp._internal(
         interceptors: interceptors,
         requestTimeout: requestTimeout,
+        onRequestTimeout: onRequestTimeout,
         retryPolicy: retryPolicy,
         client: client,
       );
@@ -222,6 +228,7 @@ class InterceptedHttp {
     final client = InterceptedClient.build(
       interceptors: interceptors,
       requestTimeout: requestTimeout,
+      onRequestTimeout: onRequestTimeout,
       retryPolicy: retryPolicy,
       client: this.client,
     );
