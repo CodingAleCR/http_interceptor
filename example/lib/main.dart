@@ -355,7 +355,7 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
   int get maxRetryAttempts => 2;
 
   @override
-  bool shouldAttemptRetryOnException(Exception reason) {
+  bool shouldAttemptRetryOnException(Exception reason, BaseRequest request) {
     log(reason.toString());
 
     return false;
