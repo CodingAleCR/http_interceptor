@@ -56,6 +56,7 @@ http_interceptor: ^1.0.1
 - 🖋 Supports self-signed certificates (except on Flutter Web).
 - 🍦 Compatible with vanilla Dart projects or Flutter projects.
 - 🎉 Null-safety.
+- ⏲ Timeout configuration with duration and timeout functions.
 
 ## Usage
 
