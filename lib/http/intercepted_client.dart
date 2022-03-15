@@ -325,7 +325,6 @@ class InterceptedClient extends BaseClient {
           return response;
         } on Exception catch (_) {
           _retryCount.remove(request);
-          await _releasePoolRequest(poolResource);
           rethrow;
         }
       } else {
