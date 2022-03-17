@@ -9,6 +9,8 @@ import 'package:http_interceptor/models/models.dart';
 import 'http_methods.dart';
 import 'interceptor_contract.dart';
 
+typedef TimeoutCallback = FutureOr<StreamedResponse> Function();
+
 /// Class to be used by the user to set up a new `http.Client` with interceptor
 /// support.
 ///
@@ -44,6 +46,9 @@ class InterceptedClient extends BaseClient {
   /// Maximum duration of a request.
   final Duration? requestTimeout;
 
+  /// Request timeout handler
+  TimeoutCallback? onRequestTimeout;
+
   /// A policy that defines whether a request or response should trigger a
   /// retry. This is useful for implementing JWT token expiration
   final RetryPolicy? retryPolicy;
@@ -54,6 +59,7 @@ class InterceptedClient extends BaseClient {
   InterceptedClient._internal({
     required this.interceptors,
     this.requestTimeout,
+    this.onRequestTimeout,
     this.retryPolicy,
     Client? client,
   }) : _inner = client ?? Client();
@@ -78,12 +84,14 @@ class InterceptedClient extends BaseClient {
   factory InterceptedClient.build({
     required List<InterceptorContract> interceptors,
     Duration? requestTimeout,
+    TimeoutCallback? onRequestTimeout,
     RetryPolicy? retryPolicy,
     Client? client,
   }) =>
       InterceptedClient._internal(
         interceptors: interceptors,
         requestTimeout: requestTimeout,
+        onRequestTimeout: onRequestTimeout,
         retryPolicy: retryPolicy,
         client: client,
       );
@@ -264,7 +272,9 @@ class InterceptedClient extends BaseClient {
 
       var stream = requestTimeout == null
           ? await _inner.send(interceptedRequest)
-          : await _inner.send(interceptedRequest).timeout(requestTimeout!);
+          : await _inner
+              .send(interceptedRequest)
+              .timeout(requestTimeout!, onTimeout: onRequestTimeout);
 
       response =
           unstreamed ? await Response.fromStream(stream) : stream;

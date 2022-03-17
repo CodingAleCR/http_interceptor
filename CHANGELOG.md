@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.0-beta.5
+
+- ✨&nbsp;&nbsp;Added: Support for `onRequestTimeout` when setting up `requestTimeout` on the interceptor.
+
 ## 2.0.0-beta.4
 
 - ❗️🛠&nbsp;&nbsp;Changed: `shouldAttemptRetryOnException` will now also pass the `BaseRequest`.
