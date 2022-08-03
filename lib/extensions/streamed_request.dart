@@ -28,7 +28,7 @@ extension StreamedRequestCopyWith on StreamedRequest {
       stream.listen((data) {
         req.sink.add(data);
       });
-      this.finalize().listen((data) {
+      finalize().listen((data) {
         req.sink.add(data);
       });
     }

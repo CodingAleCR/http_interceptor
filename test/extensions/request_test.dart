@@ -82,7 +82,7 @@ main() {
     });
     test('Request is copied with different method', () {
       // Arrange
-      final newMethod = HttpMethod.POST;
+      const newMethod = HttpMethod.POST;
 
       // Act
       Request copied = request.copyWith(
@@ -239,7 +239,7 @@ main() {
     });
     test('Request is copied with different followRedirects', () {
       // Arrange
-      final newFollowRedirects = false;
+      const newFollowRedirects = false;
 
       // Act
       Request copied = request.copyWith(
@@ -263,7 +263,7 @@ main() {
     });
     test('Request is copied with different maxRedirects', () {
       // Arrange
-      final newMaxRedirects = 2;
+      const newMaxRedirects = 2;
 
       // Act
       Request copied = request.copyWith(
@@ -288,7 +288,7 @@ main() {
 
     test('Request is copied with different persistentConnection', () {
       // Arrange
-      final newPersistentConnection = false;
+      const newPersistentConnection = false;
 
       // Act
       Request copied = request.copyWith(

@@ -6,7 +6,7 @@ String buildUrlString(String url, Map<String, dynamic>? parameters) {
   if (parameters == null) return url;
 
   // Check if there are parameters to add.
-  if (parameters.length > 0) {
+  if (parameters.isNotEmpty) {
     // Checks if the string url already has parameters.
     if (url.contains("?")) {
       url += "&";

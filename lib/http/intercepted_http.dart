@@ -223,7 +223,7 @@ class InterceptedHttp {
   /// Internal convenience utility to create a new [Client] instance for each
   /// request. It closes the client after using it for the request.
   Future<T> _withClient<T>(
-    Future<T> fn(InterceptedClient client),
+    Future<T> Function(InterceptedClient client) fn,
   ) async {
     final client = InterceptedClient.build(
       interceptors: interceptors,

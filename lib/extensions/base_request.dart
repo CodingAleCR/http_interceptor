@@ -1,8 +1,11 @@
 import 'dart:convert';
 
 import 'package:http/http.dart';
-import 'package:http_interceptor/extensions/extensions.dart';
 import 'package:http_interceptor/http/http_methods.dart';
+
+import './multipart_request.dart';
+import './request.dart';
+import './streamed_request.dart';
 
 /// Extends [BaseRequest] to provide copied instances.
 extension BaseRequestCopyWith on BaseRequest {
@@ -66,6 +69,6 @@ extension BaseRequestCopyWith on BaseRequest {
     }
 
     throw UnsupportedError(
-        'Cannot copy unsupported type of request ${this.runtimeType}');
+        'Cannot copy unsupported type of request $runtimeType');
   }
 }

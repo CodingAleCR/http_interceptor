@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.0-beta.6
+
+- ✨&nbsp;&nbsp;Added: `Future<bool> shouldInterceptRequest()` and `Future<bool> shouldInterceptResponse()`. This enables individual interceptor checks and conditional intercepting configurations.
+- 📖&nbsp;&nbsp;Changed: **example** project to showcase updated Flutter 3.0, new library APIs and `MultipartRequest` handling.
+
 ## 2.0.0-beta.5
 
 - ✨&nbsp;&nbsp;Added: Support for `onRequestTimeout` when setting up `requestTimeout` on the interceptor.

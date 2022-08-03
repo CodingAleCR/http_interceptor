@@ -2,8 +2,10 @@ import 'dart:io';
 
 import 'package:http/http.dart';
 import 'package:http/io_client.dart';
-import 'package:http_interceptor/extensions/extensions.dart';
 import 'package:http_interceptor/extensions/io_streamed_response.dart';
+
+import './response.dart';
+import './streamed_response.dart';
 
 // Extends [BaseRequest] to provide copied instances.
 extension BaseResponseCopyWith on BaseResponse {
@@ -67,6 +69,6 @@ extension BaseResponseCopyWith on BaseResponse {
     }
 
     throw UnsupportedError(
-        'Cannot copy unsupported type of response ${this.runtimeType}');
+        'Cannot copy unsupported type of response $runtimeType');
   }
 }
