@@ -11,21 +11,32 @@ extension RequestCopyWith on Request {
     HttpMethod? method,
     Uri? url,
     Map<String, String>? headers,
-    dynamic body,
+    String? body,
+    List<int>? bodyBytes,
     Encoding? encoding,
     bool? followRedirects,
     int? maxRedirects,
     bool? persistentConnection,
-  }) =>
-      Request(
-        method?.asString ?? this.method,
-        url ?? this.url,
-      )
-        ..body = body ?? this.body
-        ..headers.addAll(headers ?? this.headers)
-        ..encoding = encoding ?? this.encoding
-        ..followRedirects = followRedirects ?? this.followRedirects
-        ..maxRedirects = maxRedirects ?? this.maxRedirects
-        ..persistentConnection =
-            persistentConnection ?? this.persistentConnection;
+  }) {
+    final copied = Request(
+      method?.asString ?? this.method,
+      url ?? this.url,
+    )..body = this.body;
+
+    if (body != null) {
+      copied.body = body;
+    }
+
+    if (bodyBytes != null) {
+      copied.bodyBytes = bodyBytes;
+    }
+
+    return copied
+      ..headers.addAll(headers ?? this.headers)
+      ..encoding = encoding ?? this.encoding
+      ..followRedirects = followRedirects ?? this.followRedirects
+      ..maxRedirects = maxRedirects ?? this.maxRedirects
+      ..persistentConnection =
+          persistentConnection ?? this.persistentConnection;
+  }
 }
