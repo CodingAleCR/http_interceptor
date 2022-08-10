@@ -1,7 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:http_interceptor/http_interceptor.dart';
@@ -32,7 +31,7 @@ class _MultipartAppState extends State<MultipartApp> {
 
   final ImagePicker _picker = ImagePicker();
   XFile? pickedImage;
-  ui.Image? noBgImage;
+  Uint8List? noBgImage;
 
   Future<void> _onUpload() async {
     if (pickedImage == null) return;
@@ -91,14 +90,15 @@ class _MultipartAppState extends State<MultipartApp> {
             ),
             if (pickedImage != null) ...[
               const Text('Before'),
-              Image.file(File(pickedImage!.path)),
+              Image.file(
+                File(pickedImage!.path),
+              ),
             ],
             if (noBgImage != null) ...[
               const Text('After'),
-              RawImage(
-                image: noBgImage!, // this is a dart:ui Image object
-                scale: 1.0,
-              ),
+              Image.memory(
+                noBgImage!,
+              )
             ],
           ],
         ),
@@ -115,11 +115,11 @@ class RemoveBgRepository {
 
   RemoveBgRepository(this.client);
 
-  Future<ui.Image> removeImageBackground(
+  Future<Uint8List> removeImageBackground(
     XFile imgFile,
     String fieldName,
   ) async {
-    ui.Image parsedResponse;
+    Uint8List parsedResponse;
     try {
       final req = MultipartRequest(
         HttpMethod.POST.asString,
@@ -131,21 +131,21 @@ class RemoveBgRepository {
           ),
         );
 
-      final response = await client.send(req);
-      if (response.statusCode == 200) {
-        final respBytes = await response.stream.first;
-        final image = await decodeImageFromList(Uint8List.fromList(respBytes));
+      final streamResponse = await client.send(req);
+      final response = await Response.fromStream(streamResponse);
 
-        parsedResponse = image;
+      if (response.statusCode == 200) {
+        parsedResponse = response.bodyBytes;
       } else {
         return Future.error(
           'Error while fetching.',
-          StackTrace.fromString(''),
+          StackTrace.fromString('Response was not 200.'),
         );
       }
     } on SocketException {
       return Future.error('No Internet connection 😑');
-    } on FormatException {
+    } on FormatException catch (error) {
+      log(error.toString());
       return Future.error('Bad response format 👎');
     } on Exception catch (error) {
       log(error.toString());
