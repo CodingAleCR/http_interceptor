@@ -4,6 +4,7 @@
 
 - ✨&nbsp;&nbsp;Added: `Future<bool> shouldInterceptRequest()` and `Future<bool> shouldInterceptResponse()`. This enables individual interceptor checks and conditional intercepting configurations.
 - ✨&nbsp;&nbsp;Added: `bodyBytes` to `Request.copyWith`. This adds support to set and modify the body as a stream of bytes.
+- ❗️🛠&nbsp;&nbsp;Changed: `RetryPolicy` to be `Future<bool>` instead of `bool` so that you can support different exception retrying scenarios (See #115).
 - 📖&nbsp;&nbsp;Changed: **example** project to showcase updated Flutter 3.0, new library APIs and `MultipartRequest` handling.
 
 ## 2.0.0-beta.5
