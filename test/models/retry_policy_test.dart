@@ -15,9 +15,9 @@ main() {
   });
 
   group("shouldAttemptRetryOnException", () {
-    test("returns false by default", () {
+    test("returns false by default", () async {
       expect(
-          testObject.shouldAttemptRetryOnException(
+          await testObject.shouldAttemptRetryOnException(
             Exception("Test Exception."),
             Request(
               'GET',
