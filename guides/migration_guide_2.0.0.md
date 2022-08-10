@@ -106,3 +106,17 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
   }
 }
 ```
+
+If you are using `shouldAttemptRetryOnException` then you will also have to convert the signature to be async like the following:
+
+```dart
+@override
+Future<bool> shouldAttemptRetryOnException(
+  Exception reason,
+  BaseRequest request,
+) async {
+  log(reason.toString());
+
+  return false;
+}
+```
