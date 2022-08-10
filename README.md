@@ -9,7 +9,7 @@
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-16-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-17-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
@@ -306,6 +306,7 @@ Thanks to all the wonderful people contributing to improve this package. Check t
   <tr>
     <td align="center"><a href="https://github.com/dexcell"><img src="https://avatars.githubusercontent.com/u/41800?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Erick</b></sub></a><br /><a href="https://github.com/CodingAleCR/http_interceptor/commits?author=dexcell" title="Code">💻</a> <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=dexcell" title="Tests">⚠️</a></td>
     <td align="center"><a href="https://github.com/javiermrz"><img src="https://avatars.githubusercontent.com/u/46677628?v=4?s=100" width="100px;" alt=""/><br /><sub><b>javiermrz</b></sub></a><br /><a href="https://github.com/CodingAleCR/http_interceptor/commits?author=javiermrz" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/ntimesc"><img src="https://avatars.githubusercontent.com/u/5063898?v=4?s=100" width="100px;" alt=""/><br /><sub><b>nihar</b></sub></a><br /><a href="#ideas-ntimesc" title="Ideas, Planning, & Feedback">🤔</a></td>
   </tr>
 </table>
 
