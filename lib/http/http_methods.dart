@@ -1,3 +1,4 @@
+// ignore_for_file: constant_identifier_names
 /// Enum representation of all available HTTP methods.
 enum HttpMethod {
   HEAD,

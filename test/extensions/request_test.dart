@@ -82,7 +82,7 @@ main() {
     });
     test('Request is copied with different method', () {
       // Arrange
-      final newMethod = HttpMethod.POST;
+      const newMethod = HttpMethod.POST;
 
       // Act
       Request copied = request.copyWith(
@@ -206,6 +206,37 @@ main() {
       expect(copied.persistentConnection, equals(request.persistentConnection));
     });
 
+    test('Request is copied with GZip encoded body', () {
+      // Arrange
+      final gzip = GZipCodec();
+      final newBody =
+          jsonDecode(request.body.isNotEmpty ? request.body : '{}') as Map;
+      newBody['hello'] = 'world';
+
+      // Act
+      final utfBytes = utf8.encode(jsonEncode(newBody));
+      final gzipBytes = gzip.encode(utfBytes);
+      Request copied = request.copyWith(
+        body: base64.encode(gzipBytes),
+      );
+
+      // Assert
+      final decodedBody = utf8.decode(gzip.decode(base64.decode(copied.body)));
+      expect(copied.url, equals(request.url));
+      expect(copied.method, equals(request.method));
+      expect(copied.headers, equals(request.headers));
+      expect(
+          decodedBody,
+          allOf([
+            equals(jsonEncode(newBody)),
+            isNot(equals(request.body)),
+          ]));
+      expect(copied.encoding, equals(request.encoding));
+      expect(copied.followRedirects, equals(request.followRedirects));
+      expect(copied.maxRedirects, equals(request.maxRedirects));
+      expect(copied.persistentConnection, equals(request.persistentConnection));
+    });
+
     test('Request is copied with different encoding', () {
       // Arrange
       final newEncoding = Encoding.getByName('latin1');
@@ -239,7 +270,7 @@ main() {
     });
     test('Request is copied with different followRedirects', () {
       // Arrange
-      final newFollowRedirects = false;
+      const newFollowRedirects = false;
 
       // Act
       Request copied = request.copyWith(
@@ -263,7 +294,7 @@ main() {
     });
     test('Request is copied with different maxRedirects', () {
       // Arrange
-      final newMaxRedirects = 2;
+      const newMaxRedirects = 2;
 
       // Act
       Request copied = request.copyWith(
@@ -288,7 +319,7 @@ main() {
 
     test('Request is copied with different persistentConnection', () {
       // Arrange
-      final newPersistentConnection = false;
+      const newPersistentConnection = false;
 
       // Act
       Request copied = request.copyWith(

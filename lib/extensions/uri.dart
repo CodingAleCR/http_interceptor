@@ -1,4 +1,4 @@
-import 'package:http_interceptor/extensions/extensions.dart';
+import 'package:http_interceptor/extensions/string.dart';
 import 'package:http_interceptor/utils/utils.dart';
 
 /// Extends `Uri` to allow adding parameters to already created intstances

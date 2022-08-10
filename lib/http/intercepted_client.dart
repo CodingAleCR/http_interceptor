@@ -3,11 +3,12 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:http/http.dart';
-import 'package:http_interceptor/extensions/extensions.dart';
-import 'package:http_interceptor/models/models.dart';
+import 'package:http_interceptor/extensions/base_request.dart';
+import 'package:http_interceptor/extensions/uri.dart';
 
+import '../models/interceptor_contract.dart';
+import '../models/retry_policy.dart';
 import 'http_methods.dart';
-import 'interceptor_contract.dart';
 
 typedef TimeoutCallback = FutureOr<StreamedResponse> Function();
 
@@ -107,6 +108,7 @@ class InterceptedClient extends BaseClient {
         headers: headers,
       )) as Response;
 
+  @override
   Future<Response> get(
     Uri url, {
     Map<String, String>? headers,
@@ -230,7 +232,7 @@ class InterceptedClient extends BaseClient {
   }) async {
     url = url.addParameters(params);
 
-    Request request = new Request(method.asString, url);
+    Request request = Request(method.asString, url);
     if (headers != null) request.headers.addAll(headers);
     if (encoding != null) request.encoding = encoding;
     if (body != null) {
@@ -241,7 +243,7 @@ class InterceptedClient extends BaseClient {
       } else if (body is Map) {
         request.bodyFields = body.cast<String, String>();
       } else {
-        throw new ArgumentError('Invalid request body "$body".');
+        throw ArgumentError('Invalid request body "$body".');
       }
     }
 
@@ -259,7 +261,7 @@ class InterceptedClient extends BaseClient {
     if (response.reasonPhrase != null) {
       message = "$message: ${response.reasonPhrase}";
     }
-    throw new ClientException("$message.", url);
+    throw ClientException("$message.", url);
   }
 
   /// Attempts to perform the request and intercept the data
@@ -288,7 +290,7 @@ class InterceptedClient extends BaseClient {
     } on Exception catch (error) {
       if (retryPolicy != null &&
           retryPolicy!.maxRetryAttempts > _retryCount &&
-          retryPolicy!.shouldAttemptRetryOnException(error, request)) {
+          await retryPolicy!.shouldAttemptRetryOnException(error, request)) {
         _retryCount += 1;
         return _attemptRequest(request);
       } else {
@@ -304,9 +306,11 @@ class InterceptedClient extends BaseClient {
   Future<BaseRequest> _interceptRequest(BaseRequest request) async {
     BaseRequest interceptedRequest = request.copyWith();
     for (InterceptorContract interceptor in interceptors) {
-      interceptedRequest = await interceptor.interceptRequest(
-        request: interceptedRequest,
-      );
+      if (await interceptor.shouldInterceptRequest()) {
+        interceptedRequest = await interceptor.interceptRequest(
+          request: interceptedRequest,
+        );
+      }
     }
 
     return interceptedRequest;
@@ -316,14 +320,17 @@ class InterceptedClient extends BaseClient {
   Future<BaseResponse> _interceptResponse(BaseResponse response) async {
     BaseResponse interceptedResponse = response;
     for (InterceptorContract interceptor in interceptors) {
-      interceptedResponse = await interceptor.interceptResponse(
-        response: interceptedResponse,
-      );
+      if (await interceptor.shouldInterceptResponse()) {
+        interceptedResponse = await interceptor.interceptResponse(
+          response: interceptedResponse,
+        );
+      }
     }
 
     return interceptedResponse;
   }
 
+  @override
   void close() {
     _inner.close();
   }

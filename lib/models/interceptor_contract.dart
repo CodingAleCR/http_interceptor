@@ -26,7 +26,11 @@ import 'package:http/http.dart';
 ///}
 ///```
 abstract class InterceptorContract {
+  Future<bool> shouldInterceptRequest() async => true;
+
   Future<BaseRequest> interceptRequest({required BaseRequest request});
+
+  Future<bool> shouldInterceptResponse() async => true;
 
   Future<BaseResponse> interceptResponse({required BaseResponse response});
 }

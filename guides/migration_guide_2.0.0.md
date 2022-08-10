@@ -17,7 +17,7 @@ For interceptors you need to change the signature of the methods along with the 
 v1.0.2 or lower
 
 ```dart
-class WeatherApiInterceptor implements InterceptorContract {
+class WeatherApiInterceptor extends InterceptorContract {
   @override
   Future<RequestData> interceptRequest({required RequestData data}) async {
     final cache = await SharedPreferences.getInstance();
@@ -37,7 +37,7 @@ class WeatherApiInterceptor implements InterceptorContract {
 v2.0.0 and up
 
 ```dart
-class WeatherApiInterceptor implements InterceptorContract {
+class WeatherApiInterceptor extends InterceptorContract {
   @override
   Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
     final cache = await SharedPreferences.getInstance();
@@ -104,5 +104,19 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
 
     return false;
   }
+}
+```
+
+If you are using `shouldAttemptRetryOnException` then you will also have to convert the signature to be async like the following:
+
+```dart
+@override
+Future<bool> shouldAttemptRetryOnException(
+  Exception reason,
+  BaseRequest request,
+) async {
+  log(reason.toString());
+
+  return false;
 }
 ```
