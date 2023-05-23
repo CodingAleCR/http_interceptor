@@ -1,7 +1,7 @@
-import 'package:test/test.dart';
 import 'package:http_interceptor/utils/utils.dart';
+import 'package:test/test.dart';
 
-main() {
+void main() {
   group("buildUrlString", () {
     test("Adds parameters to a URL string without parameters", () {
       // Arrange
@@ -12,8 +12,10 @@ main() {
       String parameterUrl = buildUrlString(url, parameters);
 
       // Assert
-      expect(parameterUrl,
-          equals("https://www.google.com/helloworld?foo=bar&num=0"));
+      expect(
+        parameterUrl,
+        equals("https://www.google.com/helloworld?foo=bar&num=0"),
+      );
     });
     test("Adds parameters to a URL string with parameters", () {
       // Arrange
@@ -25,9 +27,11 @@ main() {
 
       // Assert
       expect(
-          parameterUrl,
-          equals(
-              "https://www.google.com/helloworld?foo=bar&num=0&extra=1&extra2=anotherone"));
+        parameterUrl,
+        equals(
+          "https://www.google.com/helloworld?foo=bar&num=0&extra=1&extra2=anotherone",
+        ),
+      );
     });
     test("Adds parameters with array to a URL string without parameters", () {
       // Arrange
@@ -41,8 +45,10 @@ main() {
       String parameterUrl = buildUrlString(url, parameters);
 
       // Assert
-      expect(parameterUrl,
-          equals("https://www.google.com/helloworld?foo=bar&num=0&num=1"));
+      expect(
+        parameterUrl,
+        equals("https://www.google.com/helloworld?foo=bar&num=0&num=1"),
+      );
     });
   });
 }

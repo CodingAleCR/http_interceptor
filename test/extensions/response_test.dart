@@ -1,7 +1,7 @@
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:test/test.dart';
 
-main() {
+void main() {
   late BaseResponse baseResponse;
   late Response response;
 
@@ -32,7 +32,9 @@ main() {
       expect(copied.isRedirect, equals(response.isRedirect));
       expect(copied.reasonPhrase, equals(response.reasonPhrase));
       expect(
-          copied.persistentConnection, equals(response.persistentConnection));
+        copied.persistentConnection,
+        equals(response.persistentConnection),
+      );
     });
   });
 }

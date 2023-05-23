@@ -104,7 +104,7 @@ class InterceptedHttp {
     return _withClient((client) => client.head(
           url,
           headers: headers,
-        ));
+        ),);
   }
 
   /// Performs a GET request with a new [Client] instance and closes it after
@@ -118,7 +118,7 @@ class InterceptedHttp {
           url,
           headers: headers,
           params: params,
-        ));
+        ),);
   }
 
   /// Performs a POST request with a new [Client] instance and closes it after
@@ -136,7 +136,7 @@ class InterceptedHttp {
           params: params,
           body: body,
           encoding: encoding,
-        ));
+        ),);
   }
 
   /// Performs a PUT request with a new [Client] instance and closes it after
@@ -154,7 +154,7 @@ class InterceptedHttp {
           params: params,
           body: body,
           encoding: encoding,
-        ));
+        ),);
   }
 
   /// Performs a PATCH request with a new [Client] instance and closes it after
@@ -172,7 +172,7 @@ class InterceptedHttp {
           params: params,
           body: body,
           encoding: encoding,
-        ));
+        ),);
   }
 
   /// Performs a DELETE request with a new [Client] instance and closes it after
@@ -190,7 +190,7 @@ class InterceptedHttp {
           params: params,
           body: body,
           encoding: encoding,
-        ));
+        ),);
   }
 
   /// Executes `client.read` with a new [Client] instance and closes it after
@@ -204,7 +204,7 @@ class InterceptedHttp {
           url,
           headers: headers,
           params: params,
-        ));
+        ),);
   }
 
   /// Executes `client.readBytes` with a new [Client] instance and closes it
@@ -218,7 +218,7 @@ class InterceptedHttp {
             url,
             headers: headers,
             params: params,
-          ));
+          ),);
 
   /// Internal convenience utility to create a new [Client] instance for each
   /// request. It closes the client after using it for the request.

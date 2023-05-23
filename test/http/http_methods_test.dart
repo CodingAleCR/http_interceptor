@@ -1,7 +1,7 @@
 import 'package:http_interceptor/http/http_methods.dart';
 import 'package:test/test.dart';
 
-main() {
+void main() {
   group("Can parse from string", () {
     test("with HEAD method", () {
       // Arrange
@@ -148,7 +148,9 @@ main() {
       // Act
       // Assert
       expect(
-          () => StringToMethod.fromString(methodString), throwsArgumentError);
+        () => StringToMethod.fromString(methodString),
+        throwsArgumentError,
+      );
     });
   });
 }

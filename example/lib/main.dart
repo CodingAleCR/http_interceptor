@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http_interceptor_example/multipart_app.dart';
-
-import 'weather_app.dart';
+import 'package:http_interceptor_example/weather_app.dart';
 
 void main() => runApp(const ExamplesApp());
 

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:test/test.dart';
 
-main() {
+void main() {
   group('BaseRequest.copyWith: ', () {
     test('Request is copied from BaseRequest', () {
       // Arrange

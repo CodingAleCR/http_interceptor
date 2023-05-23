@@ -4,13 +4,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http_interceptor/http_interceptor.dart';
-import 'package:http_interceptor_example/common.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// This is just a List of Maps that contains the suggested cities.
 /// If you are going to run this example you need to replace the key.
-import 'cities.dart';
-import 'credentials.dart';
+import 'package:http_interceptor_example/cities.dart';
+import 'package:http_interceptor_example/common.dart';
+import 'package:http_interceptor_example/credentials.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class WeatherApp extends StatefulWidget {
   const WeatherApp({Key? key}) : super(key: key);
@@ -189,7 +189,8 @@ class WeatherSearch extends SearchDelegate<String?> {
                   leading: Tooltip(
                     message: weather['weather'][0]['main'],
                     child: Image.network(
-                        'https://openweathermap.org/img/w/$iconWeather.png'),
+                      'https://openweathermap.org/img/w/$iconWeather.png',
+                    ),
                   ),
                   title: Text(city['name']),
                   subtitle: Text(city['country']),
@@ -325,8 +326,9 @@ class WeatherApiInterceptor extends InterceptorContract {
   }
 
   @override
-  Future<BaseResponse> interceptResponse(
-          {required BaseResponse response}) async =>
+  Future<BaseResponse> interceptResponse({
+    required BaseResponse response,
+  }) async =>
       response;
 }
 

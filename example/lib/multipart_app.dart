@@ -2,11 +2,11 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:http_interceptor_example/common.dart';
 import 'package:http_interceptor_example/credentials.dart';
-import 'package:image_picker/image_picker.dart';
 
 class MultipartApp extends StatefulWidget {
   const MultipartApp({Key? key}) : super(key: key);
@@ -29,8 +29,7 @@ class _MultipartAppState extends State<MultipartApp> {
     ),
   );
 
-  final ImagePicker _picker = ImagePicker();
-  XFile? pickedImage;
+  File? pickedImage;
   Uint8List? noBgImage;
 
   Future<void> _onUpload() async {
@@ -65,27 +64,18 @@ class _MultipartAppState extends State<MultipartApp> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           children: [
             ListTile(
-              leading: const Icon(Icons.camera),
-              title: const Text('Take Picture'),
-              onTap: () async {
-                final image =
-                    await _picker.pickImage(source: ImageSource.camera);
-                setState(() {
-                  pickedImage = image;
-                  noBgImage = null;
-                });
-              },
-            ),
-            ListTile(
               leading: const Icon(Icons.album),
               title: const Text('Choose from Gallery'),
               onTap: () async {
-                final image =
-                    await _picker.pickImage(source: ImageSource.gallery);
-                setState(() {
-                  pickedImage = image;
-                  noBgImage = null;
-                });
+                FilePickerResult? result =
+                    await FilePicker.platform.pickFiles();
+
+                if (result != null) {
+                  setState(() {
+                    pickedImage = File(result.files.single.path!);
+                    noBgImage = null;
+                  });
+                }
               },
             ),
             if (pickedImage != null) ...[
@@ -116,7 +106,7 @@ class RemoveBgRepository {
   RemoveBgRepository(this.client);
 
   Future<Uint8List> removeImageBackground(
-    XFile imgFile,
+    File imgFile,
     String fieldName,
   ) async {
     Uint8List parsedResponse;

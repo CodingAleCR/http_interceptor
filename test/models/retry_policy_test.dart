@@ -1,7 +1,7 @@
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:test/test.dart';
 
-main() {
+void main() {
   late RetryPolicy testObject;
 
   setUp(() {
@@ -17,14 +17,15 @@ main() {
   group("shouldAttemptRetryOnException", () {
     test("returns false by default", () async {
       expect(
-          await testObject.shouldAttemptRetryOnException(
-            Exception("Test Exception."),
-            Request(
-              'GET',
-              Uri(),
-            ),
+        await testObject.shouldAttemptRetryOnException(
+          Exception("Test Exception."),
+          Request(
+            'GET',
+            Uri(),
           ),
-          false);
+        ),
+        false,
+      );
     });
   });
 
