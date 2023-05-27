@@ -7,7 +7,6 @@ export './extensions/base_response_none.dart'
     if (dart.library.io) './extensions/base_response_io.dart';
 export './extensions/multipart_request.dart';
 export './extensions/request.dart';
-export './extensions/request.dart';
 export './extensions/response.dart';
 export './extensions/streamed_request.dart';
 export './extensions/streamed_response.dart';
