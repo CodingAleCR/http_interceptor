@@ -8,11 +8,11 @@ issue_tracker: https://github.com/CodingAleCR/http_interceptor/issues
 repository: https://github.com/CodingAleCR/http_interceptor
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
+  sdk: '>=2.18.0 <4.0.0'
 
 dependencies:
-  http: ^0.13.4
+  http: ^0.13.6
 
 dev_dependencies:
-  flutter_lints: ^2.0.1
-  test: ^1.17.5
+  lints: ^2.1.0
+  test: ^1.24.3
