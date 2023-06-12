@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.0.0-beta.7
+### What's Changed
+* docs: add ntimesc as a contributor for ideas by @allcontributors in https://github.com/CodingAleCR/http_interceptor/pull/116
+* updated packages by @mauryagaurav947 in https://github.com/CodingAleCR/http_interceptor/pull/129
+
+### New Contributors
+* @mauryagaurav947 made their first contribution in https://github.com/CodingAleCR/http_interceptor/pull/129
+
+**Full Changelog**: https://github.com/CodingAleCR/http_interceptor/compare/2.0.0-beta.6...2.0.0-beta.7
+
 ## 2.0.0-beta.6
 
 - ✨&nbsp;&nbsp;Added: `Future<bool> shouldInterceptRequest()` and `Future<bool> shouldInterceptResponse()`. This enables individual interceptor checks and conditional intercepting configurations.
