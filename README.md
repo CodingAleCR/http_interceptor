@@ -57,6 +57,7 @@ http_interceptor: <latest>
 - 🍦 Compatible with vanilla Dart projects or Flutter projects.
 - 🎉 Null-safety.
 - ⏲ Timeout configuration with duration and timeout functions.
+- ⏳ Configure the delay for each retry attempt.
 
 ## Usage
 
@@ -226,6 +227,17 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
 ```
 
 You can also set the maximum amount of retry attempts with `maxRetryAttempts` property or override the `shouldAttemptRetryOnException` if you want to retry the request after it failed with an exception.
+
+Sometimes it is helpful to have a cool-down phase between multiple requests. This delay could for example also differ between the first and the second retry attempt as shown in the following example.
+
+```dart
+class ExpiredTokenRetryPolicy extends RetryPolicy {
+  @override
+  Duration delayRetryAttemptOnResponse({required int retryAttempt}) {
+    return const Duration(milliseconds: 250) * math.pow(2.0, retryAttempt);
+  }
+}
+```
 
 ### Using self signed certificates
 
