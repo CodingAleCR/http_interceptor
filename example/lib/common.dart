@@ -19,7 +19,9 @@ class LoggerInterceptor extends InterceptorContract {
   }) async {
     log('----- Response -----');
     log('Code: ${response.statusCode}');
-    log((response as Response).body);
+    if (response is Response) {
+      log((response).body);
+    }
     return response;
   }
 }

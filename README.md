@@ -86,9 +86,11 @@ class LoggerInterceptor extends InterceptorContract {
   Future<BaseResponse> interceptResponse({
     required BaseResponse response,
   }) async {
-    print('----- Response -----');
-    print('Code: ${response.statusCode}');
-    print((response as Response).body);
+    log('----- Response -----');
+    log('Code: ${response.statusCode}');
+    if (response is Response) {
+      log((response).body);
+    }
     return response;
   }
 }
