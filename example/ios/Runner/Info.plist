@@ -49,5 +49,7 @@
 		<string>We need camera access to choose pictures and then removing background.</string>
 		<key>NSCameraUsageDescription</key>
 		<string>We need camera access to take pictures and then removing background.</string>
-	</dict>
+		<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+</dict>
 </plist>
