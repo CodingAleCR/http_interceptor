@@ -13,7 +13,7 @@ import 'cities.dart';
 import 'credentials.dart';
 
 class WeatherApp extends StatefulWidget {
-  const WeatherApp({Key? key}) : super(key: key);
+  const WeatherApp({super.key});
 
   static Route<void> route() {
     return MaterialPageRoute(builder: (ctx) => const WeatherApp());
