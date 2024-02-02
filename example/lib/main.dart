@@ -6,7 +6,7 @@ import 'weather_app.dart';
 void main() => runApp(const ExamplesApp());
 
 class ExamplesApp extends StatelessWidget {
-  const ExamplesApp({Key? key}) : super(key: key);
+  const ExamplesApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,7 @@ class ExamplesApp extends StatelessWidget {
 }
 
 class ExamplesMenuScreen extends StatelessWidget {
-  const ExamplesMenuScreen({Key? key}) : super(key: key);
+  const ExamplesMenuScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

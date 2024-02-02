@@ -9,7 +9,7 @@ import 'package:http_interceptor_example/credentials.dart';
 import 'package:image_picker/image_picker.dart';
 
 class MultipartApp extends StatefulWidget {
-  const MultipartApp({Key? key}) : super(key: key);
+  const MultipartApp({super.key});
 
   static Route<void> route() {
     return MaterialPageRoute(builder: (ctx) => const MultipartApp());
