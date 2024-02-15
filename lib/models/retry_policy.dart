@@ -47,4 +47,10 @@ abstract class RetryPolicy {
 
   /// Number of maximum request attempts that can be retried.
   final int maxRetryAttempts = 1;
+
+  Duration delayRetryAttemptOnException({required int retryAttempt}) =>
+      Duration.zero;
+
+  Duration delayRetryAttemptOnResponse({required int retryAttempt}) =>
+      Duration.zero;
 }

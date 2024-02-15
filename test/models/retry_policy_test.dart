@@ -14,6 +14,26 @@ main() {
     });
   });
 
+  group("delayRetryAttemptOnException", () {
+    test("returns no delay by default", () async {
+      // Act
+      final result = testObject.delayRetryAttemptOnException(retryAttempt: 0);
+
+      // Assert
+      expect(result, Duration.zero);
+    });
+  });
+
+  group("delayRetryAttemptOnResponse", () {
+    test("returns no delay by default", () async {
+      // Act
+      final result = testObject.delayRetryAttemptOnResponse(retryAttempt: 0);
+
+      // Assert
+      expect(result, Duration.zero);
+    });
+  });
+
   group("shouldAttemptRetryOnException", () {
     test("returns false by default", () async {
       expect(
