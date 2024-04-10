@@ -285,6 +285,8 @@ class InterceptedClient extends BaseClient {
           retryPolicy!.maxRetryAttempts > _retryCount &&
           await retryPolicy!.shouldAttemptRetryOnResponse(response)) {
         _retryCount += 1;
+        await Future.delayed(retryPolicy!
+            .delayRetryAttemptOnResponse(retryAttempt: _retryCount));
         return _attemptRequest(request);
       }
     } on Exception catch (error) {
@@ -292,6 +294,8 @@ class InterceptedClient extends BaseClient {
           retryPolicy!.maxRetryAttempts > _retryCount &&
           await retryPolicy!.shouldAttemptRetryOnException(error, request)) {
         _retryCount += 1;
+        await Future.delayed(retryPolicy!
+            .delayRetryAttemptOnException(retryAttempt: _retryCount));
         return _attemptRequest(request);
       } else {
         rethrow;
