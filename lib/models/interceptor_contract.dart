@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:http/http.dart';
 
 ///Interceptor interface to create custom Interceptor for http.
@@ -26,11 +28,11 @@ import 'package:http/http.dart';
 ///}
 ///```
 abstract class InterceptorContract {
-  Future<bool> shouldInterceptRequest() async => true;
+  FutureOr<bool> shouldInterceptRequest() => true;
 
-  Future<BaseRequest> interceptRequest({required BaseRequest request});
+  FutureOr<BaseRequest> interceptRequest({required BaseRequest request});
 
-  Future<bool> shouldInterceptResponse() async => true;
+  FutureOr<bool> shouldInterceptResponse() => true;
 
-  Future<BaseResponse> interceptResponse({required BaseResponse response});
+  FutureOr<BaseResponse> interceptResponse({required BaseResponse response});
 }
