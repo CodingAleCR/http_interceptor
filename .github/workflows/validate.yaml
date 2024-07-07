@@ -1,0 +1,29 @@
+name: validate
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📚 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Flutter & Deps
+        uses: ./.github/actions/setup-flutter
+
+      - name: 📝 Format
+        run: dart format . --set-exit-if-changed
+
+      - name: 📊 Analyze
+        run: flutter analyze
+
+      - name: 🧪 Test
+        run: flutter test --coverage
+      
+      - name: 🔎 Check Publish Warnings
+        run: flutter pub publish --dry-run

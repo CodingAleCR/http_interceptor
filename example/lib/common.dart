@@ -10,6 +10,7 @@ class LoggerInterceptor extends InterceptorContract {
     log('----- Request -----');
     log(request.toString());
     log(request.headers.toString());
+    log('Request type: ${request.runtimeType}');
     return request;
   }
 
@@ -19,6 +20,7 @@ class LoggerInterceptor extends InterceptorContract {
   }) async {
     log('----- Response -----');
     log('Code: ${response.statusCode}');
+    log('Response type: ${response.runtimeType}');
     if (response is Response) {
       log((response).body);
     }
