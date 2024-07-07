@@ -36,14 +36,13 @@ import 'package:http/http.dart';
 abstract class RetryPolicy {
   /// Defines whether the request should be retried when an Exception occurs
   /// while making said request to the server.
-  Future<bool> shouldAttemptRetryOnException(
-          Exception reason, BaseRequest request) async =>
+  FutureOr<bool> shouldAttemptRetryOnException(
+          Exception reason, BaseRequest request) =>
       false;
 
   /// Defines whether the request should be retried after the request has
   /// received `response` from the server.
-  Future<bool> shouldAttemptRetryOnResponse(BaseResponse response) async =>
-      false;
+  FutureOr<bool> shouldAttemptRetryOnResponse(BaseResponse response) => false;
 
   /// Number of maximum request attempts that can be retried.
   final int maxRetryAttempts = 1;
