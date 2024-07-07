@@ -181,9 +181,20 @@
       "contributions": [
         "ideas"
       ]
+    },
+    {
+      "login": "ayyysh04",
+      "name": "Ayush Yadav",
+      "avatar_url": "https://avatars.githubusercontent.com/u/74104690?v=4",
+      "profile": "https://github.com/ayyysh04",
+      "contributions": [
+        "ideas"
+      ]
     }
   ],
   "contributorsPerLine": 7,
   "repoHost": "https://github.com",
-  "skipCi": true
+  "skipCi": true,
+  "commitType": "docs",
+  "commitConvention": "angular"
 }
