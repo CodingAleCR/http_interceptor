@@ -11,11 +11,11 @@ dependencies:
     sdk: flutter
   http_interceptor:
     path: ../
-  image_picker: ^0.8.9
-  shared_preferences: ^2.2.2
+  image_picker: ^1.1.2
+  shared_preferences: ^2.2.3
 
 dev_dependencies:
-  flutter_lints: ^3.0.1
+  flutter_lints: ^4.0.0
   flutter_test:
     sdk: flutter
 

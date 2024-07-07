@@ -45,7 +45,7 @@ class InterceptedClient extends BaseClient {
   final List<InterceptorContract> interceptors;
 
   /// Maximum duration of a request.
-  final Duration? requestTimeout;
+  Duration? requestTimeout;
 
   /// Request timeout handler
   TimeoutCallback? onRequestTimeout;

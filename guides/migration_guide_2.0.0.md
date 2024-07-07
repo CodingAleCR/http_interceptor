@@ -39,7 +39,7 @@ v2.0.0 and up
 ```dart
 class WeatherApiInterceptor extends InterceptorContract {
   @override
-  Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
+  FutureOr<BaseRequest> interceptRequest({required BaseRequest request}) async {
     final cache = await SharedPreferences.getInstance();
 
     final Map<String, String>? headers = Map.from(request.headers);
@@ -55,7 +55,7 @@ class WeatherApiInterceptor extends InterceptorContract {
   }
 
   @override
-  Future<BaseResponse> interceptResponse(
+  FutureOr<BaseResponse> interceptResponse(
           {required BaseResponse response}) async =>
       response;
 }
@@ -92,7 +92,7 @@ v2.0.0 and up
 class ExpiredTokenRetryPolicy extends RetryPolicy {
 
   @override
-  Future<bool> shouldAttemptRetryOnResponse(BaseResponse response) async {
+  FutureOr<bool> shouldAttemptRetryOnResponse(BaseResponse response) async {
     if (response.statusCode == 401) {
       log("Retrying request...");
       final cache = await SharedPreferences.getInstance();
@@ -111,7 +111,7 @@ If you are using `shouldAttemptRetryOnException` then you will also have to conv
 
 ```dart
 @override
-Future<bool> shouldAttemptRetryOnException(
+FutureOr<bool> shouldAttemptRetryOnException(
   Exception reason,
   BaseRequest request,
 ) async {
