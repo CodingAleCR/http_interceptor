@@ -14,13 +14,13 @@ import 'package:http/http.dart';
 ///```dart
 /// class LoggingInterceptor implements InterceptorContract {
 ///  @override
-///  Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
+///  FutureOr<BaseRequest> interceptRequest({required BaseRequest request}) async {
 ///    print(request.toString());
 ///    return data;
 ///  }
 ///
 ///  @override
-///  Future<BaseResponse> interceptResponse({required BaseResponse response}) async {
+///  FutureOr<BaseResponse> interceptResponse({required BaseResponse response}) async {
 ///      print(response.toString());
 ///      return data;
 ///  }

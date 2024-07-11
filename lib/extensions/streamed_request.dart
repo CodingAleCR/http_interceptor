@@ -14,25 +14,27 @@ extension StreamedRequestCopyWith on StreamedRequest {
     int? maxRedirects,
     bool? persistentConnection,
   }) {
-    final req = StreamedRequest(
-      method?.asString ?? this.method,
-      url ?? this.url,
-    )
-      ..headers.addAll(headers ?? this.headers)
-      ..followRedirects = followRedirects ?? this.followRedirects
-      ..maxRedirects = maxRedirects ?? this.maxRedirects
-      ..persistentConnection =
-          persistentConnection ?? this.persistentConnection;
+    // Create a new StreamedRequest with the same method and URL
+    var clonedRequest =
+        StreamedRequest(method?.asString ?? this.method, url ?? this.url)
+          ..headers.addAll(headers ?? this.headers);
 
-    if (stream != null) {
-      stream.listen((data) {
-        req.sink.add(data);
-      });
-      finalize().listen((data) {
-        req.sink.add(data);
-      });
-    }
+    // Use a broadcast stream to allow multiple listeners
+    var broadcastStream =
+        stream?.asBroadcastStream() ?? finalize().asBroadcastStream();
 
-    return req;
+    // Pipe the broadcast stream into the cloned request's sink
+    broadcastStream.listen((data) {
+      clonedRequest.sink.add(data);
+    }, onDone: () {
+      clonedRequest.sink.close();
+    });
+
+    this.persistentConnection =
+        persistentConnection ?? this.persistentConnection;
+    this.followRedirects = followRedirects ?? this.followRedirects;
+    this.maxRedirects = maxRedirects ?? this.maxRedirects;
+
+    return clonedRequest;
   }
 }

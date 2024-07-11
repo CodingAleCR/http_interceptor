@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
@@ -267,15 +268,15 @@ class WeatherRepository {
   //   var parsedWeather;
   //   try {
   //     var response = await InterceptedHttp.build(
-  //             interceptors: [WeatherApiInterceptor()])
-  //         .get("$baseUrl/weather", params: {'id': "$id"});
+  //       interceptors: [WeatherApiInterceptor()],
+  //     ).get('$baseUrl/weather', params: {'id': '$id'});
   //     if (response.statusCode == 200) {
   //       parsedWeather = json.decode(response.body);
   //     } else {
-  //       throw Exception("Error while fetching. \n ${response.body}");
+  //       throw Exception('Error while fetching. \n ${response.body}');
   //     }
   //   } catch (e) {
-  //     log(e);
+  //     log(e.toString());
   //   }
   //   return parsedWeather;
   // }
@@ -326,8 +327,9 @@ class WeatherApiInterceptor extends InterceptorContract {
   }
 
   @override
-  Future<BaseResponse> interceptResponse(
-          {required BaseResponse response}) async =>
+  BaseResponse interceptResponse({
+    required BaseResponse response,
+  }) =>
       response;
 }
 
