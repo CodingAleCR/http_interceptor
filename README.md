@@ -69,14 +69,16 @@ import 'package:http_interceptor/http_interceptor.dart';
 
 In order to implement `http_interceptor` you need to implement the `InterceptorContract` and create your own interceptor. This abstract class has two methods: `interceptRequest`, which triggers before the http request is called; and `interceptResponse`, which triggers after the request is called, it has a response attached to it which the corresponding to said request. You could use this to do logging, adding headers, error handling, or many other cool stuff. It is important to note that after you proccess the request/response objects you need to return them so that `http` can continue the execute.
 
+`interceptRequest` and `interceptResponse` use `FutureOr` syntax, which makes it easier to support both synchronous and asynchronous behaviors.
+
 - Logging with interceptor:
 
 ```dart
 class LoggerInterceptor extends InterceptorContract {
   @override
-  Future<BaseRequest> interceptRequest({
+  BaseRequest interceptRequest({
     required BaseRequest request,
-  }) async {
+  }) {
     print('----- Request -----');
     print(request.toString());
     print(request.headers.toString());
@@ -84,9 +86,9 @@ class LoggerInterceptor extends InterceptorContract {
   }
 
   @override
-  Future<BaseResponse> interceptResponse({
+  BaseResponse interceptResponse({
     required BaseResponse response,
-  }) async {
+  }) {
     log('----- Response -----');
     log('Code: ${response.statusCode}');
     if (response is Response) {
@@ -102,7 +104,7 @@ class LoggerInterceptor extends InterceptorContract {
 ```dart
 class WeatherApiInterceptor implements InterceptorContract {
   @override
-  Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
+  FutureOr<BaseRequest> interceptRequest({required BaseRequest request}) async {
     try {
       request.url.queryParameters['appid'] = OPEN_WEATHER_API_KEY;
       request.url.queryParameters['units'] = 'metric';
@@ -114,7 +116,10 @@ class WeatherApiInterceptor implements InterceptorContract {
   }
 
   @override
-  Future<BaseResponse> interceptResponse({required BaseResponse response}) async => response;
+  BaseResponse interceptResponse({
+  required BaseResponse response,
+  }) =>
+      response;
 }
 ```
 
@@ -123,7 +128,7 @@ class WeatherApiInterceptor implements InterceptorContract {
 ```dart
 class MultipartRequestInterceptor implements InterceptorContract {
   @override
-  Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
+  FutureOr<BaseRequest> interceptRequest({required BaseRequest request}) async {
     if(request is MultipartRequest){
       request.fields['app_version'] = await PackageInfo.fromPlatform().version;
     }
@@ -131,7 +136,7 @@ class MultipartRequestInterceptor implements InterceptorContract {
   }
 
   @override
-  Future<BaseResponse> interceptResponse({required BaseResponse response}) async {
+  FutureOr<BaseResponse> interceptResponse({required BaseResponse response}) async {
     if(response is StreamedResponse){
       response.stream.asBroadcastStream().listen((data){
         print(data);

@@ -219,7 +219,13 @@ class InterceptedClient extends BaseClient {
 
     final interceptedResponse = await _interceptResponse(response);
 
-    return interceptedResponse as StreamedResponse;
+    if (interceptedResponse is StreamedResponse) {
+      return interceptedResponse;
+    }
+
+    throw ClientException(
+      'Expected `StreamedResponse`, got ${interceptedResponse.runtimeType}.',
+    );
   }
 
   Future<BaseResponse> _sendUnstreamed({

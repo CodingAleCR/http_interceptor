@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
@@ -171,8 +172,8 @@ class RemoveBgApiInterceptor extends InterceptorContract {
   }
 
   @override
-  Future<BaseResponse> interceptResponse({
+  BaseResponse interceptResponse({
     required BaseResponse response,
-  }) async =>
+  }) =>
       response;
 }

@@ -14,16 +14,27 @@ extension MultipartRequestCopyWith on MultipartRequest {
     bool? followRedirects,
     int? maxRedirects,
     bool? persistentConnection,
-  }) =>
-      MultipartRequest(
-        method?.asString ?? this.method,
-        url ?? this.url,
-      )
-        ..headers.addAll(headers ?? this.headers)
-        ..fields.addAll(fields ?? this.fields)
-        ..files.addAll(files ?? this.files)
-        ..followRedirects = followRedirects ?? this.followRedirects
-        ..maxRedirects = maxRedirects ?? this.maxRedirects
-        ..persistentConnection =
-            persistentConnection ?? this.persistentConnection;
+  }) {
+    var clonedRequest =
+        MultipartRequest(method?.asString ?? this.method, url ?? this.url)
+          ..headers.addAll(headers ?? this.headers)
+          ..fields.addAll(fields ?? this.fields);
+
+    for (var file in this.files) {
+      clonedRequest.files.add(MultipartFile(
+        file.field,
+        file.finalize(),
+        file.length,
+        filename: file.filename,
+        contentType: file.contentType,
+      ));
+    }
+
+    this.persistentConnection =
+        persistentConnection ?? this.persistentConnection;
+    this.followRedirects = followRedirects ?? this.followRedirects;
+    this.maxRedirects = maxRedirects ?? this.maxRedirects;
+
+    return clonedRequest;
+  }
 }
