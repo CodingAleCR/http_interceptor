@@ -25,8 +25,10 @@ class ExamplesMenuScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Examples'),
       ),
-      body: ListView(
-        shrinkWrap: true,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
             leading: const Icon(Icons.cloud),
