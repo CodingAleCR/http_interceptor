@@ -21,7 +21,13 @@ extension RequestCopyWith on Request {
     final copied = Request(
       method?.asString ?? this.method,
       url ?? this.url,
-    )..body = this.body;
+    )..bodyBytes = this.bodyBytes;
+
+    try {
+      copied.body = this.body;
+    } catch (e) {
+      // Do not try to get body as string when it is not parseable
+    }
 
     if (body != null) {
       copied.body = body;
