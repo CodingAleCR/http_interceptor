@@ -3,7 +3,7 @@ import 'package:validators/validators.dart' as validators;
 
 /// Takes a string and appends [parameters] as query parameters of [url].
 ///
-/// Throws [ArgumentError] if [url] is not a valid absolute HTTP(S) URL.
+/// Throws [ArgumentError] if [url] is not a valid URL.
 String buildUrlString(String url, Map<String, dynamic>? parameters) {
   late final Uri uri;
 
