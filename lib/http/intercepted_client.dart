@@ -55,7 +55,7 @@ class InterceptedClient extends BaseClient {
   final RetryPolicy? retryPolicy;
 
   int _retryCount = 0;
-  late Client _inner;
+  late final Client _inner;
 
   InterceptedClient._internal({
     required this.interceptors,
@@ -215,9 +215,10 @@ class InterceptedClient extends BaseClient {
 
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
-    final response = await _attemptRequest(request, isStream: true);
+    final BaseResponse response =
+        await _attemptRequest(request, isStream: true);
 
-    final interceptedResponse = await _interceptResponse(response);
+    final BaseResponse interceptedResponse = await _interceptResponse(response);
 
     if (interceptedResponse is StreamedResponse) {
       return interceptedResponse;
@@ -238,7 +239,7 @@ class InterceptedClient extends BaseClient {
   }) async {
     url = url.addParameters(params);
 
-    Request request = Request(method.asString, url);
+    final Request request = Request(method.asString, url);
     if (headers != null) request.headers.addAll(headers);
     if (encoding != null) request.encoding = encoding;
     if (body != null) {
@@ -253,17 +254,16 @@ class InterceptedClient extends BaseClient {
       }
     }
 
-    var response = await _attemptRequest(request);
+    final BaseResponse response = await _attemptRequest(request);
 
     // Intercept response
-    response = await _interceptResponse(response);
-
-    return response;
+    return await _interceptResponse(response);
   }
 
   void _checkResponseSuccess(Uri url, Response response) {
     if (response.statusCode < 400) return;
-    var message = "Request to $url failed with status ${response.statusCode}";
+    String message =
+        "Request to $url failed with status ${response.statusCode}";
     if (response.reasonPhrase != null) {
       message = "$message: ${response.reasonPhrase}";
     }
@@ -272,14 +272,17 @@ class InterceptedClient extends BaseClient {
 
   /// Attempts to perform the request and intercept the data
   /// of the response
-  Future<BaseResponse> _attemptRequest(BaseRequest request,
-      {bool isStream = false}) async {
+  Future<BaseResponse> _attemptRequest(
+    BaseRequest request, {
+    bool isStream = false,
+  }) async {
     BaseResponse response;
+
     try {
       // Intercept request
-      final interceptedRequest = await _interceptRequest(request);
+      final BaseRequest interceptedRequest = await _interceptRequest(request);
 
-      var stream = requestTimeout == null
+      final StreamedResponse stream = requestTimeout == null
           ? await _inner.send(interceptedRequest)
           : await _inner
               .send(interceptedRequest)
@@ -291,19 +294,27 @@ class InterceptedClient extends BaseClient {
           retryPolicy!.maxRetryAttempts > _retryCount &&
           await retryPolicy!.shouldAttemptRetryOnResponse(response)) {
         _retryCount += 1;
-        await Future.delayed(retryPolicy!
-            .delayRetryAttemptOnResponse(retryAttempt: _retryCount));
+        await Future.delayed(
+          retryPolicy!.delayRetryAttemptOnResponse(retryAttempt: _retryCount),
+        );
         return _attemptRequest(request);
       }
-    } on Exception catch (error) {
+    } on Exception catch (error, stackTrace) {
       if (retryPolicy != null &&
           retryPolicy!.maxRetryAttempts > _retryCount &&
           await retryPolicy!.shouldAttemptRetryOnException(error, request)) {
         _retryCount += 1;
-        await Future.delayed(retryPolicy!
-            .delayRetryAttemptOnException(retryAttempt: _retryCount));
+        await Future.delayed(
+          retryPolicy!.delayRetryAttemptOnException(retryAttempt: _retryCount),
+        );
         return _attemptRequest(request);
       } else {
+        await _interceptError(
+          request: request,
+          error: error,
+          stackTrace: stackTrace,
+        );
+
         rethrow;
       }
     }
@@ -338,6 +349,25 @@ class InterceptedClient extends BaseClient {
     }
 
     return interceptedResponse;
+  }
+
+  /// This internal function intercepts the error.
+  Future<void> _interceptError({
+    BaseRequest? request,
+    BaseResponse? response,
+    Exception? error,
+    StackTrace? stackTrace,
+  }) async {
+    for (InterceptorContract interceptor in interceptors) {
+      if (await interceptor.shouldInterceptError()) {
+        await interceptor.interceptError(
+          request: request,
+          response: response,
+          error: error,
+          stackTrace: stackTrace,
+        );
+      }
+    }
   }
 
   @override
