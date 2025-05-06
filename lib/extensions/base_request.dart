@@ -33,42 +33,39 @@ extension BaseRequestCopyWith on BaseRequest {
     List<MultipartFile>? files,
     // StreamedRequest only properties.
     Stream<List<int>>? stream,
-  }) {
-    if (this is Request) {
-      return RequestCopyWith(this as Request).copyWith(
-        method: method,
-        url: url,
-        headers: headers,
-        body: body,
-        encoding: encoding,
-        followRedirects: followRedirects,
-        maxRedirects: maxRedirects,
-        persistentConnection: persistentConnection,
-      );
-    } else if (this is StreamedRequest) {
-      return StreamedRequestCopyWith(this as StreamedRequest).copyWith(
-        method: method,
-        url: url,
-        headers: headers,
-        stream: stream,
-        followRedirects: followRedirects,
-        maxRedirects: maxRedirects,
-        persistentConnection: persistentConnection,
-      );
-    } else if (this is MultipartRequest) {
-      return MultipartRequestCopyWith(this as MultipartRequest).copyWith(
-        method: method,
-        url: url,
-        headers: headers,
-        fields: fields,
-        files: files,
-        followRedirects: followRedirects,
-        maxRedirects: maxRedirects,
-        persistentConnection: persistentConnection,
-      );
-    }
-
-    throw UnsupportedError(
-        'Cannot copy unsupported type of request $runtimeType');
-  }
+  }) =>
+      switch (this) {
+        Request req => req.copyWith(
+            method: method,
+            url: url,
+            headers: headers,
+            body: body,
+            encoding: encoding,
+            followRedirects: followRedirects,
+            maxRedirects: maxRedirects,
+            persistentConnection: persistentConnection,
+          ),
+        StreamedRequest req => req.copyWith(
+            method: method,
+            url: url,
+            headers: headers,
+            stream: stream,
+            followRedirects: followRedirects,
+            maxRedirects: maxRedirects,
+            persistentConnection: persistentConnection,
+          ),
+        MultipartRequest req => req.copyWith(
+            method: method,
+            url: url,
+            headers: headers,
+            fields: fields,
+            files: files,
+            followRedirects: followRedirects,
+            maxRedirects: maxRedirects,
+            persistentConnection: persistentConnection,
+          ),
+        _ => throw UnsupportedError(
+            'Cannot copy unsupported type of request $runtimeType',
+          ),
+      };
 }

@@ -15,20 +15,19 @@ extension StreamedRequestCopyWith on StreamedRequest {
     bool? persistentConnection,
   }) {
     // Create a new StreamedRequest with the same method and URL
-    var clonedRequest =
+    final StreamedRequest clonedRequest =
         StreamedRequest(method?.asString ?? this.method, url ?? this.url)
           ..headers.addAll(headers ?? this.headers);
 
     // Use a broadcast stream to allow multiple listeners
-    var broadcastStream =
+    final Stream<List<int>> broadcastStream =
         stream?.asBroadcastStream() ?? finalize().asBroadcastStream();
 
     // Pipe the broadcast stream into the cloned request's sink
-    broadcastStream.listen((data) {
-      clonedRequest.sink.add(data);
-    }, onDone: () {
-      clonedRequest.sink.close();
-    });
+    broadcastStream.listen(
+      (List<int> data) => clonedRequest.sink.add(data),
+      onDone: () => clonedRequest.sink.close(),
+    );
 
     this.persistentConnection =
         persistentConnection ?? this.persistentConnection;

@@ -1,4 +1,4 @@
-library http_interceptor;
+library;
 
 export 'package:http/http.dart';
 

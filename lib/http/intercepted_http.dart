@@ -98,134 +98,143 @@ class InterceptedHttp {
   /// Performs a HEAD request with a new [Client] instance and closes it after
   /// it has been used.
   Future<Response> head(
-    url, {
+    Uri url, {
     Map<String, String>? headers,
-  }) async {
-    return _withClient((client) => client.head(
+  }) =>
+      _withClient(
+        (InterceptedClient client) => client.head(
           url,
           headers: headers,
-        ));
-  }
+        ),
+      );
 
   /// Performs a GET request with a new [Client] instance and closes it after
   /// it has been used.
   Future<Response> get(
-    url, {
+    Uri url, {
     Map<String, String>? headers,
     Map<String, dynamic>? params,
-  }) async {
-    return _withClient((client) => client.get(
+  }) =>
+      _withClient(
+        (InterceptedClient client) => client.get(
           url,
           headers: headers,
           params: params,
-        ));
-  }
+        ),
+      );
 
   /// Performs a POST request with a new [Client] instance and closes it after
   /// it has been used.
   Future<Response> post(
-    url, {
+    Uri url, {
     Map<String, String>? headers,
     Map<String, dynamic>? params,
     Object? body,
     Encoding? encoding,
-  }) async {
-    return _withClient((client) => client.post(
+  }) =>
+      _withClient(
+        (InterceptedClient client) => client.post(
           url,
           headers: headers,
           params: params,
           body: body,
           encoding: encoding,
-        ));
-  }
+        ),
+      );
 
   /// Performs a PUT request with a new [Client] instance and closes it after
   /// it has been used.
   Future<Response> put(
-    url, {
+    Uri url, {
     Map<String, String>? headers,
     Map<String, dynamic>? params,
     Object? body,
     Encoding? encoding,
-  }) async {
-    return _withClient((client) => client.put(
+  }) =>
+      _withClient(
+        (InterceptedClient client) => client.put(
           url,
           headers: headers,
           params: params,
           body: body,
           encoding: encoding,
-        ));
-  }
+        ),
+      );
 
   /// Performs a PATCH request with a new [Client] instance and closes it after
   /// it has been used.
   Future<Response> patch(
-    url, {
+    Uri url, {
     Map<String, String>? headers,
     Map<String, dynamic>? params,
     Object? body,
     Encoding? encoding,
-  }) async {
-    return _withClient((client) => client.patch(
+  }) =>
+      _withClient(
+        (InterceptedClient client) => client.patch(
           url,
           headers: headers,
           params: params,
           body: body,
           encoding: encoding,
-        ));
-  }
+        ),
+      );
 
   /// Performs a DELETE request with a new [Client] instance and closes it after
   /// it has been used.
   Future<Response> delete(
-    url, {
+    Uri url, {
     Map<String, String>? headers,
     Map<String, dynamic>? params,
     Object? body,
     Encoding? encoding,
-  }) async {
-    return _withClient((client) => client.delete(
+  }) =>
+      _withClient(
+        (InterceptedClient client) => client.delete(
           url,
           headers: headers,
           params: params,
           body: body,
           encoding: encoding,
-        ));
-  }
+        ),
+      );
 
   /// Executes `client.read` with a new [Client] instance and closes it after
   /// it has been used.
   Future<String> read(
-    url, {
+    Uri url, {
     Map<String, String>? headers,
     Map<String, dynamic>? params,
-  }) {
-    return _withClient((client) => client.read(
+  }) =>
+      _withClient(
+        (InterceptedClient client) => client.read(
           url,
           headers: headers,
           params: params,
-        ));
-  }
+        ),
+      );
 
   /// Executes `client.readBytes` with a new [Client] instance and closes it
   /// after it has been used.
   Future<Uint8List> readBytes(
-    url, {
+    Uri url, {
     Map<String, String>? headers,
     Map<String, dynamic>? params,
   }) =>
-      _withClient((client) => client.readBytes(
-            url,
-            headers: headers,
-            params: params,
-          ));
+      _withClient(
+        (InterceptedClient client) => client.readBytes(
+          url,
+          headers: headers,
+          params: params,
+        ),
+      );
 
   /// Internal convenience utility to create a new [Client] instance for each
   /// request. It closes the client after using it for the request.
   Future<T> _withClient<T>(
     Future<T> Function(InterceptedClient client) fn,
   ) async {
-    final client = InterceptedClient.build(
+    final InterceptedClient client = InterceptedClient.build(
       interceptors: interceptors,
       requestTimeout: requestTimeout,
       onRequestTimeout: onRequestTimeout,
