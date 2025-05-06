@@ -194,11 +194,10 @@ class InterceptedClient extends BaseClient {
     Uri url, {
     Map<String, String>? headers,
     Map<String, dynamic>? params,
-  }) {
-    return get(url, headers: headers, params: params).then((response) {
-      _checkResponseSuccess(url, response);
-      return response.body;
-    });
+  }) async {
+    final Response response = await get(url, headers: headers, params: params);
+    _checkResponseSuccess(url, response);
+    return response.body;
   }
 
   @override
@@ -206,11 +205,10 @@ class InterceptedClient extends BaseClient {
     Uri url, {
     Map<String, String>? headers,
     Map<String, dynamic>? params,
-  }) {
-    return get(url, headers: headers, params: params).then((response) {
-      _checkResponseSuccess(url, response);
-      return response.bodyBytes;
-    });
+  }) async {
+    final Response response = await get(url, headers: headers, params: params);
+    _checkResponseSuccess(url, response);
+    return response.bodyBytes;
   }
 
   @override
@@ -237,9 +235,10 @@ class InterceptedClient extends BaseClient {
     Object? body,
     Encoding? encoding,
   }) async {
-    url = url.addParameters(params);
-
-    final Request request = Request(method.asString, url);
+    final Request request = Request(
+      method.asString,
+      url.addParameters(params),
+    );
     if (headers != null) request.headers.addAll(headers);
     if (encoding != null) request.encoding = encoding;
     if (body != null) {
@@ -276,7 +275,7 @@ class InterceptedClient extends BaseClient {
     BaseRequest request, {
     bool isStream = false,
   }) async {
-    BaseResponse response;
+    late final BaseResponse response;
 
     try {
       // Intercept request
@@ -294,9 +293,8 @@ class InterceptedClient extends BaseClient {
           retryPolicy!.maxRetryAttempts > _retryCount &&
           await retryPolicy!.shouldAttemptRetryOnResponse(response)) {
         _retryCount += 1;
-        await Future.delayed(
-          retryPolicy!.delayRetryAttemptOnResponse(retryAttempt: _retryCount),
-        );
+        await Future.delayed(retryPolicy!
+            .delayRetryAttemptOnResponse(retryAttempt: _retryCount));
         return _attemptRequest(request);
       }
     } on Exception catch (error, stackTrace) {
@@ -304,9 +302,8 @@ class InterceptedClient extends BaseClient {
           retryPolicy!.maxRetryAttempts > _retryCount &&
           await retryPolicy!.shouldAttemptRetryOnException(error, request)) {
         _retryCount += 1;
-        await Future.delayed(
-          retryPolicy!.delayRetryAttemptOnException(retryAttempt: _retryCount),
-        );
+        await Future.delayed(retryPolicy!
+            .delayRetryAttemptOnException(retryAttempt: _retryCount));
         return _attemptRequest(request);
       } else {
         await _interceptError(
