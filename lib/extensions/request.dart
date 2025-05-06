@@ -18,7 +18,7 @@ extension RequestCopyWith on Request {
     int? maxRedirects,
     bool? persistentConnection,
   }) {
-    final copied = Request(
+    final Request copied = Request(
       method?.asString ?? this.method,
       url ?? this.url,
     )..bodyBytes = this.bodyBytes;

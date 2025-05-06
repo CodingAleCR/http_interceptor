@@ -15,12 +15,12 @@ extension MultipartRequestCopyWith on MultipartRequest {
     int? maxRedirects,
     bool? persistentConnection,
   }) {
-    var clonedRequest =
+    final MultipartRequest clonedRequest =
         MultipartRequest(method?.asString ?? this.method, url ?? this.url)
           ..headers.addAll(headers ?? this.headers)
           ..fields.addAll(fields ?? this.fields);
 
-    for (var file in this.files) {
+    for (final MultipartFile file in this.files) {
       clonedRequest.files.add(MultipartFile(
         file.field,
         file.finalize(),

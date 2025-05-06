@@ -43,7 +43,7 @@ main() {
       // Arrange
 
       // Act
-      Request copied = request.copyWith();
+      final Request copied = request.copyWith();
 
       // Assert
       expect(copied.hashCode, isNot(equals(request.hashCode)));
@@ -58,10 +58,10 @@ main() {
     });
     test('Request is copied with different URI', () {
       // Arrange
-      Uri newUrl = Uri.https("www.google.com", "/foobar");
+      final Uri newUrl = Uri.https("www.google.com", "/foobar");
 
       // Act
-      Request copied = request.copyWith(
+      final Request copied = request.copyWith(
         url: newUrl,
       );
 
@@ -85,7 +85,7 @@ main() {
       const newMethod = HttpMethod.POST;
 
       // Act
-      Request copied = request.copyWith(
+      final Request copied = request.copyWith(
         method: newMethod,
       );
 
@@ -110,7 +110,7 @@ main() {
       newHeaders['Authorization'] = 'Bearer token';
 
       // Act
-      Request copied = request.copyWith(
+      final Request copied = request.copyWith(
         headers: newHeaders,
       );
 
@@ -135,7 +135,7 @@ main() {
       newHeaders['Authorization'] = 'Bearer token';
 
       // Act
-      Request copied = request.copyWith(
+      final Request copied = request.copyWith(
         headers: newHeaders,
       );
 
@@ -160,7 +160,7 @@ main() {
       newHeaders['content-type'] = 'text/plain; charset=utf-8';
 
       // Act
-      Request copied = request.copyWith(
+      final Request copied = request.copyWith(
         headers: newHeaders,
       );
 
@@ -186,7 +186,7 @@ main() {
       newBody['hello'] = 'world';
 
       // Act
-      Request copied = request.copyWith(
+      final Request copied = request.copyWith(
         body: jsonEncode(newBody),
       );
 
@@ -216,7 +216,7 @@ main() {
       // Act
       final utfBytes = utf8.encode(jsonEncode(newBody));
       final gzipBytes = gzip.encode(utfBytes);
-      Request copied = request.copyWith(
+      final Request copied = request.copyWith(
         body: base64.encode(gzipBytes),
       );
 
@@ -243,12 +243,12 @@ main() {
       final changedHeaders = {'content-type': 'text/plain; charset=iso-8859-1'}
         ..addAll(request.headers);
 
-      Request updatedHeadersRequest = request.copyWith(
+      final Request updatedHeadersRequest = request.copyWith(
         headers: changedHeaders,
       );
 
       // Act
-      Request copied = updatedHeadersRequest.copyWith(
+      final Request copied = updatedHeadersRequest.copyWith(
         encoding: newEncoding,
       );
 
@@ -273,7 +273,7 @@ main() {
       const newFollowRedirects = false;
 
       // Act
-      Request copied = request.copyWith(
+      final Request copied = request.copyWith(
         followRedirects: newFollowRedirects,
       );
 
@@ -297,7 +297,7 @@ main() {
       const newMaxRedirects = 2;
 
       // Act
-      Request copied = request.copyWith(
+      final Request copied = request.copyWith(
         maxRedirects: newMaxRedirects,
       );
 
@@ -322,7 +322,7 @@ main() {
       const newPersistentConnection = false;
 
       // Act
-      Request copied = request.copyWith(
+      final Request copied = request.copyWith(
         persistentConnection: newPersistentConnection,
       );
 

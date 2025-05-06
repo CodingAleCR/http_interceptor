@@ -24,31 +24,29 @@ extension BaseResponseCopyWith on BaseResponse {
     // `StreamedResponse` only properties.
     Stream<List<int>>? stream,
     int? contentLength,
-  }) {
-    if (this is Response) {
-      return ResponseCopyWith(this as Response).copyWith(
-        statusCode: statusCode,
-        body: body,
-        request: request,
-        headers: headers,
-        isRedirect: isRedirect,
-        persistentConnection: persistentConnection,
-        reasonPhrase: reasonPhrase,
-      );
-    } else if (this is StreamedResponse) {
-      return StreamedResponseCopyWith(this as StreamedResponse).copyWith(
-        stream: stream,
-        statusCode: statusCode,
-        contentLength: contentLength,
-        request: request,
-        headers: headers,
-        isRedirect: isRedirect,
-        persistentConnection: persistentConnection,
-        reasonPhrase: reasonPhrase,
-      );
-    }
-
-    throw UnsupportedError(
-        'Cannot copy unsupported type of response $runtimeType');
-  }
+  }) =>
+      switch (this) {
+        Response res => res.copyWith(
+            statusCode: statusCode,
+            body: body,
+            request: request,
+            headers: headers,
+            isRedirect: isRedirect,
+            persistentConnection: persistentConnection,
+            reasonPhrase: reasonPhrase,
+          ),
+        StreamedResponse res => res.copyWith(
+            stream: stream,
+            statusCode: statusCode,
+            contentLength: contentLength,
+            request: request,
+            headers: headers,
+            isRedirect: isRedirect,
+            persistentConnection: persistentConnection,
+            reasonPhrase: reasonPhrase,
+          ),
+        _ => throw UnsupportedError(
+            'Cannot copy unsupported type of response $runtimeType',
+          ),
+      };
 }

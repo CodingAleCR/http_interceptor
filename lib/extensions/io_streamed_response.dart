@@ -14,8 +14,7 @@ extension IOStreamedResponseCopyWith on IOStreamedResponse {
     bool? persistentConnection,
     String? reasonPhrase,
     HttpClientResponse? inner,
-  }) {
-    return IOStreamedResponse(
+  }) => IOStreamedResponse(
       stream ?? this.stream,
       statusCode ?? this.statusCode,
       contentLength: contentLength ?? this.contentLength,
@@ -26,5 +25,4 @@ extension IOStreamedResponseCopyWith on IOStreamedResponse {
       reasonPhrase: reasonPhrase ?? this.reasonPhrase,
       inner: inner,
     );
-  }
 }
