@@ -261,10 +261,10 @@ class InterceptedClient extends BaseClient {
 
   void _checkResponseSuccess(Uri url, Response response) {
     if (response.statusCode < 400) return;
-    String message =
-        "Request to $url failed with status ${response.statusCode}";
+    final StringBuffer message = StringBuffer()
+      ..write("Request to $url failed with status ${response.statusCode}");
     if (response.reasonPhrase != null) {
-      message = "$message: ${response.reasonPhrase}";
+      message.write(": ${response.reasonPhrase}");
     }
     throw ClientException("$message.", url);
   }
