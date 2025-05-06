@@ -293,7 +293,7 @@ class InterceptedClient extends BaseClient {
         _retryCount += 1;
         await Future.delayed(retryPolicy!
             .delayRetryAttemptOnResponse(retryAttempt: _retryCount));
-        return _attemptRequest(request);
+        return _attemptRequest(request, isStream: isStream);
       }
     } on Exception catch (error) {
       if (retryPolicy != null &&
@@ -302,7 +302,7 @@ class InterceptedClient extends BaseClient {
         _retryCount += 1;
         await Future.delayed(retryPolicy!
             .delayRetryAttemptOnException(retryAttempt: _retryCount));
-        return _attemptRequest(request);
+        return _attemptRequest(request, isStream: isStream);
       } else {
         rethrow;
       }
