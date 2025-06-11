@@ -316,7 +316,8 @@ class InterceptedClient extends BaseClient {
   Future<BaseRequest> _interceptRequest(BaseRequest request) async {
     BaseRequest interceptedRequest = request.copyWith();
     for (InterceptorContract interceptor in interceptors) {
-      if (await interceptor.shouldInterceptRequest()) {
+      if (await interceptor.shouldInterceptRequest(
+          request: interceptedRequest)) {
         interceptedRequest = await interceptor.interceptRequest(
           request: interceptedRequest,
         );
@@ -330,7 +331,8 @@ class InterceptedClient extends BaseClient {
   Future<BaseResponse> _interceptResponse(BaseResponse response) async {
     BaseResponse interceptedResponse = response;
     for (InterceptorContract interceptor in interceptors) {
-      if (await interceptor.shouldInterceptResponse()) {
+      if (await interceptor.shouldInterceptResponse(
+          response: interceptedResponse)) {
         interceptedResponse = await interceptor.interceptResponse(
           response: interceptedResponse,
         );
