@@ -303,8 +303,8 @@ void main() {
         when(mockRetryPolicy.maxRetryAttempts).thenReturn(2);
         when(mockRetryPolicy.shouldAttemptRetryOnException(any, any))
             .thenAnswer((_) async => true);
-        when(mockRetryPolicy.delayRetryOnException(any, any))
-            .thenAnswer((_) async => Duration.zero);
+        when(mockRetryPolicy.delayRetryAttemptOnException(retryAttempt: anyNamed('retryAttempt')))
+            .thenReturn(Duration.zero);
 
         final client = InterceptedClient.build(
           client: mockClient,
@@ -327,10 +327,10 @@ void main() {
 
       test('should retry on response when policy allows', () async {
         when(mockRetryPolicy.maxRetryAttempts).thenReturn(2);
-        when(mockRetryPolicy.shouldAttemptRetryOnResponse(any, any))
+        when(mockRetryPolicy.shouldAttemptRetryOnResponse(any))
             .thenAnswer((_) async => true);
-        when(mockRetryPolicy.delayRetryOnResponse(any, any))
-            .thenAnswer((_) async => Duration.zero);
+        when(mockRetryPolicy.delayRetryAttemptOnResponse(retryAttempt: anyNamed('retryAttempt')))
+            .thenReturn(Duration.zero);
 
         final client = InterceptedClient.build(
           client: mockClient,
@@ -375,8 +375,8 @@ void main() {
         when(mockRetryPolicy.maxRetryAttempts).thenReturn(1);
         when(mockRetryPolicy.shouldAttemptRetryOnException(any, any))
             .thenAnswer((_) async => true);
-        when(mockRetryPolicy.delayRetryOnException(any, any))
-            .thenAnswer((_) async => Duration.zero);
+        when(mockRetryPolicy.delayRetryAttemptOnException(retryAttempt: anyNamed('retryAttempt')))
+            .thenReturn(Duration.zero);
 
         final client = InterceptedClient.build(
           client: mockClient,
@@ -534,8 +534,8 @@ void main() {
         when(mockRetryPolicy.maxRetryAttempts).thenReturn(2);
         when(mockRetryPolicy.shouldAttemptRetryOnException(any, any))
             .thenAnswer((_) async => true);
-        when(mockRetryPolicy.delayRetryOnException(any, any))
-            .thenAnswer((_) async => Duration.zero);
+        when(mockRetryPolicy.delayRetryAttemptOnException(retryAttempt: anyNamed('retryAttempt')))
+            .thenReturn(Duration.zero);
 
         final client = InterceptedClient.build(
           client: mockClient,

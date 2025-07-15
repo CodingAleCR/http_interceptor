@@ -13,17 +13,25 @@ jobs:
       - name: 📚 Checkout repository
         uses: actions/checkout@v4
 
-      - name: 📦 Setup Flutter & Deps
-        uses: ./.github/actions/setup-flutter
+      - name: 🐦 Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: 📦 Get dependencies
+        run: dart pub get
+
+      - name: 🔧 Generate mocks
+        run: dart run build_runner build --delete-conflicting-outputs
 
       - name: 📝 Format
-        run: dart format . --set-exit-if-changed
+        run: ./scripts/format.sh
 
       - name: 📊 Analyze
-        run: flutter analyze
+        run: ./scripts/analyze.sh
 
       - name: 🧪 Test
-        run: flutter test --coverage
+        run: dart test --coverage=coverage
       
       - name: 🔎 Check Publish Warnings
-        run: flutter pub publish --dry-run
+        run: dart pub publish --dry-run

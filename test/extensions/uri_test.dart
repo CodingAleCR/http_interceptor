@@ -1,5 +1,4 @@
 import 'package:test/test.dart';
-import 'package:http_interceptor/extensions/uri.dart';
 
 void main() {
   group('URI Extensions', () {

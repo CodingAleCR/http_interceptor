@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:test/test.dart';
 import 'package:http/http.dart';
 import 'package:http_interceptor/models/retry_policy.dart';
@@ -28,20 +29,17 @@ class TestRetryPolicy extends RetryPolicy {
   }
 
   @override
-  FutureOr<bool> shouldAttemptRetryOnResponse(
-      BaseResponse response, BaseRequest request) {
+  FutureOr<bool> shouldAttemptRetryOnResponse(BaseResponse response) {
     return retryOnResponse;
   }
 
   @override
-  FutureOr<Duration> delayRetryOnException(
-      Exception reason, BaseRequest request) {
+  Duration delayRetryAttemptOnException({required int retryAttempt}) {
     return exceptionDelay;
   }
 
   @override
-  FutureOr<Duration> delayRetryOnResponse(
-      BaseResponse response, BaseRequest request) {
+  Duration delayRetryAttemptOnResponse({required int retryAttempt}) {
     return responseDelay;
   }
 }
@@ -65,20 +63,17 @@ class ConditionalRetryPolicy extends RetryPolicy {
   }
 
   @override
-  FutureOr<bool> shouldAttemptRetryOnResponse(
-      BaseResponse response, BaseRequest request) {
+  FutureOr<bool> shouldAttemptRetryOnResponse(BaseResponse response) {
     return retryStatusCodes.contains(response.statusCode);
   }
 
   @override
-  FutureOr<Duration> delayRetryOnException(
-      Exception reason, BaseRequest request) {
+  Duration delayRetryAttemptOnException({required int retryAttempt}) {
     return Duration(milliseconds: 1000);
   }
 
   @override
-  FutureOr<Duration> delayRetryOnResponse(
-      BaseResponse response, BaseRequest request) {
+  Duration delayRetryAttemptOnResponse({required int retryAttempt}) {
     return Duration(milliseconds: 500);
   }
 }
@@ -103,27 +98,24 @@ class ExponentialBackoffRetryPolicy extends RetryPolicy {
   }
 
   @override
-  FutureOr<bool> shouldAttemptRetryOnResponse(
-      BaseResponse response, BaseRequest request) {
+  FutureOr<bool> shouldAttemptRetryOnResponse(BaseResponse response) {
     return response.statusCode >= 500 && _attemptCount < maxRetryAttempts;
   }
 
   @override
-  FutureOr<Duration> delayRetryOnException(
-      Exception reason, BaseRequest request) {
+  Duration delayRetryAttemptOnException({required int retryAttempt}) {
     _attemptCount++;
     return Duration(
         milliseconds:
-            (baseDelay.inMilliseconds * _attemptCount * multiplier).round());
+            (baseDelay.inMilliseconds * retryAttempt * multiplier).round());
   }
 
   @override
-  FutureOr<Duration> delayRetryOnResponse(
-      BaseResponse response, BaseRequest request) {
+  Duration delayRetryAttemptOnResponse({required int retryAttempt}) {
     _attemptCount++;
     return Duration(
         milliseconds:
-            (baseDelay.inMilliseconds * _attemptCount * multiplier).round());
+            (baseDelay.inMilliseconds * retryAttempt * multiplier).round());
   }
 }
 

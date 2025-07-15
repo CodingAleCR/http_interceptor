@@ -1,1 +1,19 @@
 include: package:lints/recommended.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.mocks.dart"
+    - "build/**"
+    - ".dart_tool/**"
+    - "dart-sdk/**"
+    - "flutter-sdk/**"
+    - "example/**"
+
+linter:
+  rules:
+    # Additional rules for better code quality
+    prefer_single_quotes: true
+    unnecessary_null_aware_assignments: true
+    unnecessary_nullable_for_final_variable_declarations: true
+    use_super_parameters: true
