@@ -22,3 +22,11 @@ coverage/
 flutter_export_environment.sh
 !packages/**/example/ios/
 !packages/**/example/android/
+
+# Ignore downloaded SDK files
+dart-sdk/
+dart-sdk.zip
+flutter-sdk/
+
+# Ignore generated mock files
+*.mocks.dart
