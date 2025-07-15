@@ -12,7 +12,7 @@ void main() {
         HttpMethod.PATCH,
         HttpMethod.DELETE,
       ];
-      
+
       expect(HttpMethod.values, containsAll(expectedMethods));
       expect(HttpMethod.values.length, equals(6));
     });
@@ -32,7 +32,7 @@ void main() {
           () => StringToMethod.fromString('get'),
           throwsA(isA<ArgumentError>()),
         );
-        
+
         expect(
           () => StringToMethod.fromString('Post'),
           throwsArgumentError,
@@ -41,7 +41,7 @@ void main() {
 
       test('should throw ArgumentError for invalid HTTP method strings', () {
         expect(() => StringToMethod.fromString('INVALID'), throwsArgumentError);
-        
+
         try {
           StringToMethod.fromString('INVALID');
           fail('Should have thrown ArgumentError');
@@ -67,12 +67,12 @@ void main() {
           () => StringToMethod.fromString(' GET '),
           throwsA(isA<ArgumentError>()),
         );
-        
+
         expect(
           () => StringToMethod.fromString('GET '),
           throwsA(isA<ArgumentError>()),
         );
-        
+
         expect(
           () => StringToMethod.fromString(' GET'),
           throwsA(isA<ArgumentError>()),
@@ -142,7 +142,7 @@ void main() {
     group('Round-trip conversion', () {
       test('should maintain consistency in round-trip conversions', () {
         final testStrings = ['HEAD', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
-        
+
         for (final testString in testStrings) {
           final method = StringToMethod.fromString(testString);
           final backToString = method.asString;
@@ -162,7 +162,7 @@ void main() {
     group('Edge cases', () {
       test('should handle repeated conversions', () {
         const testMethod = HttpMethod.GET;
-        
+
         for (int i = 0; i < 100; i++) {
           final stringValue = testMethod.asString;
           final parsedMethod = StringToMethod.fromString(stringValue);
@@ -173,7 +173,7 @@ void main() {
       test('should be thread-safe for conversions', () {
         // Note: This is a basic test, real thread safety would require more complex testing
         final futures = <Future<void>>[];
-        
+
         for (int i = 0; i < 10; i++) {
           futures.add(Future(() {
             for (final method in HttpMethod.values) {
@@ -183,7 +183,7 @@ void main() {
             }
           }));
         }
-        
+
         return Future.wait(futures);
       });
     });
