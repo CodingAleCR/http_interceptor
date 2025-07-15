@@ -17,7 +17,7 @@ jobs:
         uses: ./.github/actions/setup-flutter
 
       - name: 📝 Format
-        run: ./scripts/format.sh
+        run: dart format . --set-exit-if-changed
 
       - name: 📊 Analyze
         run: flutter analyze
