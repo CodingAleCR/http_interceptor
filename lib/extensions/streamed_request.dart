@@ -30,10 +30,10 @@ extension StreamedRequestCopyWith on StreamedRequest {
       clonedRequest.sink.close();
     });
 
-    this.persistentConnection =
+    clonedRequest.persistentConnection =
         persistentConnection ?? this.persistentConnection;
-    this.followRedirects = followRedirects ?? this.followRedirects;
-    this.maxRedirects = maxRedirects ?? this.maxRedirects;
+    clonedRequest.followRedirects = followRedirects ?? this.followRedirects;
+    clonedRequest.maxRedirects = maxRedirects ?? this.maxRedirects;
 
     return clonedRequest;
   }

@@ -1,154 +1,157 @@
-import 'package:http_interceptor/http/http_methods.dart';
+import 'package:http_interceptor/http_interceptor.dart';
 import 'package:test/test.dart';
 
-main() {
-  group("Can parse from string", () {
-    test("with HEAD method", () {
-      // Arrange
-      HttpMethod method;
-      String methodString = "HEAD";
-
-      // Act
-      method = StringToMethod.fromString(methodString);
-
-      // Assert
-      expect(method, equals(HttpMethod.HEAD));
+void main() {
+  group('HttpMethod', () {
+    test('should have correct string representations', () {
+      expect(HttpMethod.GET.asString, equals('GET'));
+      expect(HttpMethod.POST.asString, equals('POST'));
+      expect(HttpMethod.PUT.asString, equals('PUT'));
+      expect(HttpMethod.DELETE.asString, equals('DELETE'));
+      expect(HttpMethod.HEAD.asString, equals('HEAD'));
+      expect(HttpMethod.PATCH.asString, equals('PATCH'));
     });
-    test("with GET method", () {
-      // Arrange
-      HttpMethod method;
-      String methodString = "GET";
 
-      // Act
-      method = StringToMethod.fromString(methodString);
-
-      // Assert
-      expect(method, equals(HttpMethod.GET));
+    test('should parse HTTP methods correctly', () {
+      expect(StringToMethod.fromString('GET'), equals(HttpMethod.GET));
+      expect(StringToMethod.fromString('POST'), equals(HttpMethod.POST));
+      expect(StringToMethod.fromString('PUT'), equals(HttpMethod.PUT));
+      expect(StringToMethod.fromString('DELETE'), equals(HttpMethod.DELETE));
+      expect(StringToMethod.fromString('HEAD'), equals(HttpMethod.HEAD));
+      expect(StringToMethod.fromString('PATCH'), equals(HttpMethod.PATCH));
     });
-    test("with POST method", () {
-      // Arrange
-      HttpMethod method;
-      String methodString = "POST";
 
-      // Act
-      method = StringToMethod.fromString(methodString);
-
-      // Assert
-      expect(method, equals(HttpMethod.POST));
+    test('should handle case-insensitive parsing', () {
+      expect(StringToMethod.fromString('GET'), equals(HttpMethod.GET));
+      expect(StringToMethod.fromString('POST'), equals(HttpMethod.POST));
+      expect(StringToMethod.fromString('PUT'), equals(HttpMethod.PUT));
+      expect(StringToMethod.fromString('DELETE'), equals(HttpMethod.DELETE));
+      expect(StringToMethod.fromString('HEAD'), equals(HttpMethod.HEAD));
+      expect(StringToMethod.fromString('PATCH'), equals(HttpMethod.PATCH));
     });
-    test("with PUT method", () {
-      // Arrange
-      HttpMethod method;
-      String methodString = "PUT";
 
-      // Act
-      method = StringToMethod.fromString(methodString);
-
-      // Assert
-      expect(method, equals(HttpMethod.PUT));
+    test('should handle mixed case parsing', () {
+      expect(StringToMethod.fromString('GET'), equals(HttpMethod.GET));
+      expect(StringToMethod.fromString('POST'), equals(HttpMethod.POST));
+      expect(StringToMethod.fromString('PUT'), equals(HttpMethod.PUT));
+      expect(StringToMethod.fromString('DELETE'), equals(HttpMethod.DELETE));
+      expect(StringToMethod.fromString('HEAD'), equals(HttpMethod.HEAD));
+      expect(StringToMethod.fromString('PATCH'), equals(HttpMethod.PATCH));
     });
-    test("with PATCH method", () {
-      // Arrange
-      HttpMethod method;
-      String methodString = "PATCH";
 
-      // Act
-      method = StringToMethod.fromString(methodString);
-
-      // Assert
-      expect(method, equals(HttpMethod.PATCH));
+    test('should throw exception for invalid HTTP methods', () {
+      expect(() => StringToMethod.fromString('INVALID'), throwsA(isA<ArgumentError>()));
+      expect(() => StringToMethod.fromString(''), throwsA(isA<ArgumentError>()));
+      expect(() => StringToMethod.fromString('OPTIONS'), throwsA(isA<ArgumentError>()));
+      expect(() => StringToMethod.fromString('TRACE'), throwsA(isA<ArgumentError>()));
     });
-    test("with DELETE method", () {
-      // Arrange
-      HttpMethod method;
-      String methodString = "DELETE";
 
-      // Act
-      method = StringToMethod.fromString(methodString);
-
-      // Assert
-      expect(method, equals(HttpMethod.DELETE));
+    test('should handle null and empty strings', () {
+      expect(() => StringToMethod.fromString(''), throwsA(isA<ArgumentError>()));
     });
-  });
 
-  group("Can parse to string", () {
-    test("to 'HEAD' string.", () {
-      // Arrange
-      String methodString;
-      HttpMethod method = HttpMethod.HEAD;
-
-      // Act
-      methodString = method.asString;
-
-      // Assert
-      expect(methodString, equals("HEAD"));
+    test('should have correct enum values', () {
+      expect(HttpMethod.HEAD.index, equals(0));
+      expect(HttpMethod.GET.index, equals(1));
+      expect(HttpMethod.POST.index, equals(2));
+      expect(HttpMethod.PUT.index, equals(3));
+      expect(HttpMethod.PATCH.index, equals(4));
+      expect(HttpMethod.DELETE.index, equals(5));
     });
-    test("to 'GET' string.", () {
-      // Arrange
-      String methodString;
-      HttpMethod method = HttpMethod.GET;
 
-      // Act
-      methodString = method.asString;
-
-      // Assert
-      expect(methodString, equals("GET"));
+    test('should be comparable', () {
+      expect(HttpMethod.GET, equals(HttpMethod.GET));
+      expect(HttpMethod.POST, equals(HttpMethod.POST));
+      expect(HttpMethod.GET, isNot(equals(HttpMethod.POST)));
+      expect(HttpMethod.POST, isNot(equals(HttpMethod.PUT)));
     });
-    test("to 'POST' string.", () {
-      // Arrange
-      String methodString;
-      HttpMethod method = HttpMethod.POST;
 
-      // Act
-      methodString = method.asString;
-
-      // Assert
-      expect(methodString, equals("POST"));
+    test('should have correct toString representation', () {
+      expect(HttpMethod.GET.toString(), equals('HttpMethod.GET'));
+      expect(HttpMethod.POST.toString(), equals('HttpMethod.POST'));
+      expect(HttpMethod.PUT.toString(), equals('HttpMethod.PUT'));
+      expect(HttpMethod.DELETE.toString(), equals('HttpMethod.DELETE'));
+      expect(HttpMethod.HEAD.toString(), equals('HttpMethod.HEAD'));
+      expect(HttpMethod.PATCH.toString(), equals('HttpMethod.PATCH'));
     });
-    test("to 'PUT' string.", () {
-      // Arrange
-      String methodString;
-      HttpMethod method = HttpMethod.PUT;
 
-      // Act
-      methodString = method.asString;
+    test('should handle all supported HTTP methods', () {
+      final methods = [
+        HttpMethod.GET,
+        HttpMethod.POST,
+        HttpMethod.PUT,
+        HttpMethod.DELETE,
+        HttpMethod.HEAD,
+        HttpMethod.PATCH,
+      ];
 
-      // Assert
-      expect(methodString, equals("PUT"));
+      for (final method in methods) {
+        expect(StringToMethod.fromString(method.asString), equals(method));
+      }
     });
-    test("to 'PATCH' string.", () {
-      // Arrange
-      String methodString;
-      HttpMethod method = HttpMethod.PATCH;
 
-      // Act
-      methodString = method.asString;
+    test('should validate HTTP method strings', () {
+      final validMethods = ['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'PATCH'];
+      final invalidMethods = ['OPTIONS', 'TRACE', 'CONNECT', 'INVALID', ''];
 
-      // Assert
-      expect(methodString, equals("PATCH"));
+      for (final method in validMethods) {
+        expect(() => StringToMethod.fromString(method), returnsNormally);
+      }
+
+      for (final method in invalidMethods) {
+        expect(() => StringToMethod.fromString(method), throwsA(isA<ArgumentError>()));
+      }
     });
-    test("to 'DELETE' string.", () {
-      // Arrange
-      String methodString;
-      HttpMethod method = HttpMethod.DELETE;
 
-      // Act
-      methodString = method.asString;
-
-      // Assert
-      expect(methodString, equals("DELETE"));
+    test('should handle whitespace in method strings', () {
+      expect(() => StringToMethod.fromString(' GET '), throwsA(isA<ArgumentError>()));
+      expect(() => StringToMethod.fromString('POST '), throwsA(isA<ArgumentError>()));
+      expect(() => StringToMethod.fromString(' PUT'), throwsA(isA<ArgumentError>()));
     });
-  });
 
-  group("Can control unsupported values", () {
-    test("Throws when string is unsupported", () {
-      // Arrange
-      String methodString = "UNSUPPORTED";
+    test('should be immutable', () {
+      final method1 = HttpMethod.GET;
+      final method2 = HttpMethod.GET;
+      
+      expect(identical(method1, method2), isTrue);
+      expect(method1.hashCode, equals(method2.hashCode));
+    });
 
-      // Act
-      // Assert
-      expect(
-          () => StringToMethod.fromString(methodString), throwsArgumentError);
+    test('should work in switch statements', () {
+      final method = HttpMethod.POST;
+      
+      final result = switch (method) {
+        HttpMethod.GET => 'GET',
+        HttpMethod.POST => 'POST',
+        HttpMethod.PUT => 'PUT',
+        HttpMethod.DELETE => 'DELETE',
+        HttpMethod.HEAD => 'HEAD',
+        HttpMethod.PATCH => 'PATCH',
+      };
+      
+      expect(result, equals('POST'));
+    });
+
+    test('should be usable in collections', () {
+      final methods = <HttpMethod>{HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT};
+      
+      expect(methods.contains(HttpMethod.GET), isTrue);
+      expect(methods.contains(HttpMethod.POST), isTrue);
+      expect(methods.contains(HttpMethod.PUT), isTrue);
+      expect(methods.contains(HttpMethod.DELETE), isFalse);
+    });
+
+    test('should have consistent behavior across instances', () {
+      final method1 = StringToMethod.fromString('GET');
+      final method2 = StringToMethod.fromString('GET');
+      final method3 = HttpMethod.GET;
+      
+      expect(method1, equals(method2));
+      expect(method1, equals(method3));
+      expect(method2, equals(method3));
+      
+      expect(method1.hashCode, equals(method2.hashCode));
+      expect(method1.hashCode, equals(method3.hashCode));
     });
   });
 }
