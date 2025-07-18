@@ -297,22 +297,33 @@ class InterceptedClient extends BaseClient {
 
         // Set up timeout with proper cleanup
         Timer? timeoutTimer;
-        late StreamSubscription streamSubscription;
+        bool isCompleted = false;
 
         timeoutTimer = Timer(requestTimeout!, () {
-          if (!completer.isCompleted) {
+          if (!isCompleted) {
+            isCompleted = true;
             if (onRequestTimeout != null) {
               // If timeout callback is provided, use it
-              final timeoutResponse = onRequestTimeout!();
-              if (timeoutResponse is Future<StreamedResponse>) {
-                timeoutResponse.then((response) {
+              try {
+                final timeoutResponse = onRequestTimeout!();
+                if (timeoutResponse is Future<StreamedResponse>) {
+                  timeoutResponse.then((response) {
+                    if (!completer.isCompleted) {
+                      completer.complete(response);
+                    }
+                  }).catchError((error) {
+                    if (!completer.isCompleted) {
+                      completer.completeError(error);
+                    }
+                  });
+                } else {
                   if (!completer.isCompleted) {
-                    completer.complete(response);
+                    completer.complete(timeoutResponse);
                   }
-                });
-              } else {
+                }
+              } catch (error) {
                 if (!completer.isCompleted) {
-                  completer.complete(timeoutResponse);
+                  completer.completeError(error);
                 }
               }
             } else {
@@ -328,13 +339,19 @@ class InterceptedClient extends BaseClient {
         // Handle the actual request completion
         requestFuture.then((streamResponse) {
           timeoutTimer?.cancel();
-          if (!completer.isCompleted) {
-            completer.complete(streamResponse);
+          if (!isCompleted) {
+            isCompleted = true;
+            if (!completer.isCompleted) {
+              completer.complete(streamResponse);
+            }
           }
         }).catchError((error) {
           timeoutTimer?.cancel();
-          if (!completer.isCompleted) {
-            completer.completeError(error);
+          if (!isCompleted) {
+            isCompleted = true;
+            if (!completer.isCompleted) {
+              completer.completeError(error);
+            }
           }
         });
 
