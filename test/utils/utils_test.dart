@@ -1,5 +1,5 @@
-import 'package:test/test.dart';
 import 'package:http_interceptor/utils/utils.dart';
+import 'package:test/test.dart';
 
 main() {
   group("buildUrlString", () {
@@ -67,6 +67,16 @@ main() {
     test("Validates URL structure and throws error for invalid URLs", () {
       // Arrange
       String invalidUrl = "not a valid url";
+      Map<String, dynamic> parameters = {"key": "value"};
+
+      // Act & Assert
+      expect(() => buildUrlString(invalidUrl, parameters), 
+             throwsA(isA<ArgumentError>()));
+    });
+    
+    test("Validates URL structure and throws error for URLs without scheme", () {
+      // Arrange
+      String invalidUrl = "example.com/path"; // No scheme
       Map<String, dynamic> parameters = {"key": "value"};
 
       // Act & Assert

@@ -9,9 +9,21 @@ String buildUrlString(String url, Map<String, dynamic>? parameters) {
   // Check if there are parameters to add.
   if (parameters.isNotEmpty) {
     // Validate URL structure to prevent injection
+    // First check if it looks like a valid HTTP/HTTPS URL
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      throw ArgumentError('Invalid URL structure: $url - must be a valid HTTP/HTTPS URL');
+    }
+    
     try {
-      Uri.parse(url);
+      final uri = Uri.parse(url);
+      // Additional validation: ensure it has a host
+      if (uri.host.isEmpty) {
+        throw ArgumentError('Invalid URL structure: $url - must have a valid host');
+      }
     } catch (e) {
+      if (e is ArgumentError) {
+        rethrow;
+      }
       throw ArgumentError('Invalid URL structure: $url');
     }
 
