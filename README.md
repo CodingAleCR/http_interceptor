@@ -30,10 +30,10 @@ This is a plugin that lets you intercept the different requests and responses fr
       - [Using interceptors with Client](#using-interceptors-with-client)
       - [Using interceptors without Client](#using-interceptors-without-client)
     - [Retrying requests](#retrying-requests)
+    - [Timeout configuration](#timeout-configuration)
     - [Using self signed certificates](#using-self-signed-certificates)
     - [InterceptedClient](#interceptedclient)
     - [InterceptedHttp](#interceptedhttp)
-  - [Roadmap](#roadmap)
   - [Troubleshooting](#troubleshooting)
   - [Contributions](#contributions)
     - [Contributors](#contributors)
@@ -50,7 +50,7 @@ http_interceptor: <latest>
 
 - 🚦 Intercept & change unstreamed requests and responses.
 - ✨ Retrying requests when an error occurs or when the response does not match the desired (useful for handling custom error responses).
-- 👓 `GET` requests with separated parameters.
+- 👓 `GET` requests with separated parameters using the `params` argument.
 - ⚡️ Standard `bodyBytes` on `ResponseData` to encode or decode in the desired format.
 - 🙌🏼 Array parameters on requests.
 - 🖋 Supports self-signed certificates (except on Flutter Web).
@@ -58,6 +58,7 @@ http_interceptor: <latest>
 - 🎉 Null-safety.
 - ⏲ Timeout configuration with duration and timeout functions.
 - ⏳ Configure the delay for each retry attempt.
+- 📁 Support for `MultipartRequest` and `StreamedRequest`/`StreamedResponse`.
 
 ## Usage
 
@@ -69,10 +70,10 @@ import 'package:http_interceptor/http_interceptor.dart';
 
 In order to implement `http_interceptor` you need to implement the `InterceptorContract` and create your own interceptor. This abstract class has four methods:
 
- - `interceptRequest`, which triggers before the http request is called 
- - `interceptResponse`, which triggers after the request is called, it has a response attached to it which the corresponding to said request;
- 
-- `shouldInterceptRequest` and `shouldInterceptResponse`, which are used to determine if the request or response should be intercepted or not. These two methods are optional as they return `true` by default, but they can be useful if you want to conditionally intercept requests or responses based on certain criteria. 
+- `interceptRequest`, which triggers before the http request is called
+- `interceptResponse`, which triggers after the request is called, it has a response attached to it which the corresponding to said request;
+
+- `shouldInterceptRequest` and `shouldInterceptResponse`, which are used to determine if the request or response should be intercepted or not. These two methods are optional as they return `true` by default, but they can be useful if you want to conditionally intercept requests or responses based on certain criteria.
 
 You could use this package to do logging, adding headers, error handling, or many other cool stuff. It is important to note that after you proccess the request/response objects you need to return them so that `http` can continue the execute.
 
@@ -89,6 +90,7 @@ class LoggerInterceptor extends InterceptorContract {
     print('----- Request -----');
     print(request.toString());
     print(request.headers.toString());
+    print('Request type: ${request.runtimeType}');
     return request;
   }
 
@@ -96,26 +98,33 @@ class LoggerInterceptor extends InterceptorContract {
   BaseResponse interceptResponse({
     required BaseResponse response,
   }) {
-    log('----- Response -----');
-    log('Code: ${response.statusCode}');
+    print('----- Response -----');
+    print('Code: ${response.statusCode}');
+    print('Response type: ${response.runtimeType}');
     if (response is Response) {
-      log((response).body);
+      print((response).body);
     }
     return response;
   }
 }
 ```
 
-- Changing headers with interceptor:
+- Changing headers and query parameters with interceptor:
 
 ```dart
 class WeatherApiInterceptor implements InterceptorContract {
   @override
   FutureOr<BaseRequest> interceptRequest({required BaseRequest request}) async {
     try {
+      // Add query parameters to the URL
       request.url.queryParameters['appid'] = OPEN_WEATHER_API_KEY;
       request.url.queryParameters['units'] = 'metric';
+      
+      // Set content type header
       request.headers[HttpHeaders.contentTypeHeader] = "application/json";
+      
+      // Add custom headers
+      request.headers['X-Custom-Header'] = 'custom-value';
     } catch (e) {
       print(e);
     }
@@ -130,14 +139,14 @@ class WeatherApiInterceptor implements InterceptorContract {
   
   @override
   FutureOr<bool> shouldInterceptRequest({required BaseRequest request}) async {
-    // You can conditionally intercept requests here
-    return true; // Intercept all requests
+    // Only intercept requests to weather API
+    return request.url.host.contains('openweathermap.org');
   }
 
   @override
   FutureOr<bool> shouldInterceptResponse({required BaseResponse response}) async {
-    // You can conditionally intercept responses here
-    return true; // Intercept all responses
+    // Only intercept successful responses
+    return response.statusCode >= 200 && response.statusCode < 300;
   }
 }
 ```
@@ -149,7 +158,9 @@ class MultipartRequestInterceptor implements InterceptorContract {
   @override
   FutureOr<BaseRequest> interceptRequest({required BaseRequest request}) async {
     if(request is MultipartRequest){
+      // Add metadata to multipart requests
       request.fields['app_version'] = await PackageInfo.fromPlatform().version;
+      request.fields['timestamp'] = DateTime.now().toIso8601String();
     }
     return request;
   }
@@ -157,8 +168,9 @@ class MultipartRequestInterceptor implements InterceptorContract {
   @override
   FutureOr<BaseResponse> interceptResponse({required BaseResponse response}) async {
     if(response is StreamedResponse){
+      // Log streaming data
       response.stream.asBroadcastStream().listen((data){
-        print(data);
+        print('Streamed data: ${data.length} bytes');
       });
     }
     return response;
@@ -166,14 +178,14 @@ class MultipartRequestInterceptor implements InterceptorContract {
 
   @override
   FutureOr<bool> shouldInterceptRequest({required BaseRequest request}) async {
-    // You can conditionally intercept requests here
-    return true; // Intercept all requests
+    // Only intercept multipart requests
+    return request is MultipartRequest;
   }
 
   @override
   FutureOr<bool> shouldInterceptResponse({required BaseResponse response}) async {
-    // You can conditionally intercept responses here
-    return true; // Intercept all responses
+    // Only intercept streamed responses
+    return response is StreamedResponse;
   }
 }
 ```
@@ -197,8 +209,11 @@ class WeatherRepository {
   Future<Map<String, dynamic>> fetchCityWeather(int id) async {
     var parsedWeather;
     try {
-      final response =
-          await client.get("$baseUrl/weather".toUri(), params: {'id': "$id"});
+      // Using the params argument for clean query parameter handling
+      final response = await client.get(
+        "$baseUrl/weather".toUri(), 
+        params: {'id': "$id"}
+      );
       if (response.statusCode == 200) {
         parsedWeather = json.decode(response.body);
       } else {
@@ -228,8 +243,11 @@ class WeatherRepository {
       final http = InterceptedHttp.build(interceptors: [
           WeatherApiInterceptor(),
       ]);
-      final response =
-          await http.get("$baseUrl/weather".toUri(), params: {'id': "$id"});
+      // Using the params argument for clean query parameter handling
+      final response = await http.get(
+        "$baseUrl/weather".toUri(), 
+        params: {'id': "$id"}
+      );
       if (response.statusCode == 200) {
         parsedWeather = json.decode(response.body);
       } else {
@@ -341,6 +359,73 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
 }
 ```
 
+### Timeout configuration
+
+You can configure request timeouts and custom timeout handlers for both `InterceptedClient` and `InterceptedHttp`:
+
+```dart
+// Configure timeout with custom handler
+final client = InterceptedClient.build(
+  interceptors: [WeatherApiInterceptor()],
+  requestTimeout: const Duration(seconds: 30),
+  onRequestTimeout: () async {
+    // Custom timeout handling
+    print('Request timed out, returning default response');
+    return StreamedResponse(
+      Stream.value([]),
+      408, // Request Timeout
+    );
+  },
+);
+
+// Simple timeout without custom handler
+final http = InterceptedHttp.build(
+  interceptors: [LoggerInterceptor()],
+  requestTimeout: const Duration(seconds: 10),
+);
+```
+
+### Working with bodyBytes
+
+The library provides access to `bodyBytes` for both requests and responses, allowing you to work with binary data:
+
+```dart
+class BinaryDataInterceptor implements InterceptorContract {
+  @override
+  FutureOr<BaseRequest> interceptRequest({required BaseRequest request}) async {
+    if (request is Request) {
+      // Access binary request data
+      final bytes = request.bodyBytes;
+      print('Request body size: ${bytes.length} bytes');
+      
+      // Modify binary data if needed
+      if (bytes.isNotEmpty) {
+        // Example: compress data
+        final compressed = await compressData(bytes);
+        return request.copyWith(bodyBytes: compressed);
+      }
+    }
+    return request;
+  }
+
+  @override
+  FutureOr<BaseResponse> interceptResponse({required BaseResponse response}) async {
+    if (response is Response) {
+      // Access binary response data
+      final bytes = response.bodyBytes;
+      print('Response body size: ${bytes.length} bytes');
+      
+      // Example: decode binary data
+      if (bytes.isNotEmpty) {
+        final decoded = utf8.decode(bytes);
+        print('Decoded response: $decoded');
+      }
+    }
+    return response;
+  }
+}
+```
+
 ### Using self signed certificates
 
 You can achieve support for self-signed certificates by providing `InterceptedHttp` or `InterceptedClient` with the `client` parameter when using the `build` method on either of those, it should look something like this:
@@ -376,12 +461,6 @@ final http = InterceptedHttp.build(
 ```
 
 _**Note:** It is important to know that since both HttpClient and IOClient are part of `dart:io` package, this will not be a feature that you can perform on Flutter Web (due to `BrowserClient` and browser limitations)._
-
-## Roadmap
-
-Check out our roadmap [here](https://doc.clickup.com/p/h/82gtq-119/f552a826792c049).
-
-_We migrated our roadmap to better suit the needs for development since we use ClickUp as our task management tool._
 
 ## Troubleshooting
 
