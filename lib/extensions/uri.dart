@@ -20,7 +20,7 @@ extension AddParameters on Uri {
     });
 
     String finalUrl = buildUrlString(paramUrl, newParameters);
-    
+
     // Preserve the fragment if it exists
     if (fragment.isNotEmpty) {
       finalUrl += '#$fragment';
