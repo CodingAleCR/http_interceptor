@@ -41,4 +41,8 @@ abstract class InterceptorContract {
     required BaseResponse response,
   }) =>
       true;
+
+  FutureOr<BaseResponse> interceptResponse({
+    required BaseResponse response,
+  });
 }
