@@ -389,7 +389,8 @@ class InterceptedClient extends BaseClient {
     BaseRequest interceptedRequest = request.copyWith();
     for (InterceptorContract interceptor in interceptors) {
       if (await interceptor.shouldInterceptRequest(
-          request: interceptedRequest)) {
+        request: interceptedRequest,
+      )) {
         interceptedRequest = await interceptor.interceptRequest(
           request: interceptedRequest,
         );
@@ -404,7 +405,8 @@ class InterceptedClient extends BaseClient {
     BaseResponse interceptedResponse = response;
     for (InterceptorContract interceptor in interceptors) {
       if (await interceptor.shouldInterceptResponse(
-          response: interceptedResponse)) {
+        response: interceptedResponse,
+      )) {
         interceptedResponse = await interceptor.interceptResponse(
           response: interceptedResponse,
         );
