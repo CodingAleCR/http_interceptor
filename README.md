@@ -259,10 +259,24 @@ Sometimes you need to retry a request due to different circumstances, an expired
 ```dart
 class ExpiredTokenRetryPolicy extends RetryPolicy {
   @override
+  int get maxRetryAttempts => 2;
+
+  @override
+  bool shouldAttemptRetryOnException(Exception reason, BaseRequest request) {
+    // Log the exception for debugging
+    print('Request failed: ${reason.toString()}');
+    print('Request URL: ${request.url}');
+    
+    // Retry on network exceptions, but not on client errors
+    return reason is SocketException || reason is TimeoutException;
+  }
+
+  @override
   Future<bool> shouldAttemptRetryOnResponse(BaseResponse response) async {
     if (response.statusCode == 401) {
       // Perform your token refresh here.
-
+      print('Token expired, refreshing...');
+      
       return true;
     }
 
@@ -273,13 +287,56 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
 
 You can also set the maximum amount of retry attempts with `maxRetryAttempts` property or override the `shouldAttemptRetryOnException` if you want to retry the request after it failed with an exception.
 
+### RetryPolicy Interface
+
+The `RetryPolicy` abstract class provides the following methods that you can override:
+
+- **`shouldAttemptRetryOnException(Exception reason, BaseRequest request)`**: Called when an exception occurs during the request. Return `true` to retry, `false` to fail immediately.
+- **`shouldAttemptRetryOnResponse(BaseResponse response)`**: Called after receiving a response. Return `true` to retry, `false` to accept the response.
+- **`maxRetryAttempts`**: The maximum number of retry attempts (default: 1).
+- **`delayRetryAttemptOnException({required int retryAttempt})`**: Delay before retrying after an exception (default: no delay).
+- **`delayRetryAttemptOnResponse({required int retryAttempt})`**: Delay before retrying after a response (default: no delay).
+
+### Using Retry Policies
+
+To use a retry policy, pass it to the `InterceptedClient` or `InterceptedHttp`:
+
+```dart
+final client = InterceptedClient.build(
+  interceptors: [WeatherApiInterceptor()],
+  retryPolicy: ExpiredTokenRetryPolicy(),
+);
+```
+
 Sometimes it is helpful to have a cool-down phase between multiple requests. This delay could for example also differ between the first and the second retry attempt as shown in the following example.
 
 ```dart
 class ExpiredTokenRetryPolicy extends RetryPolicy {
   @override
+  int get maxRetryAttempts => 3;
+
+  @override
+  bool shouldAttemptRetryOnException(Exception reason, BaseRequest request) {
+    // Only retry on network-related exceptions
+    return reason is SocketException || reason is TimeoutException;
+  }
+
+  @override
+  Future<bool> shouldAttemptRetryOnResponse(BaseResponse response) async {
+    // Retry on server errors (5xx) and authentication errors (401)
+    return response.statusCode >= 500 || response.statusCode == 401;
+  }
+
+  @override
+  Duration delayRetryAttemptOnException({required int retryAttempt}) {
+    // Exponential backoff for exceptions
+    return Duration(milliseconds: (250 * math.pow(2.0, retryAttempt - 1)).round());
+  }
+
+  @override
   Duration delayRetryAttemptOnResponse({required int retryAttempt}) {
-    return const Duration(milliseconds: 250) * math.pow(2.0, retryAttempt);
+    // Exponential backoff for response-based retries
+    return Duration(milliseconds: (250 * math.pow(2.0, retryAttempt - 1)).round());
   }
 }
 ```
