@@ -20,7 +20,7 @@ This is a plugin that lets you intercept the different requests and responses fr
 
 **Already using `http_interceptor`? Check out the [1.0.0 migration guide](./guides/migration_guide_1.0.0.md) for quick reference on the changes made and how to migrate your code.**
 
-- [http_interceptor](#http_interceptor)
+- [http\_interceptor](#http_interceptor)
   - [Quick Reference](#quick-reference)
   - [Installation](#installation)
   - [Features](#features)
@@ -67,9 +67,16 @@ import 'package:http_interceptor/http_interceptor.dart';
 
 ### Building your own interceptor
 
-In order to implement `http_interceptor` you need to implement the `InterceptorContract` and create your own interceptor. This abstract class has two methods: `interceptRequest`, which triggers before the http request is called; and `interceptResponse`, which triggers after the request is called, it has a response attached to it which the corresponding to said request. You could use this to do logging, adding headers, error handling, or many other cool stuff. It is important to note that after you proccess the request/response objects you need to return them so that `http` can continue the execute.
+In order to implement `http_interceptor` you need to implement the `InterceptorContract` and create your own interceptor. This abstract class has four methods:
 
-`interceptRequest` and `interceptResponse` use `FutureOr` syntax, which makes it easier to support both synchronous and asynchronous behaviors.
+ - `interceptRequest`, which triggers before the http request is called 
+ - `interceptResponse`, which triggers after the request is called, it has a response attached to it which the corresponding to said request;
+ 
+- `shouldInterceptRequest` and `shouldInterceptResponse`, which are used to determine if the request or response should be intercepted or not. These two methods are optional as they return `true` by default, but they can be useful if you want to conditionally intercept requests or responses based on certain criteria. 
+
+You could use this package to do logging, adding headers, error handling, or many other cool stuff. It is important to note that after you proccess the request/response objects you need to return them so that `http` can continue the execute.
+
+All four methods use `FutureOr` syntax, which makes it easier to support both synchronous and asynchronous behaviors.
 
 - Logging with interceptor:
 
@@ -120,6 +127,18 @@ class WeatherApiInterceptor implements InterceptorContract {
   required BaseResponse response,
   }) =>
       response;
+  
+  @override
+  FutureOr<bool> shouldInterceptRequest({required BaseRequest request}) async {
+    // You can conditionally intercept requests here
+    return true; // Intercept all requests
+  }
+
+  @override
+  FutureOr<bool> shouldInterceptResponse({required BaseResponse response}) async {
+    // You can conditionally intercept responses here
+    return true; // Intercept all responses
+  }
 }
 ```
 
@@ -143,6 +162,18 @@ class MultipartRequestInterceptor implements InterceptorContract {
       });
     }
     return response;
+  }
+
+  @override
+  FutureOr<bool> shouldInterceptRequest({required BaseRequest request}) async {
+    // You can conditionally intercept requests here
+    return true; // Intercept all requests
+  }
+
+  @override
+  FutureOr<bool> shouldInterceptResponse({required BaseResponse response}) async {
+    // You can conditionally intercept responses here
+    return true; // Intercept all responses
   }
 }
 ```
