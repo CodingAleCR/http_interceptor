@@ -28,11 +28,17 @@ import 'package:http/http.dart';
 ///}
 ///```
 abstract class InterceptorContract {
-  FutureOr<bool> shouldInterceptRequest({required BaseRequest request}) => true;
+  FutureOr<bool> shouldInterceptRequest({
+    required BaseRequest request,
+  }) =>
+      true;
 
-  FutureOr<BaseRequest> interceptRequest({required BaseRequest request});
+  FutureOr<BaseRequest> interceptRequest({
+    required BaseRequest request,
+  });
 
-  FutureOr<bool> shouldInterceptResponse({required BaseResponse response}) => true;
-
-  FutureOr<BaseResponse> interceptResponse({required BaseResponse response});
+  FutureOr<bool> shouldInterceptResponse({
+    required BaseResponse response,
+  }) =>
+      true;
 }
