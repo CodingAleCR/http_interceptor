@@ -292,12 +292,13 @@ class InterceptedClient extends BaseClient {
       } else {
         // Use a completer to properly handle timeout and cancellation
         final completer = Completer<StreamedResponse>();
-        final Future<StreamedResponse> requestFuture = _inner.send(interceptedRequest);
-        
+        final Future<StreamedResponse> requestFuture =
+            _inner.send(interceptedRequest);
+
         // Set up timeout with proper cleanup
         Timer? timeoutTimer;
         late StreamSubscription streamSubscription;
-        
+
         timeoutTimer = Timer(requestTimeout!, () {
           if (!completer.isCompleted) {
             if (onRequestTimeout != null) {
@@ -318,13 +319,12 @@ class InterceptedClient extends BaseClient {
               // Default timeout behavior
               if (!completer.isCompleted) {
                 completer.completeError(Exception(
-                  'Request timeout after ${requestTimeout!.inMilliseconds}ms'
-                ));
+                    'Request timeout after ${requestTimeout!.inMilliseconds}ms'));
               }
             }
           }
         });
-        
+
         // Handle the actual request completion
         requestFuture.then((streamResponse) {
           timeoutTimer?.cancel();
@@ -337,7 +337,7 @@ class InterceptedClient extends BaseClient {
             completer.completeError(error);
           }
         });
-        
+
         stream = await completer.future;
       }
 

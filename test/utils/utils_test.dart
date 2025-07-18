@@ -12,8 +12,10 @@ main() {
       String parameterUrl = buildUrlString(url, parameters);
 
       // Assert
-      expect(parameterUrl,
-          equals("https://www.google.com/helloworld?foo=bar&num=0"));
+      expect(
+        parameterUrl,
+        equals("https://www.google.com/helloworld?foo=bar&num=0"),
+      );
     });
     test("Adds parameters to a URL string with parameters", () {
       // Arrange
@@ -25,9 +27,11 @@ main() {
 
       // Assert
       expect(
-          parameterUrl,
-          equals(
-              "https://www.google.com/helloworld?foo=bar&num=0&extra=1&extra2=anotherone"));
+        parameterUrl,
+        equals(
+          "https://www.google.com/helloworld?foo=bar&num=0&extra=1&extra2=anotherone",
+        ),
+      );
     });
     test("Adds parameters with array to a URL string without parameters", () {
       // Arrange
@@ -41,10 +45,12 @@ main() {
       String parameterUrl = buildUrlString(url, parameters);
 
       // Assert
-      expect(parameterUrl,
-          equals("https://www.google.com/helloworld?foo=bar&num=0&num=1"));
+      expect(
+        parameterUrl,
+        equals("https://www.google.com/helloworld?foo=bar&num=0&num=1"),
+      );
     });
-    
+
     test("Properly encodes parameter keys to prevent injection", () {
       // Arrange
       String url = "https://www.google.com/helloworld";
@@ -58,30 +64,41 @@ main() {
 
       // Assert
       expect(parameterUrl, contains("normal_key=normal_value"));
-      expect(parameterUrl, contains(Uri.encodeQueryComponent("key&with=special")));
-      expect(parameterUrl, contains(Uri.encodeQueryComponent("value&with=special")));
+      expect(
+        parameterUrl,
+        contains(Uri.encodeQueryComponent("key&with=special")),
+      );
+      expect(
+        parameterUrl,
+        contains(Uri.encodeQueryComponent("value&with=special")),
+      );
       // Should not contain unencoded special characters that could cause injection
       expect(parameterUrl.split('?')[1], isNot(contains("&with=special&")));
     });
-    
+
     test("Validates URL structure and throws error for invalid URLs", () {
       // Arrange
       String invalidUrl = "not a valid url";
       Map<String, dynamic> parameters = {"key": "value"};
 
       // Act & Assert
-      expect(() => buildUrlString(invalidUrl, parameters), 
-             throwsA(isA<ArgumentError>()));
+      expect(
+        () => buildUrlString(invalidUrl, parameters),
+        throwsA(isA<ArgumentError>()),
+      );
     });
-    
-    test("Validates URL structure and throws error for URLs without scheme", () {
+
+    test("Validates URL structure and throws error for URLs without scheme",
+        () {
       // Arrange
       String invalidUrl = "example.com/path"; // No scheme
       Map<String, dynamic> parameters = {"key": "value"};
 
       // Act & Assert
-      expect(() => buildUrlString(invalidUrl, parameters), 
-             throwsA(isA<ArgumentError>()));
+      expect(
+        () => buildUrlString(invalidUrl, parameters),
+        throwsA(isA<ArgumentError>()),
+      );
     });
   });
 }

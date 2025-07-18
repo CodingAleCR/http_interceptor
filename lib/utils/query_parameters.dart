@@ -11,14 +11,18 @@ String buildUrlString(String url, Map<String, dynamic>? parameters) {
     // Validate URL structure to prevent injection
     // First check if it looks like a valid HTTP/HTTPS URL
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      throw ArgumentError('Invalid URL structure: $url - must be a valid HTTP/HTTPS URL');
+      throw ArgumentError(
+        'Invalid URL structure: $url - must be a valid HTTP/HTTPS URL',
+      );
     }
-    
+
     try {
       final uri = Uri.parse(url);
       // Additional validation: ensure it has a host
       if (uri.host.isEmpty) {
-        throw ArgumentError('Invalid URL structure: $url - must have a valid host');
+        throw ArgumentError(
+          'Invalid URL structure: $url - must have a valid host',
+        );
       }
     } catch (e) {
       if (e is ArgumentError) {
@@ -38,7 +42,7 @@ String buildUrlString(String url, Map<String, dynamic>? parameters) {
     parameters.forEach((key, value) {
       // Encode the key to prevent injection
       final encodedKey = Uri.encodeQueryComponent(key);
-      
+
       if (value is List) {
         if (value is List<String>) {
           for (String singleValue in value) {
@@ -46,7 +50,8 @@ String buildUrlString(String url, Map<String, dynamic>? parameters) {
           }
         } else {
           for (dynamic singleValue in value) {
-            url += "$encodedKey=${Uri.encodeQueryComponent(singleValue.toString())}&";
+            url +=
+                "$encodedKey=${Uri.encodeQueryComponent(singleValue.toString())}&";
           }
         }
       } else if (value is String) {
