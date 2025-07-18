@@ -274,16 +274,72 @@ class InterceptedClient extends BaseClient {
   /// of the response
   Future<BaseResponse> _attemptRequest(BaseRequest request,
       {bool isStream = false}) async {
+    _retryCount = 0; // Reset retry count for each new request
+    return _attemptRequestWithRetries(request, isStream: isStream);
+  }
+
+  /// Internal method that handles the actual request with retry logic
+  Future<BaseResponse> _attemptRequestWithRetries(BaseRequest request,
+      {bool isStream = false}) async {
     BaseResponse response;
     try {
       // Intercept request
       final interceptedRequest = await _interceptRequest(request);
 
-      var stream = requestTimeout == null
-          ? await _inner.send(interceptedRequest)
-          : await _inner
-              .send(interceptedRequest)
-              .timeout(requestTimeout!, onTimeout: onRequestTimeout);
+      StreamedResponse stream;
+      if (requestTimeout == null) {
+        stream = await _inner.send(interceptedRequest);
+      } else {
+        // Use a completer to properly handle timeout and cancellation
+        final completer = Completer<StreamedResponse>();
+        final Future<StreamedResponse> requestFuture = _inner.send(interceptedRequest);
+        
+        // Set up timeout with proper cleanup
+        Timer? timeoutTimer;
+        late StreamSubscription streamSubscription;
+        
+        timeoutTimer = Timer(requestTimeout!, () {
+          if (!completer.isCompleted) {
+            if (onRequestTimeout != null) {
+              // If timeout callback is provided, use it
+              final timeoutResponse = onRequestTimeout!();
+              if (timeoutResponse is Future<StreamedResponse>) {
+                timeoutResponse.then((response) {
+                  if (!completer.isCompleted) {
+                    completer.complete(response);
+                  }
+                });
+              } else {
+                if (!completer.isCompleted) {
+                  completer.complete(timeoutResponse);
+                }
+              }
+            } else {
+              // Default timeout behavior
+              if (!completer.isCompleted) {
+                completer.completeError(Exception(
+                  'Request timeout after ${requestTimeout!.inMilliseconds}ms'
+                ));
+              }
+            }
+          }
+        });
+        
+        // Handle the actual request completion
+        requestFuture.then((streamResponse) {
+          timeoutTimer?.cancel();
+          if (!completer.isCompleted) {
+            completer.complete(streamResponse);
+          }
+        }).catchError((error) {
+          timeoutTimer?.cancel();
+          if (!completer.isCompleted) {
+            completer.completeError(error);
+          }
+        });
+        
+        stream = await completer.future;
+      }
 
       response = isStream ? stream : await Response.fromStream(stream);
 
@@ -293,7 +349,7 @@ class InterceptedClient extends BaseClient {
         _retryCount += 1;
         await Future.delayed(retryPolicy!
             .delayRetryAttemptOnResponse(retryAttempt: _retryCount));
-        return _attemptRequest(request, isStream: isStream);
+        return _attemptRequestWithRetries(request, isStream: isStream);
       }
     } on Exception catch (error) {
       if (retryPolicy != null &&
@@ -302,13 +358,12 @@ class InterceptedClient extends BaseClient {
         _retryCount += 1;
         await Future.delayed(retryPolicy!
             .delayRetryAttemptOnException(retryAttempt: _retryCount));
-        return _attemptRequest(request, isStream: isStream);
+        return _attemptRequestWithRetries(request, isStream: isStream);
       } else {
         rethrow;
       }
     }
 
-    _retryCount = 0;
     return response;
   }
 
