@@ -59,6 +59,25 @@ http_interceptor: <latest>
 - ⏲ Timeout configuration with duration and timeout functions.
 - ⏳ Configure the delay for each retry attempt.
 - 📁 Support for `MultipartRequest` and `StreamedRequest`/`StreamedResponse`.
+- 🌐 **Cross-platform support**: Works seamlessly on Android, iOS, Web, Windows, macOS, and Linux.
+
+## Platform Support
+
+The `http_interceptor` library provides comprehensive support for all Flutter platforms:
+
+### ✅ Supported Platforms
+- **Mobile**: Android, iOS
+- **Web**: Flutter Web
+- **Desktop**: Windows, macOS, Linux
+
+### ✅ Platform Features
+- All HTTP methods (GET, POST, PUT, DELETE, PATCH, HEAD)
+- All request types (Basic, Streamed, Multipart)
+- All response types (Basic, Streamed)
+- Full interceptor functionality
+- Error handling and edge cases
+
+The library includes **24 platform-specific tests** ensuring consistent behavior across all supported platforms. For detailed platform support information, see [PLATFORM_SUPPORT.md](./PLATFORM_SUPPORT.md).
 
 ## Usage
 
