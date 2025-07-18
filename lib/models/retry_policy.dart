@@ -45,7 +45,7 @@ abstract class RetryPolicy {
   FutureOr<bool> shouldAttemptRetryOnResponse(BaseResponse response) => false;
 
   /// Number of maximum request attempts that can be retried.
-  final int maxRetryAttempts = 1;
+  int get maxRetryAttempts => 1;
 
   Duration delayRetryAttemptOnException({required int retryAttempt}) =>
       Duration.zero;
