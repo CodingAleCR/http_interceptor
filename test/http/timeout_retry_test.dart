@@ -28,7 +28,8 @@ class TestInterceptor implements InterceptorContract {
   }
 
   @override
-  Future<BaseResponse> interceptResponse({required BaseResponse response}) async {
+  Future<BaseResponse> interceptResponse(
+      {required BaseResponse response}) async {
     log.add('interceptResponse: ${response.statusCode}');
     return response;
   }
@@ -54,7 +55,8 @@ class TestRetryPolicy extends RetryPolicy {
   int get maxRetryAttempts => maxAttempts;
 
   @override
-  Future<bool> shouldAttemptRetryOnException(Exception reason, BaseRequest request) async {
+  Future<bool> shouldAttemptRetryOnException(
+      Exception reason, BaseRequest request) async {
     return shouldRetryOnException;
   }
 
@@ -82,14 +84,14 @@ void main() {
     setUpAll(() async {
       server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
       baseUrl = 'http://localhost:${server.port}';
-      
+
       server.listen((HttpRequest request) async {
         final response = request.response;
         response.headers.contentType = ContentType.json;
-        
+
         // Simulate slow response
         await Future.delayed(Duration(milliseconds: 100));
-        
+
         response.write(jsonEncode({
           'method': request.method,
           'url': request.uri.toString(),
@@ -109,7 +111,7 @@ void main() {
         interceptors: [interceptor],
         requestTimeout: Duration(milliseconds: 50), // Shorter than server delay
       );
-      
+
       expect(
         () => http.get(Uri.parse('$baseUrl/test')),
         throwsA(isA<Exception>()),
@@ -119,7 +121,7 @@ void main() {
     test('should handle request timeout with custom callback', () async {
       final interceptor = TestInterceptor();
       bool timeoutCallbackCalled = false;
-      
+
       final http = InterceptedHttp.build(
         interceptors: [interceptor],
         requestTimeout: Duration(milliseconds: 50),
@@ -132,9 +134,9 @@ void main() {
           ));
         },
       );
-      
+
       final response = await http.get(Uri.parse('$baseUrl/test'));
-      
+
       expect(response.statusCode, equals(408));
       expect(timeoutCallbackCalled, isTrue);
     });
@@ -145,11 +147,12 @@ void main() {
         interceptors: [interceptor],
         requestTimeout: Duration(seconds: 1), // Longer than server delay
       );
-      
+
       final response = await http.get(Uri.parse('$baseUrl/test'));
-      
+
       expect(response.statusCode, equals(200));
-      expect(interceptor.log, contains('shouldInterceptRequest: GET $baseUrl/test'));
+      expect(interceptor.log,
+          contains('shouldInterceptRequest: GET $baseUrl/test'));
     });
 
     test('should handle timeout with InterceptedClient', () async {
@@ -158,12 +161,12 @@ void main() {
         interceptors: [interceptor],
         requestTimeout: Duration(milliseconds: 50),
       );
-      
+
       expect(
         () => client.get(Uri.parse('$baseUrl/test')),
         throwsA(isA<Exception>()),
       );
-      
+
       client.close();
     });
   });
@@ -177,12 +180,12 @@ void main() {
       server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
       baseUrl = 'http://localhost:${server.port}';
       requestCount = 0;
-      
+
       server.listen((HttpRequest request) {
         requestCount++;
         final response = request.response;
         response.headers.contentType = ContentType.json;
-        
+
         // Return different status codes based on request count
         int statusCode = 200;
         if (requestCount == 1) {
@@ -190,7 +193,7 @@ void main() {
         } else {
           statusCode = 200; // Subsequent requests succeed
         }
-        
+
         response.statusCode = statusCode;
         response.write(jsonEncode({
           'method': request.method,
@@ -217,17 +220,18 @@ void main() {
         shouldRetryOnResponse: true,
         retryOnStatusCodes: 500,
       );
-      
+
       final http = InterceptedHttp.build(
         interceptors: [interceptor],
         retryPolicy: retryPolicy,
       );
-      
+
       final response = await http.get(Uri.parse('$baseUrl/test'));
-      
+
       expect(response.statusCode, equals(200));
       expect(requestCount, equals(2)); // Initial request + 1 retry
-      expect(interceptor.log.length, greaterThan(2)); // Multiple interceptor calls
+      expect(
+          interceptor.log.length, greaterThan(2)); // Multiple interceptor calls
     });
 
     test('should not retry when max attempts reached', () async {
@@ -237,14 +241,14 @@ void main() {
         shouldRetryOnResponse: true,
         retryOnStatusCodes: 500,
       );
-      
+
       final http = InterceptedHttp.build(
         interceptors: [interceptor],
         retryPolicy: retryPolicy,
       );
-      
+
       final response = await http.get(Uri.parse('$baseUrl/test'));
-      
+
       expect(response.statusCode, equals(200)); // Should succeed after retry
       expect(requestCount, equals(2)); // Initial request + 1 retry
     });
@@ -257,17 +261,18 @@ void main() {
         retryOnStatusCodes: 500,
         delay: Duration(milliseconds: 100),
       );
-      
+
       final stopwatch = Stopwatch()..start();
       final http = InterceptedHttp.build(
         interceptors: [interceptor],
         retryPolicy: retryPolicy,
       );
-      
+
       await http.get(Uri.parse('$baseUrl/test'));
       stopwatch.stop();
-      
-      expect(stopwatch.elapsed.inMilliseconds, greaterThan(100)); // Should include delay
+
+      expect(stopwatch.elapsed.inMilliseconds,
+          greaterThan(100)); // Should include delay
       expect(requestCount, equals(2));
     });
 
@@ -278,14 +283,14 @@ void main() {
         shouldRetryOnResponse: true,
         retryOnStatusCodes: 500,
       );
-      
+
       final http = InterceptedHttp.build(
         interceptors: [interceptor],
         retryPolicy: retryPolicy,
       );
-      
+
       final response = await http.get(Uri.parse('$baseUrl/test'));
-      
+
       expect(response.statusCode, equals(200));
       expect(requestCount, equals(2)); // Should stop after successful retry
     });
@@ -297,17 +302,17 @@ void main() {
         shouldRetryOnResponse: true,
         retryOnStatusCodes: 500,
       );
-      
+
       final client = InterceptedClient.build(
         interceptors: [interceptor],
         retryPolicy: retryPolicy,
       );
-      
+
       final response = await client.get(Uri.parse('$baseUrl/test'));
-      
+
       expect(response.statusCode, equals(200));
       expect(requestCount, equals(2));
-      
+
       client.close();
     });
   });
@@ -321,10 +326,10 @@ void main() {
       server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
       baseUrl = 'http://localhost:${server.port}';
       requestCount = 0;
-      
+
       server.listen((HttpRequest request) {
         requestCount++;
-        
+
         if (requestCount == 1) {
           // First request: close connection to cause exception
           request.response.close();
@@ -357,14 +362,14 @@ void main() {
         maxAttempts: 2,
         shouldRetryOnException: true,
       );
-      
+
       final http = InterceptedHttp.build(
         interceptors: [interceptor],
         retryPolicy: retryPolicy,
       );
-      
+
       final response = await http.get(Uri.parse('$baseUrl/test'));
-      
+
       expect(response.statusCode, equals(200));
       expect(requestCount, equals(1)); // Only one successful request
     });
@@ -375,14 +380,14 @@ void main() {
         maxAttempts: 2,
         shouldRetryOnException: false, // Disabled
       );
-      
+
       final http = InterceptedHttp.build(
         interceptors: [interceptor],
         retryPolicy: retryPolicy,
       );
-      
+
       final response = await http.get(Uri.parse('$baseUrl/test'));
-      
+
       expect(response.statusCode, equals(200));
       expect(requestCount, equals(1)); // Only initial request
     });
@@ -397,19 +402,19 @@ void main() {
       server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
       baseUrl = 'http://localhost:${server.port}';
       requestCount = 0;
-      
+
       server.listen((HttpRequest request) async {
         requestCount++;
         final response = request.response;
         response.headers.contentType = ContentType.json;
-        
+
         // Simulate different failure patterns
         if (requestCount <= 2) {
           response.statusCode = 500; // First two requests fail
         } else {
           response.statusCode = 200; // Third request succeeds
         }
-        
+
         response.write(jsonEncode({
           'method': request.method,
           'url': request.uri.toString(),
@@ -436,19 +441,20 @@ void main() {
         retryOnStatusCodes: 500,
         delay: Duration(milliseconds: 50), // Fixed delay for testing
       );
-      
+
       final stopwatch = Stopwatch()..start();
       final http = InterceptedHttp.build(
         interceptors: [interceptor],
         retryPolicy: retryPolicy,
       );
-      
+
       final response = await http.get(Uri.parse('$baseUrl/test'));
       stopwatch.stop();
-      
+
       expect(response.statusCode, equals(200));
       expect(requestCount, equals(3)); // Initial + 2 retries
-      expect(stopwatch.elapsed.inMilliseconds, greaterThan(100)); // Should include delays
+      expect(stopwatch.elapsed.inMilliseconds,
+          greaterThan(100)); // Should include delays
     });
 
     test('should combine timeout and retry policies', () async {
@@ -458,17 +464,17 @@ void main() {
         shouldRetryOnResponse: true,
         retryOnStatusCodes: 500,
       );
-      
+
       final http = InterceptedHttp.build(
         interceptors: [interceptor],
         requestTimeout: Duration(seconds: 5), // Long timeout
         retryPolicy: retryPolicy,
       );
-      
+
       final response = await http.get(Uri.parse('$baseUrl/test'));
-      
+
       expect(response.statusCode, equals(200));
       expect(requestCount, equals(3)); // Should retry despite timeout
     });
   });
-} 
+}

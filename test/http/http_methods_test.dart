@@ -40,14 +40,19 @@ void main() {
     });
 
     test('should throw exception for invalid HTTP methods', () {
-      expect(() => StringToMethod.fromString('INVALID'), throwsA(isA<ArgumentError>()));
-      expect(() => StringToMethod.fromString(''), throwsA(isA<ArgumentError>()));
-      expect(() => StringToMethod.fromString('OPTIONS'), throwsA(isA<ArgumentError>()));
-      expect(() => StringToMethod.fromString('TRACE'), throwsA(isA<ArgumentError>()));
+      expect(() => StringToMethod.fromString('INVALID'),
+          throwsA(isA<ArgumentError>()));
+      expect(
+          () => StringToMethod.fromString(''), throwsA(isA<ArgumentError>()));
+      expect(() => StringToMethod.fromString('OPTIONS'),
+          throwsA(isA<ArgumentError>()));
+      expect(() => StringToMethod.fromString('TRACE'),
+          throwsA(isA<ArgumentError>()));
     });
 
     test('should handle null and empty strings', () {
-      expect(() => StringToMethod.fromString(''), throwsA(isA<ArgumentError>()));
+      expect(
+          () => StringToMethod.fromString(''), throwsA(isA<ArgumentError>()));
     });
 
     test('should have correct enum values', () {
@@ -99,27 +104,31 @@ void main() {
       }
 
       for (final method in invalidMethods) {
-        expect(() => StringToMethod.fromString(method), throwsA(isA<ArgumentError>()));
+        expect(() => StringToMethod.fromString(method),
+            throwsA(isA<ArgumentError>()));
       }
     });
 
     test('should handle whitespace in method strings', () {
-      expect(() => StringToMethod.fromString(' GET '), throwsA(isA<ArgumentError>()));
-      expect(() => StringToMethod.fromString('POST '), throwsA(isA<ArgumentError>()));
-      expect(() => StringToMethod.fromString(' PUT'), throwsA(isA<ArgumentError>()));
+      expect(() => StringToMethod.fromString(' GET '),
+          throwsA(isA<ArgumentError>()));
+      expect(() => StringToMethod.fromString('POST '),
+          throwsA(isA<ArgumentError>()));
+      expect(() => StringToMethod.fromString(' PUT'),
+          throwsA(isA<ArgumentError>()));
     });
 
     test('should be immutable', () {
       final method1 = HttpMethod.GET;
       final method2 = HttpMethod.GET;
-      
+
       expect(identical(method1, method2), isTrue);
       expect(method1.hashCode, equals(method2.hashCode));
     });
 
     test('should work in switch statements', () {
       final method = HttpMethod.POST;
-      
+
       final result = switch (method) {
         HttpMethod.GET => 'GET',
         HttpMethod.POST => 'POST',
@@ -128,13 +137,17 @@ void main() {
         HttpMethod.HEAD => 'HEAD',
         HttpMethod.PATCH => 'PATCH',
       };
-      
+
       expect(result, equals('POST'));
     });
 
     test('should be usable in collections', () {
-      final methods = <HttpMethod>{HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT};
-      
+      final methods = <HttpMethod>{
+        HttpMethod.GET,
+        HttpMethod.POST,
+        HttpMethod.PUT
+      };
+
       expect(methods.contains(HttpMethod.GET), isTrue);
       expect(methods.contains(HttpMethod.POST), isTrue);
       expect(methods.contains(HttpMethod.PUT), isTrue);
@@ -145,11 +158,11 @@ void main() {
       final method1 = StringToMethod.fromString('GET');
       final method2 = StringToMethod.fromString('GET');
       final method3 = HttpMethod.GET;
-      
+
       expect(method1, equals(method2));
       expect(method1, equals(method3));
       expect(method2, equals(method3));
-      
+
       expect(method1.hashCode, equals(method2.hashCode));
       expect(method1.hashCode, equals(method3.hashCode));
     });

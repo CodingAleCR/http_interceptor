@@ -8,9 +8,9 @@ import 'package:test/test.dart';
 // Concrete implementation of RetryPolicy for testing
 class TestRetryPolicy extends RetryPolicy {
   final int maxAttempts;
-  
+
   TestRetryPolicy({this.maxAttempts = 1});
-  
+
   @override
   int get maxRetryAttempts => maxAttempts;
 }
@@ -53,7 +53,8 @@ class TestInterceptor implements InterceptorContract {
   }
 
   @override
-  Future<BaseResponse> interceptResponse({required BaseResponse response}) async {
+  Future<BaseResponse> interceptResponse(
+      {required BaseResponse response}) async {
     log.add('interceptResponse: ${response.statusCode}');
     if (responseModification != null) {
       return responseModification!;
@@ -86,7 +87,8 @@ class HeaderInterceptor implements InterceptorContract {
   }
 
   @override
-  Future<BaseResponse> interceptResponse({required BaseResponse response}) async {
+  Future<BaseResponse> interceptResponse(
+      {required BaseResponse response}) async {
     return response;
   }
 }
@@ -113,7 +115,8 @@ class ResponseModifierInterceptor implements InterceptorContract {
   }
 
   @override
-  Future<BaseResponse> interceptResponse({required BaseResponse response}) async {
+  Future<BaseResponse> interceptResponse(
+      {required BaseResponse response}) async {
     return Response(body, statusCode);
   }
 }
@@ -126,17 +129,17 @@ void main() {
     setUpAll(() async {
       server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
       baseUrl = 'http://localhost:${server.port}';
-      
+
       server.listen((HttpRequest request) {
         final response = request.response;
         response.headers.contentType = ContentType.json;
-        
+
         // Convert headers to a map for JSON serialization
         final headersMap = <String, List<String>>{};
         request.headers.forEach((name, values) {
           headersMap[name] = values;
         });
-        
+
         response.write(jsonEncode({
           'method': request.method,
           'url': request.uri.toString(),
@@ -154,7 +157,7 @@ void main() {
     test('should build with interceptors', () {
       final interceptor = TestInterceptor();
       final http = InterceptedHttp.build(interceptors: [interceptor]);
-      
+
       expect(http.interceptors, equals([interceptor]));
       expect(http.requestTimeout, isNull);
       expect(http.onRequestTimeout, isNull);
@@ -167,14 +170,14 @@ void main() {
       final timeout = Duration(seconds: 30);
       final retryPolicy = TestRetryPolicy(maxAttempts: 3);
       final client = Client();
-      
+
       final http = InterceptedHttp.build(
         interceptors: [interceptor],
         requestTimeout: timeout,
         retryPolicy: retryPolicy,
         client: client,
       );
-      
+
       expect(http.interceptors, equals([interceptor]));
       expect(http.requestTimeout, equals(timeout));
       expect(http.retryPolicy, equals(retryPolicy));
@@ -184,11 +187,12 @@ void main() {
     test('should perform GET request with interceptors', () async {
       final interceptor = TestInterceptor();
       final http = InterceptedHttp.build(interceptors: [interceptor]);
-      
+
       final response = await http.get(Uri.parse('$baseUrl/test'));
-      
+
       expect(response.statusCode, equals(200));
-      expect(interceptor.log, contains('shouldInterceptRequest: GET $baseUrl/test'));
+      expect(interceptor.log,
+          contains('shouldInterceptRequest: GET $baseUrl/test'));
       expect(interceptor.log, contains('interceptRequest: GET $baseUrl/test'));
       expect(interceptor.log, contains('shouldInterceptResponse: 200'));
       expect(interceptor.log, contains('interceptResponse: 200'));
@@ -197,91 +201,99 @@ void main() {
     test('should perform POST request with interceptors', () async {
       final interceptor = TestInterceptor();
       final http = InterceptedHttp.build(interceptors: [interceptor]);
-      
+
       final response = await http.post(
         Uri.parse('$baseUrl/test'),
         body: 'test body',
       );
-      
+
       expect(response.statusCode, equals(200));
-      expect(interceptor.log, contains('shouldInterceptRequest: POST $baseUrl/test'));
+      expect(interceptor.log,
+          contains('shouldInterceptRequest: POST $baseUrl/test'));
       expect(interceptor.log, contains('interceptRequest: POST $baseUrl/test'));
     });
 
     test('should perform PUT request with interceptors', () async {
       final interceptor = TestInterceptor();
       final http = InterceptedHttp.build(interceptors: [interceptor]);
-      
+
       final response = await http.put(
         Uri.parse('$baseUrl/test'),
         body: 'test body',
       );
-      
+
       expect(response.statusCode, equals(200));
-      expect(interceptor.log, contains('shouldInterceptRequest: PUT $baseUrl/test'));
+      expect(interceptor.log,
+          contains('shouldInterceptRequest: PUT $baseUrl/test'));
     });
 
     test('should perform DELETE request with interceptors', () async {
       final interceptor = TestInterceptor();
       final http = InterceptedHttp.build(interceptors: [interceptor]);
-      
+
       final response = await http.delete(Uri.parse('$baseUrl/test'));
-      
+
       expect(response.statusCode, equals(200));
-      expect(interceptor.log, contains('shouldInterceptRequest: DELETE $baseUrl/test'));
+      expect(interceptor.log,
+          contains('shouldInterceptRequest: DELETE $baseUrl/test'));
     });
 
     test('should perform PATCH request with interceptors', () async {
       final interceptor = TestInterceptor();
       final http = InterceptedHttp.build(interceptors: [interceptor]);
-      
+
       final response = await http.patch(
         Uri.parse('$baseUrl/test'),
         body: 'test body',
       );
-      
+
       expect(response.statusCode, equals(200));
-      expect(interceptor.log, contains('shouldInterceptRequest: PATCH $baseUrl/test'));
+      expect(interceptor.log,
+          contains('shouldInterceptRequest: PATCH $baseUrl/test'));
     });
 
     test('should perform HEAD request with interceptors', () async {
       final interceptor = TestInterceptor();
       final http = InterceptedHttp.build(interceptors: [interceptor]);
-      
+
       final response = await http.head(Uri.parse('$baseUrl/test'));
-      
+
       expect(response.statusCode, equals(200));
-      expect(interceptor.log, contains('shouldInterceptRequest: HEAD $baseUrl/test'));
+      expect(interceptor.log,
+          contains('shouldInterceptRequest: HEAD $baseUrl/test'));
     });
 
     test('should read response body with interceptors', () async {
       final interceptor = TestInterceptor();
       final http = InterceptedHttp.build(interceptors: [interceptor]);
-      
+
       final body = await http.read(Uri.parse('$baseUrl/test'));
-      
+
       expect(body, isNotEmpty);
-      expect(interceptor.log, contains('shouldInterceptRequest: GET $baseUrl/test'));
+      expect(interceptor.log,
+          contains('shouldInterceptRequest: GET $baseUrl/test'));
       expect(interceptor.log, contains('interceptRequest: GET $baseUrl/test'));
     });
 
     test('should read response bytes with interceptors', () async {
       final interceptor = TestInterceptor();
       final http = InterceptedHttp.build(interceptors: [interceptor]);
-      
+
       final bytes = await http.readBytes(Uri.parse('$baseUrl/test'));
-      
+
       expect(bytes, isNotEmpty);
-      expect(interceptor.log, contains('shouldInterceptRequest: GET $baseUrl/test'));
+      expect(interceptor.log,
+          contains('shouldInterceptRequest: GET $baseUrl/test'));
     });
 
     test('should apply multiple interceptors in order', () async {
       final interceptor1 = TestInterceptor();
       final interceptor2 = TestInterceptor();
-      final http = InterceptedHttp.build(interceptors: [interceptor1, interceptor2]);
-      
+      final http =
+          InterceptedHttp.build(interceptors: [interceptor1, interceptor2]);
+
       await http.get(Uri.parse('$baseUrl/test'));
-      
+
       expect(interceptor1.log.length, equals(interceptor2.log.length));
       expect(interceptor1.log.first, contains('shouldInterceptRequest'));
       expect(interceptor2.log.first, contains('shouldInterceptRequest'));
@@ -291,9 +303,9 @@ void main() {
       final modifiedRequest = Request('POST', Uri.parse('$baseUrl/modified'));
       final interceptor = TestInterceptor(requestModification: modifiedRequest);
       final http = InterceptedHttp.build(interceptors: [interceptor]);
-      
+
       final response = await http.get(Uri.parse('$baseUrl/test'));
-      
+
       expect(response.statusCode, equals(200));
       final responseData = jsonDecode(response.body) as Map<String, dynamic>;
       expect(responseData['method'], equals('POST'));
@@ -302,11 +314,12 @@ void main() {
 
     test('should handle response modification by interceptor', () async {
       final modifiedResponse = Response('modified body', 201);
-      final interceptor = TestInterceptor(responseModification: modifiedResponse);
+      final interceptor =
+          TestInterceptor(responseModification: modifiedResponse);
       final http = InterceptedHttp.build(interceptors: [interceptor]);
-      
+
       final response = await http.get(Uri.parse('$baseUrl/test'));
-      
+
       expect(response.statusCode, equals(201));
       expect(response.body, equals('modified body'));
     });
@@ -317,10 +330,11 @@ void main() {
         shouldInterceptResponse: false,
       );
       final http = InterceptedHttp.build(interceptors: [interceptor]);
-      
+
       await http.get(Uri.parse('$baseUrl/test'));
-      
-      expect(interceptor.log, contains('shouldInterceptRequest: GET $baseUrl/test'));
+
+      expect(interceptor.log,
+          contains('shouldInterceptRequest: GET $baseUrl/test'));
       expect(interceptor.log, contains('shouldInterceptResponse: 200'));
       expect(interceptor.log, isNot(contains('interceptRequest')));
       expect(interceptor.log, isNot(contains('interceptResponse')));
@@ -334,17 +348,17 @@ void main() {
     setUpAll(() async {
       server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
       baseUrl = 'http://localhost:${server.port}';
-      
+
       server.listen((HttpRequest request) {
         final response = request.response;
         response.headers.contentType = ContentType.json;
-        
+
         // Convert headers to a map for JSON serialization
         final headersMap = <String, List<String>>{};
         request.headers.forEach((name, values) {
           headersMap[name] = values;
         });
-        
+
         response.write(jsonEncode({
           'method': request.method,
           'url': request.uri.toString(),
@@ -362,7 +376,7 @@ void main() {
     test('should build with interceptors', () {
       final interceptor = TestInterceptor();
       final client = InterceptedClient.build(interceptors: [interceptor]);
-      
+
       expect(client.interceptors, equals([interceptor]));
       expect(client.requestTimeout, isNull);
       expect(client.onRequestTimeout, isNull);
@@ -372,98 +386,104 @@ void main() {
     test('should perform GET request with interceptors', () async {
       final interceptor = TestInterceptor();
       final client = InterceptedClient.build(interceptors: [interceptor]);
-      
+
       final response = await client.get(Uri.parse('$baseUrl/test'));
-      
+
       expect(response.statusCode, equals(200));
-      expect(interceptor.log, contains('shouldInterceptRequest: GET $baseUrl/test'));
+      expect(interceptor.log,
+          contains('shouldInterceptRequest: GET $baseUrl/test'));
       expect(interceptor.log, contains('interceptRequest: GET $baseUrl/test'));
-      
+
       client.close();
     });
 
     test('should perform POST request with interceptors', () async {
       final interceptor = TestInterceptor();
       final client = InterceptedClient.build(interceptors: [interceptor]);
-      
+
       final response = await client.post(
         Uri.parse('$baseUrl/test'),
         body: 'test body',
       );
-      
+
       expect(response.statusCode, equals(200));
-      expect(interceptor.log, contains('shouldInterceptRequest: POST $baseUrl/test'));
-      
+      expect(interceptor.log,
+          contains('shouldInterceptRequest: POST $baseUrl/test'));
+
       client.close();
     });
 
     test('should handle request headers modification', () async {
       final interceptor = HeaderInterceptor('X-Custom-Header', 'custom-value');
       final client = InterceptedClient.build(interceptors: [interceptor]);
-      
+
       final response = await client.get(Uri.parse('$baseUrl/test'));
-      
+
       expect(response.statusCode, equals(200));
       final responseData = jsonDecode(response.body) as Map<String, dynamic>;
       final headers = responseData['headers'] as Map<String, dynamic>;
       expect(headers['x-custom-header'], contains('custom-value'));
-      
+
       client.close();
     });
 
     test('should handle response modification', () async {
-      final interceptor = ResponseModifierInterceptor(statusCode: 201, body: 'modified');
+      final interceptor =
+          ResponseModifierInterceptor(statusCode: 201, body: 'modified');
       final client = InterceptedClient.build(interceptors: [interceptor]);
-      
+
       final response = await client.get(Uri.parse('$baseUrl/test'));
-      
+
       expect(response.statusCode, equals(201));
       expect(response.body, equals('modified'));
-      
+
       client.close();
     });
 
     test('should handle streamed requests', () async {
       final interceptor = TestInterceptor();
       final client = InterceptedClient.build(interceptors: [interceptor]);
-      
+
       final request = Request('POST', Uri.parse('$baseUrl/test'));
       final response = await client.send(request);
-      
+
       expect(response.statusCode, equals(200));
-      expect(interceptor.log, contains('shouldInterceptRequest: POST $baseUrl/test'));
-      
+      expect(interceptor.log,
+          contains('shouldInterceptRequest: POST $baseUrl/test'));
+
       client.close();
     });
 
     test('should read response body', () async {
       final interceptor = TestInterceptor();
       final client = InterceptedClient.build(interceptors: [interceptor]);
-      
+
       final body = await client.read(Uri.parse('$baseUrl/test'));
-      
+
       expect(body, isNotEmpty);
-      expect(interceptor.log, contains('shouldInterceptRequest: GET $baseUrl/test'));
-      
+      expect(interceptor.log,
+          contains('shouldInterceptRequest: GET $baseUrl/test'));
+
       client.close();
     });
 
     test('should read response bytes', () async {
       final interceptor = TestInterceptor();
       final client = InterceptedClient.build(interceptors: [interceptor]);
-      
+
       final bytes = await client.readBytes(Uri.parse('$baseUrl/test'));
-      
+
       expect(bytes, isNotEmpty);
-      expect(interceptor.log, contains('shouldInterceptRequest: GET $baseUrl/test'));
-      
+      expect(interceptor.log,
+          contains('shouldInterceptRequest: GET $baseUrl/test'));
+
       client.close();
     });
 
     test('should handle client close', () {
       final interceptor = TestInterceptor();
       final client = InterceptedClient.build(interceptors: [interceptor]);
-      
+
       expect(() => client.close(), returnsNormally);
     });
   });
@@ -471,21 +491,21 @@ void main() {
   group('HttpInterceptorException', () {
     test('should create exception with message', () {
       final exception = HttpInterceptorException('Test error');
-      
+
       expect(exception.message, equals('Test error'));
       expect(exception.toString(), equals('Exception: Test error'));
     });
 
     test('should create exception without message', () {
       final exception = HttpInterceptorException();
-      
+
       expect(exception.message, isNull);
       expect(exception.toString(), equals('Exception'));
     });
 
     test('should create exception with null message', () {
       final exception = HttpInterceptorException(null);
-      
+
       expect(exception.message, isNull);
       expect(exception.toString(), equals('Exception'));
     });
@@ -498,17 +518,17 @@ void main() {
     setUpAll(() async {
       server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
       baseUrl = 'http://localhost:${server.port}';
-      
+
       server.listen((HttpRequest request) {
         final response = request.response;
         response.headers.contentType = ContentType.json;
-        
+
         // Convert headers to a map for JSON serialization
         final headersMap = <String, List<String>>{};
         request.headers.forEach((name, values) {
           headersMap[name] = values;
         });
-        
+
         response.write(jsonEncode({
           'method': request.method,
           'url': request.uri.toString(),
@@ -526,13 +546,15 @@ void main() {
     test('should chain multiple interceptors correctly', () async {
       final headerInterceptor = HeaderInterceptor('X-First', 'first-value');
       final testInterceptor = TestInterceptor();
-      final http = InterceptedHttp.build(interceptors: [headerInterceptor, testInterceptor]);
-      
+      final http = InterceptedHttp.build(
+          interceptors: [headerInterceptor, testInterceptor]);
+
       final response = await http.get(Uri.parse('$baseUrl/test'));
-      
+
       expect(response.statusCode, equals(200));
-      expect(testInterceptor.log, contains('shouldInterceptRequest: GET $baseUrl/test'));
-      
+      expect(testInterceptor.log,
+          contains('shouldInterceptRequest: GET $baseUrl/test'));
+
       final responseData = jsonDecode(response.body) as Map<String, dynamic>;
       final headers = responseData['headers'] as Map<String, dynamic>;
       expect(headers['x-first'], contains('first-value'));
@@ -541,16 +563,17 @@ void main() {
     test('should handle complex request with body and headers', () async {
       final interceptor = TestInterceptor();
       final http = InterceptedHttp.build(interceptors: [interceptor]);
-      
+
       final response = await http.post(
         Uri.parse('$baseUrl/test'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'key': 'value'}),
       );
-      
+
       expect(response.statusCode, equals(200));
-      expect(interceptor.log, contains('shouldInterceptRequest: POST $baseUrl/test'));
-      
+      expect(interceptor.log,
+          contains('shouldInterceptRequest: POST $baseUrl/test'));
+
       final responseData = jsonDecode(response.body) as Map<String, dynamic>;
       expect(responseData['method'], equals('POST'));
     });
@@ -558,15 +581,18 @@ void main() {
     test('should handle request with query parameters', () async {
       final interceptor = TestInterceptor();
       final http = InterceptedHttp.build(interceptors: [interceptor]);
-      
+
       final response = await http.get(
         Uri.parse('$baseUrl/test'),
         params: {'param1': 'value1', 'param2': 'value2'},
       );
-      
+
       expect(response.statusCode, equals(200));
-      expect(interceptor.log, contains('shouldInterceptRequest: GET $baseUrl/test?param1=value1&param2=value2'));
-      
+      expect(
+          interceptor.log,
+          contains(
+              'shouldInterceptRequest: GET $baseUrl/test?param1=value1&param2=value2'));
+
       final responseData = jsonDecode(response.body) as Map<String, dynamic>;
       expect(responseData['url'], contains('param1=value1'));
       expect(responseData['url'], contains('param2=value2'));
