@@ -281,7 +281,6 @@ class InterceptedClient extends BaseClient {
   /// Internal method that handles the actual request with retry logic
   Future<BaseResponse> _attemptRequestWithRetries(BaseRequest request,
       {bool isStream = false}) async {
-    BaseResponse response;
     try {
       // Intercept request
       final interceptedRequest = await _interceptRequest(request);
@@ -358,7 +357,7 @@ class InterceptedClient extends BaseClient {
         stream = await completer.future;
       }
 
-      response = isStream ? stream : await Response.fromStream(stream);
+      final response = isStream ? stream : await Response.fromStream(stream);
 
       if (retryPolicy != null &&
           retryPolicy!.maxRetryAttempts > _retryCount &&
@@ -368,6 +367,8 @@ class InterceptedClient extends BaseClient {
             .delayRetryAttemptOnResponse(retryAttempt: _retryCount));
         return _attemptRequestWithRetries(request, isStream: isStream);
       }
+
+      return response;
     } on Exception catch (error) {
       if (retryPolicy != null &&
           retryPolicy!.maxRetryAttempts > _retryCount &&
@@ -380,8 +381,6 @@ class InterceptedClient extends BaseClient {
         rethrow;
       }
     }
-
-    return response;
   }
 
   /// This internal function intercepts the request.

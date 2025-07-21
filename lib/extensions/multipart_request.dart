@@ -20,20 +20,35 @@ extension MultipartRequestCopyWith on MultipartRequest {
           ..headers.addAll(headers ?? this.headers)
           ..fields.addAll(fields ?? this.fields);
 
-    for (var file in this.files) {
-      clonedRequest.files.add(MultipartFile(
-        file.field,
-        file.finalize(),
-        file.length,
-        filename: file.filename,
-        contentType: file.contentType,
-      ));
+    // Copy files from original request if no new files provided
+    if (files == null) {
+      for (var file in this.files) {
+        clonedRequest.files.add(MultipartFile(
+          file.field,
+          file.finalize(),
+          file.length,
+          filename: file.filename,
+          contentType: file.contentType,
+        ));
+      }
+    } else {
+      // Use the provided files
+      for (var file in files) {
+        clonedRequest.files.add(MultipartFile(
+          file.field,
+          file.finalize(),
+          file.length,
+          filename: file.filename,
+          contentType: file.contentType,
+        ));
+      }
     }
 
-    this.persistentConnection =
+    // Set properties on the cloned request, not the original
+    clonedRequest.persistentConnection =
         persistentConnection ?? this.persistentConnection;
-    this.followRedirects = followRedirects ?? this.followRedirects;
-    this.maxRedirects = maxRedirects ?? this.maxRedirects;
+    clonedRequest.followRedirects = followRedirects ?? this.followRedirects;
+    clonedRequest.maxRedirects = maxRedirects ?? this.maxRedirects;
 
     return clonedRequest;
   }
