@@ -12,6 +12,14 @@ main() {
     test("defaults to 1", () {
       expect(testObject.maxRetryAttempts, 1);
     });
+
+    test("can be overridden", () {
+      testObject = TestRetryPolicy(
+        maxRetryAttempts: 5,
+      );
+
+      expect(testObject.maxRetryAttempts, 5);
+    });
   });
 
   group("delayRetryAttemptOnException", () {
@@ -60,4 +68,13 @@ main() {
   });
 }
 
-class TestRetryPolicy extends RetryPolicy {}
+class TestRetryPolicy extends RetryPolicy {
+  TestRetryPolicy({
+    int maxRetryAttempts = 1,
+  }) : internalMaxRetryAttempts = maxRetryAttempts;
+
+  final int internalMaxRetryAttempts;
+
+  @override
+  int get maxRetryAttempts => internalMaxRetryAttempts;
+}

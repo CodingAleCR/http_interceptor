@@ -19,6 +19,13 @@ extension AddParameters on Uri {
       newParameters[key] = value;
     });
 
-    return buildUrlString(paramUrl, newParameters).toUri();
+    String finalUrl = buildUrlString(paramUrl, newParameters);
+
+    // Preserve the fragment if it exists
+    if (fragment.isNotEmpty) {
+      finalUrl += '#$fragment';
+    }
+
+    return finalUrl.toUri();
   }
 }
