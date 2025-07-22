@@ -38,10 +38,15 @@ abstract class InterceptorContract {
   FutureOr<bool> shouldInterceptResponse({required BaseResponse response}) =>
       true;
 
+  /// Intercepts the response.
   FutureOr<BaseResponse> interceptResponse({required BaseResponse response});
 
   /// Checks if the error should be intercepted.
-  FutureOr<bool> shouldInterceptError() => true;
+  FutureOr<bool> shouldInterceptError({
+    BaseRequest? request,
+    BaseResponse? response,
+  }) =>
+      true;
 
   /// Intercepts the error response.
   FutureOr<void> interceptError({

@@ -262,43 +262,49 @@ class InterceptedClient extends BaseClient {
   void _checkResponseSuccess(Uri url, Response response) {
     if (response.statusCode < 400) return;
     final StringBuffer message = StringBuffer()
-      ..write("Request to $url failed with status ${response.statusCode}");
-    if (response.reasonPhrase != null) {
-      message.write(": ${response.reasonPhrase}");
-    }
+      ..writeAll([
+        "Request to $url failed with status ${response.statusCode}",
+        if (response.reasonPhrase != null) ": ${response.reasonPhrase}",
+      ]);
+
     throw ClientException("$message.", url);
   }
 
   /// Attempts to perform the request and intercept the data
   /// of the response
-  Future<BaseResponse> _attemptRequest(BaseRequest request,
-      {bool isStream = false}) async {
+  Future<BaseResponse> _attemptRequest(
+    BaseRequest request, {
+    bool isStream = false,
+  }) async {
     _retryCount = 0; // Reset retry count for each new request
     return _attemptRequestWithRetries(request, isStream: isStream);
   }
 
   /// Internal method that handles the actual request with retry logic
-  Future<BaseResponse> _attemptRequestWithRetries(BaseRequest request,
-      {bool isStream = false}) async {
+  Future<BaseResponse> _attemptRequestWithRetries(
+    BaseRequest request, {
+    bool isStream = false,
+  }) async {
     BaseResponse response;
+
     try {
       // Intercept request
       final BaseRequest interceptedRequest = await _interceptRequest(request);
 
-      StreamedResponse stream;
+      late final StreamedResponse stream;
+
       if (requestTimeout == null) {
         stream = await _inner.send(interceptedRequest);
       } else {
         // Use a completer to properly handle timeout and cancellation
-        final completer = Completer<StreamedResponse>();
+        final Completer<StreamedResponse> completer = Completer();
         final Future<StreamedResponse> requestFuture =
             _inner.send(interceptedRequest);
 
         // Set up timeout with proper cleanup
-        Timer? timeoutTimer;
         bool isCompleted = false;
 
-        timeoutTimer = Timer(requestTimeout!, () {
+        final Timer timeoutTimer = Timer(requestTimeout!, () {
           if (!isCompleted) {
             isCompleted = true;
             if (onRequestTimeout != null) {
@@ -337,7 +343,7 @@ class InterceptedClient extends BaseClient {
 
         // Handle the actual request completion
         requestFuture.then((streamResponse) {
-          timeoutTimer?.cancel();
+          timeoutTimer.cancel();
           if (!isCompleted) {
             isCompleted = true;
             if (!completer.isCompleted) {
@@ -345,7 +351,7 @@ class InterceptedClient extends BaseClient {
             }
           }
         }).catchError((error) {
-          timeoutTimer?.cancel();
+          timeoutTimer.cancel();
           if (!isCompleted) {
             isCompleted = true;
             if (!completer.isCompleted) {
@@ -429,7 +435,8 @@ class InterceptedClient extends BaseClient {
     StackTrace? stackTrace,
   }) async {
     for (InterceptorContract interceptor in interceptors) {
-      if (await interceptor.shouldInterceptError()) {
+      if (await interceptor.shouldInterceptError(
+          request: request, response: response)) {
         await interceptor.interceptError(
           request: request,
           response: response,
