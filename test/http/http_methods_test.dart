@@ -148,7 +148,9 @@ main() {
       // Act
       // Assert
       expect(
-          () => HttpMethod.fromString(methodString), throwsArgumentError);
+        () => HttpMethod.fromString(methodString),
+        throwsArgumentError,
+      );
     });
   });
 }
