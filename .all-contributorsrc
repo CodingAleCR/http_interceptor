@@ -208,6 +208,34 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "td2thinh",
+      "name": "Thinh TRUONG",
+      "avatar_url": "https://avatars.githubusercontent.com/u/75013885?v=4",
+      "profile": "https://github.com/td2thinh",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "KacperKluka",
+      "name": "KacperKluka",
+      "avatar_url": "https://avatars.githubusercontent.com/u/62378170?v=4",
+      "profile": "https://github.com/KacperKluka",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "techouse",
+      "name": "Klemen Tusar",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1174328?v=4",
+      "profile": "https://github.com/techouse",
+      "contributions": [
+        "code",
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,

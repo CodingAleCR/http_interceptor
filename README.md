@@ -9,7 +9,7 @@
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-20-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-23-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
@@ -20,7 +20,7 @@ This is a plugin that lets you intercept the different requests and responses fr
 
 **Already using `http_interceptor`? Check out the [1.0.0 migration guide](./guides/migration_guide_1.0.0.md) for quick reference on the changes made and how to migrate your code.**
 
-- [http_interceptor](#http_interceptor)
+- [http\_interceptor](#http_interceptor)
   - [Quick Reference](#quick-reference)
   - [Installation](#installation)
   - [Features](#features)
@@ -67,9 +67,16 @@ import 'package:http_interceptor/http_interceptor.dart';
 
 ### Building your own interceptor
 
-In order to implement `http_interceptor` you need to implement the `InterceptorContract` and create your own interceptor. This abstract class has two methods: `interceptRequest`, which triggers before the http request is called; and `interceptResponse`, which triggers after the request is called, it has a response attached to it which the corresponding to said request. You could use this to do logging, adding headers, error handling, or many other cool stuff. It is important to note that after you proccess the request/response objects you need to return them so that `http` can continue the execute.
+In order to implement `http_interceptor` you need to implement the `InterceptorContract` and create your own interceptor. This abstract class has four methods:
 
-`interceptRequest` and `interceptResponse` use `FutureOr` syntax, which makes it easier to support both synchronous and asynchronous behaviors.
+ - `interceptRequest`, which triggers before the http request is called 
+ - `interceptResponse`, which triggers after the request is called, it has a response attached to it which the corresponding to said request;
+ 
+- `shouldInterceptRequest` and `shouldInterceptResponse`, which are used to determine if the request or response should be intercepted or not. These two methods are optional as they return `true` by default, but they can be useful if you want to conditionally intercept requests or responses based on certain criteria. 
+
+You could use this package to do logging, adding headers, error handling, or many other cool stuff. It is important to note that after you proccess the request/response objects you need to return them so that `http` can continue the execute.
+
+All four methods use `FutureOr` syntax, which makes it easier to support both synchronous and asynchronous behaviors.
 
 - Logging with interceptor:
 
@@ -120,6 +127,18 @@ class WeatherApiInterceptor implements InterceptorContract {
   required BaseResponse response,
   }) =>
       response;
+  
+  @override
+  FutureOr<bool> shouldInterceptRequest({required BaseRequest request}) async {
+    // You can conditionally intercept requests here
+    return true; // Intercept all requests
+  }
+
+  @override
+  FutureOr<bool> shouldInterceptResponse({required BaseResponse response}) async {
+    // You can conditionally intercept responses here
+    return true; // Intercept all responses
+  }
 }
 ```
 
@@ -143,6 +162,18 @@ class MultipartRequestInterceptor implements InterceptorContract {
       });
     }
     return response;
+  }
+
+  @override
+  FutureOr<bool> shouldInterceptRequest({required BaseRequest request}) async {
+    // You can conditionally intercept requests here
+    return true; // Intercept all requests
+  }
+
+  @override
+  FutureOr<bool> shouldInterceptResponse({required BaseResponse response}) async {
+    // You can conditionally intercept responses here
+    return true; // Intercept all responses
   }
 }
 ```
@@ -228,10 +259,24 @@ Sometimes you need to retry a request due to different circumstances, an expired
 ```dart
 class ExpiredTokenRetryPolicy extends RetryPolicy {
   @override
+  int get maxRetryAttempts => 2;
+
+  @override
+  bool shouldAttemptRetryOnException(Exception reason, BaseRequest request) {
+    // Log the exception for debugging
+    print('Request failed: ${reason.toString()}');
+    print('Request URL: ${request.url}');
+    
+    // Retry on network exceptions, but not on client errors
+    return reason is SocketException || reason is TimeoutException;
+  }
+
+  @override
   Future<bool> shouldAttemptRetryOnResponse(BaseResponse response) async {
     if (response.statusCode == 401) {
       // Perform your token refresh here.
-
+      print('Token expired, refreshing...');
+      
       return true;
     }
 
@@ -242,13 +287,56 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
 
 You can also set the maximum amount of retry attempts with `maxRetryAttempts` property or override the `shouldAttemptRetryOnException` if you want to retry the request after it failed with an exception.
 
+### RetryPolicy Interface
+
+The `RetryPolicy` abstract class provides the following methods that you can override:
+
+- **`shouldAttemptRetryOnException(Exception reason, BaseRequest request)`**: Called when an exception occurs during the request. Return `true` to retry, `false` to fail immediately.
+- **`shouldAttemptRetryOnResponse(BaseResponse response)`**: Called after receiving a response. Return `true` to retry, `false` to accept the response.
+- **`maxRetryAttempts`**: The maximum number of retry attempts (default: 1).
+- **`delayRetryAttemptOnException({required int retryAttempt})`**: Delay before retrying after an exception (default: no delay).
+- **`delayRetryAttemptOnResponse({required int retryAttempt})`**: Delay before retrying after a response (default: no delay).
+
+### Using Retry Policies
+
+To use a retry policy, pass it to the `InterceptedClient` or `InterceptedHttp`:
+
+```dart
+final client = InterceptedClient.build(
+  interceptors: [WeatherApiInterceptor()],
+  retryPolicy: ExpiredTokenRetryPolicy(),
+);
+```
+
 Sometimes it is helpful to have a cool-down phase between multiple requests. This delay could for example also differ between the first and the second retry attempt as shown in the following example.
 
 ```dart
 class ExpiredTokenRetryPolicy extends RetryPolicy {
   @override
+  int get maxRetryAttempts => 3;
+
+  @override
+  bool shouldAttemptRetryOnException(Exception reason, BaseRequest request) {
+    // Only retry on network-related exceptions
+    return reason is SocketException || reason is TimeoutException;
+  }
+
+  @override
+  Future<bool> shouldAttemptRetryOnResponse(BaseResponse response) async {
+    // Retry on server errors (5xx) and authentication errors (401)
+    return response.statusCode >= 500 || response.statusCode == 401;
+  }
+
+  @override
+  Duration delayRetryAttemptOnException({required int retryAttempt}) {
+    // Exponential backoff for exceptions
+    return Duration(milliseconds: (250 * math.pow(2.0, retryAttempt - 1)).round());
+  }
+
+  @override
   Duration delayRetryAttemptOnResponse({required int retryAttempt}) {
-    return const Duration(milliseconds: 250) * math.pow(2.0, retryAttempt);
+    // Exponential backoff for response-based retries
+    return Duration(milliseconds: (250 * math.pow(2.0, retryAttempt - 1)).round());
   }
 }
 ```
@@ -337,6 +425,11 @@ Thanks to all the wonderful people contributing to improve this package. Check t
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/ayyysh04"><img src="https://avatars.githubusercontent.com/u/74104690?v=4?s=100" width="100px;" alt="Ayush Yadav"/><br /><sub><b>Ayush Yadav</b></sub></a><br /><a href="#ideas-ayyysh04" title="Ideas, Planning, & Feedback">🤔</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/shittyday"><img src="https://avatars.githubusercontent.com/u/88209828?v=4?s=100" width="100px;" alt="Alex"/><br /><sub><b>Alex</b></sub></a><br /><a href="https://github.com/CodingAleCR/http_interceptor/commits?author=shittyday" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/iruizr7"><img src="https://avatars.githubusercontent.com/u/65398602?v=4?s=100" width="100px;" alt="Iñigo R."/><br /><sub><b>Iñigo R.</b></sub></a><br /><a href="https://github.com/CodingAleCR/http_interceptor/commits?author=iruizr7" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/td2thinh"><img src="https://avatars.githubusercontent.com/u/75013885?v=4?s=100" width="100px;" alt="Thinh TRUONG"/><br /><sub><b>Thinh TRUONG</b></sub></a><br /><a href="https://github.com/CodingAleCR/http_interceptor/commits?author=td2thinh" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/KacperKluka"><img src="https://avatars.githubusercontent.com/u/62378170?v=4?s=100" width="100px;" alt="KacperKluka"/><br /><sub><b>KacperKluka</b></sub></a><br /><a href="https://github.com/CodingAleCR/http_interceptor/commits?author=KacperKluka" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/techouse"><img src="https://avatars.githubusercontent.com/u/1174328?v=4?s=100" width="100px;" alt="Klemen Tusar"/><br /><sub><b>Klemen Tusar</b></sub></a><br /><a href="https://github.com/CodingAleCR/http_interceptor/commits?author=techouse" title="Code">💻</a> <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=techouse" title="Documentation">📖</a></td>
     </tr>
   </tbody>
 </table>

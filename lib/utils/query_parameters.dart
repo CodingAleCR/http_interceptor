@@ -1,41 +1,36 @@
+import 'package:qs_dart/qs_dart.dart' as qs;
+import 'package:validators/validators.dart' as validators;
+
 /// Takes a string and appends [parameters] as query parameters of [url].
 ///
-/// It does not check if [url] is valid, it just appends the parameters.
+/// Throws [ArgumentError] if [url] is not a valid URL.
 String buildUrlString(String url, Map<String, dynamic>? parameters) {
-  // Avoids unnecessary processing.
-  if (parameters == null) return url;
+  late final Uri uri;
 
-  // Check if there are parameters to add.
-  if (parameters.isNotEmpty) {
-    // Checks if the string url already has parameters.
-    if (url.contains("?")) {
-      url += "&";
-    } else {
-      url += "?";
+  try {
+    if (!validators.isURL(url)) {
+      throw FormatException('Invalid URL format');
     }
-
-    // Concat every parameter to the string url.
-    parameters.forEach((key, value) {
-      if (value is List) {
-        if (value is List<String>) {
-          for (String singleValue in value) {
-            url += "$key=${Uri.encodeQueryComponent(singleValue)}&";
-          }
-        } else {
-          for (dynamic singleValue in value) {
-            url += "$key=${Uri.encodeQueryComponent(singleValue.toString())}&";
-          }
-        }
-      } else if (value is String) {
-        url += "$key=${Uri.encodeQueryComponent(value)}&";
-      } else {
-        url += "$key=${Uri.encodeQueryComponent(value.toString())}&";
-      }
-    });
-
-    // Remove last '&' character.
-    url = url.substring(0, url.length - 1);
+    uri = Uri.parse(url);
+  } on FormatException {
+    throw ArgumentError.value(url, 'url', 'Must be a valid URL');
   }
 
-  return url;
+  return parameters?.isNotEmpty ?? false
+      ? uri
+          .replace(
+              query: qs.encode(
+                <String, dynamic>{
+                  ...uri.queryParametersAll,
+                  ...?parameters,
+                },
+                qs.EncodeOptions(
+                  listFormat: qs.ListFormat.repeat,
+                  skipNulls: false,
+                  strictNullHandling: false,
+                ),
+              ),
+              queryParameters: null)
+          .toString()
+      : url;
 }
