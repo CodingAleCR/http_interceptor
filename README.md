@@ -9,7 +9,7 @@
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-21-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-23-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
@@ -429,6 +429,7 @@ Thanks to all the wonderful people contributing to improve this package. Check t
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/KacperKluka"><img src="https://avatars.githubusercontent.com/u/62378170?v=4?s=100" width="100px;" alt="KacperKluka"/><br /><sub><b>KacperKluka</b></sub></a><br /><a href="https://github.com/CodingAleCR/http_interceptor/commits?author=KacperKluka" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/techouse"><img src="https://avatars.githubusercontent.com/u/1174328?v=4?s=100" width="100px;" alt="Klemen Tusar"/><br /><sub><b>Klemen Tusar</b></sub></a><br /><a href="https://github.com/CodingAleCR/http_interceptor/commits?author=techouse" title="Code">💻</a> <a href="https://github.com/CodingAleCR/http_interceptor/commits?author=techouse" title="Documentation">📖</a></td>
     </tr>
   </tbody>
 </table>
