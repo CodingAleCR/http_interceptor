@@ -26,4 +26,26 @@ class LoggerInterceptor extends InterceptorContract {
     }
     return response;
   }
+
+  @override
+  void interceptError({
+    BaseRequest? request,
+    BaseResponse? response,
+    Exception? error,
+    StackTrace? stackTrace,
+  }) {
+    log('----- Error -----');
+    if (request != null) {
+      log('Request: ${request.toString()}');
+    }
+    if (response != null) {
+      log('Response: ${response.toString()}');
+    }
+    if (error != null) {
+      log('Error: ${error.toString()}');
+    }
+    if (stackTrace != null) {
+      log('StackTrace: $stackTrace');
+    }
+  }
 }

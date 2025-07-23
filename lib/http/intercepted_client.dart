@@ -55,7 +55,7 @@ class InterceptedClient extends BaseClient {
   final RetryPolicy? retryPolicy;
 
   int _retryCount = 0;
-  late Client _inner;
+  late final Client _inner;
 
   InterceptedClient._internal({
     required this.interceptors,
@@ -194,11 +194,10 @@ class InterceptedClient extends BaseClient {
     Uri url, {
     Map<String, String>? headers,
     Map<String, dynamic>? params,
-  }) {
-    return get(url, headers: headers, params: params).then((response) {
-      _checkResponseSuccess(url, response);
-      return response.body;
-    });
+  }) async {
+    final Response response = await get(url, headers: headers, params: params);
+    _checkResponseSuccess(url, response);
+    return response.body;
   }
 
   @override
@@ -206,18 +205,18 @@ class InterceptedClient extends BaseClient {
     Uri url, {
     Map<String, String>? headers,
     Map<String, dynamic>? params,
-  }) {
-    return get(url, headers: headers, params: params).then((response) {
-      _checkResponseSuccess(url, response);
-      return response.bodyBytes;
-    });
+  }) async {
+    final Response response = await get(url, headers: headers, params: params);
+    _checkResponseSuccess(url, response);
+    return response.bodyBytes;
   }
 
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
-    final response = await _attemptRequest(request, isStream: true);
+    final BaseResponse response =
+        await _attemptRequest(request, isStream: true);
 
-    final interceptedResponse = await _interceptResponse(response);
+    final BaseResponse interceptedResponse = await _interceptResponse(response);
 
     if (interceptedResponse is StreamedResponse) {
       return interceptedResponse;
@@ -236,9 +235,10 @@ class InterceptedClient extends BaseClient {
     Object? body,
     Encoding? encoding,
   }) async {
-    url = url.addParameters(params);
-
-    Request request = Request(method.asString, url);
+    final Request request = Request(
+      method.asString,
+      url.addParameters(params),
+    );
     if (headers != null) request.headers.addAll(headers);
     if (encoding != null) request.encoding = encoding;
     if (body != null) {
@@ -253,53 +253,58 @@ class InterceptedClient extends BaseClient {
       }
     }
 
-    var response = await _attemptRequest(request);
+    final BaseResponse response = await _attemptRequest(request);
 
     // Intercept response
-    response = await _interceptResponse(response);
-
-    return response;
+    return await _interceptResponse(response);
   }
 
   void _checkResponseSuccess(Uri url, Response response) {
     if (response.statusCode < 400) return;
-    var message = "Request to $url failed with status ${response.statusCode}";
-    if (response.reasonPhrase != null) {
-      message = "$message: ${response.reasonPhrase}";
-    }
+    final StringBuffer message = StringBuffer()
+      ..writeAll([
+        "Request to $url failed with status ${response.statusCode}",
+        if (response.reasonPhrase != null) ": ${response.reasonPhrase}",
+      ]);
+
     throw ClientException("$message.", url);
   }
 
   /// Attempts to perform the request and intercept the data
   /// of the response
-  Future<BaseResponse> _attemptRequest(BaseRequest request,
-      {bool isStream = false}) async {
+  Future<BaseResponse> _attemptRequest(
+    BaseRequest request, {
+    bool isStream = false,
+  }) async {
     _retryCount = 0; // Reset retry count for each new request
     return _attemptRequestWithRetries(request, isStream: isStream);
   }
 
   /// Internal method that handles the actual request with retry logic
-  Future<BaseResponse> _attemptRequestWithRetries(BaseRequest request,
-      {bool isStream = false}) async {
+  Future<BaseResponse> _attemptRequestWithRetries(
+    BaseRequest request, {
+    bool isStream = false,
+  }) async {
     BaseResponse response;
+
     try {
       // Intercept request
-      final interceptedRequest = await _interceptRequest(request);
+      final BaseRequest interceptedRequest = await _interceptRequest(request);
 
-      StreamedResponse stream;
+      late final StreamedResponse stream;
+
       if (requestTimeout == null) {
         stream = await _inner.send(interceptedRequest);
       } else {
         // Use a completer to properly handle timeout and cancellation
-        final completer = Completer<StreamedResponse>();
+        final Completer<StreamedResponse> completer = Completer();
         final Future<StreamedResponse> requestFuture =
             _inner.send(interceptedRequest);
 
         // Set up timeout with proper cleanup
-        Timer? timeoutTimer;
         bool isCompleted = false;
 
-        timeoutTimer = Timer(requestTimeout!, () {
+        final Timer timeoutTimer = Timer(requestTimeout!, () {
           if (!isCompleted) {
             isCompleted = true;
             if (onRequestTimeout != null) {
@@ -338,7 +343,7 @@ class InterceptedClient extends BaseClient {
 
         // Handle the actual request completion
         requestFuture.then((streamResponse) {
-          timeoutTimer?.cancel();
+          timeoutTimer.cancel();
           if (!isCompleted) {
             isCompleted = true;
             if (!completer.isCompleted) {
@@ -346,7 +351,7 @@ class InterceptedClient extends BaseClient {
             }
           }
         }).catchError((error) {
-          timeoutTimer?.cancel();
+          timeoutTimer.cancel();
           if (!isCompleted) {
             isCompleted = true;
             if (!completer.isCompleted) {
@@ -368,7 +373,7 @@ class InterceptedClient extends BaseClient {
             .delayRetryAttemptOnResponse(retryAttempt: _retryCount));
         return _attemptRequestWithRetries(request, isStream: isStream);
       }
-    } on Exception catch (error) {
+    } on Exception catch (error, stackTrace) {
       if (retryPolicy != null &&
           retryPolicy!.maxRetryAttempts > _retryCount &&
           await retryPolicy!.shouldAttemptRetryOnException(error, request)) {
@@ -377,6 +382,12 @@ class InterceptedClient extends BaseClient {
             .delayRetryAttemptOnException(retryAttempt: _retryCount));
         return _attemptRequestWithRetries(request, isStream: isStream);
       } else {
+        await _interceptError(
+          request: request,
+          error: error,
+          stackTrace: stackTrace,
+        );
+
         rethrow;
       }
     }
@@ -414,6 +425,26 @@ class InterceptedClient extends BaseClient {
     }
 
     return interceptedResponse;
+  }
+
+  /// This internal function intercepts the error.
+  Future<void> _interceptError({
+    BaseRequest? request,
+    BaseResponse? response,
+    Exception? error,
+    StackTrace? stackTrace,
+  }) async {
+    for (InterceptorContract interceptor in interceptors) {
+      if (await interceptor.shouldInterceptError(
+          request: request, response: response)) {
+        await interceptor.interceptError(
+          request: request,
+          response: response,
+          error: error,
+          stackTrace: stackTrace,
+        );
+      }
+    }
   }
 
   @override

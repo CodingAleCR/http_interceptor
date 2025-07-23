@@ -28,21 +28,33 @@ import 'package:http/http.dart';
 ///}
 ///```
 abstract class InterceptorContract {
-  FutureOr<bool> shouldInterceptRequest({
-    required BaseRequest request,
+  /// Checks if the request should be intercepted.
+  FutureOr<bool> shouldInterceptRequest({required BaseRequest request}) => true;
+
+  /// Intercepts the request.
+  FutureOr<BaseRequest> interceptRequest({required BaseRequest request});
+
+  /// Checks if the response should be intercepted.
+  FutureOr<bool> shouldInterceptResponse({required BaseResponse response}) =>
+      true;
+
+  /// Intercepts the response.
+  FutureOr<BaseResponse> interceptResponse({required BaseResponse response});
+
+  /// Checks if the error should be intercepted.
+  FutureOr<bool> shouldInterceptError({
+    BaseRequest? request,
+    BaseResponse? response,
   }) =>
       true;
 
-  FutureOr<BaseRequest> interceptRequest({
-    required BaseRequest request,
-  });
-
-  FutureOr<bool> shouldInterceptResponse({
-    required BaseResponse response,
-  }) =>
-      true;
-
-  FutureOr<BaseResponse> interceptResponse({
-    required BaseResponse response,
-  });
+  /// Intercepts the error response.
+  FutureOr<void> interceptError({
+    BaseRequest? request,
+    BaseResponse? response,
+    Exception? error,
+    StackTrace? stackTrace,
+  }) {
+    // Default implementation does nothing
+  }
 }

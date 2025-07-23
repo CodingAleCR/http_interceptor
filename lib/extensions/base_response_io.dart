@@ -32,43 +32,40 @@ extension BaseResponseCopyWith on BaseResponse {
     int? contentLength,
     // `IOStreamedResponse` only properties.
     HttpClientResponse? inner,
-  }) {
-    if (this is Response) {
-      return ResponseCopyWith(this as Response).copyWith(
-        statusCode: statusCode,
-        body: body,
-        request: request,
-        headers: headers,
-        isRedirect: isRedirect,
-        persistentConnection: persistentConnection,
-        reasonPhrase: reasonPhrase,
-      );
-    } else if (this is StreamedResponse) {
-      return StreamedResponseCopyWith(this as StreamedResponse).copyWith(
-        stream: stream,
-        statusCode: statusCode,
-        contentLength: contentLength,
-        request: request,
-        headers: headers,
-        isRedirect: isRedirect,
-        persistentConnection: persistentConnection,
-        reasonPhrase: reasonPhrase,
-      );
-    } else if (this is IOStreamedResponse) {
-      return IOStreamedResponseCopyWith(this as IOStreamedResponse).copyWith(
-        stream: stream,
-        statusCode: statusCode,
-        contentLength: contentLength,
-        request: request,
-        headers: headers,
-        isRedirect: isRedirect,
-        persistentConnection: persistentConnection,
-        reasonPhrase: reasonPhrase,
-        inner: inner,
-      );
-    }
-
-    throw UnsupportedError(
-        'Cannot copy unsupported type of response $runtimeType');
-  }
+  }) =>
+      switch (this) {
+        Response res => res.copyWith(
+            statusCode: statusCode,
+            body: body,
+            request: request,
+            headers: headers,
+            isRedirect: isRedirect,
+            persistentConnection: persistentConnection,
+            reasonPhrase: reasonPhrase,
+          ),
+        IOStreamedResponse res => res.copyWith(
+            stream: stream,
+            statusCode: statusCode,
+            contentLength: contentLength,
+            request: request,
+            headers: headers,
+            isRedirect: isRedirect,
+            persistentConnection: persistentConnection,
+            reasonPhrase: reasonPhrase,
+            inner: inner,
+          ),
+        StreamedResponse res => res.copyWith(
+            stream: stream,
+            statusCode: statusCode,
+            contentLength: contentLength,
+            request: request,
+            headers: headers,
+            isRedirect: isRedirect,
+            persistentConnection: persistentConnection,
+            reasonPhrase: reasonPhrase,
+          ),
+        _ => throw UnsupportedError(
+            'Cannot copy unsupported type of response $runtimeType',
+          ),
+      };
 }

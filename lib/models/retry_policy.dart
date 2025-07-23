@@ -43,7 +43,9 @@ abstract class RetryPolicy {
   ///
   /// Returns `true` if the request should be retried, `false` otherwise.
   FutureOr<bool> shouldAttemptRetryOnException(
-          Exception reason, BaseRequest request) =>
+    Exception reason,
+    BaseRequest request,
+  ) =>
       false;
 
   /// Defines whether the request should be retried after the request has
