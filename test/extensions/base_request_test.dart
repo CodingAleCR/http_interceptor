@@ -34,9 +34,10 @@ main() {
       final testHeaders = {'Content-Type': 'multipart/form-data'};
       final testFields = {'field1': 'value1', 'field2': 'value2'};
 
-      final MultipartRequest multipartRequest = MultipartRequest('POST', testUrl)
-        ..headers.addAll(testHeaders)
-        ..fields.addAll(testFields);
+      final MultipartRequest multipartRequest =
+          MultipartRequest('POST', testUrl)
+            ..headers.addAll(testHeaders)
+            ..fields.addAll(testFields);
 
       // Add a test file to the request
       final testFileBytes = utf8.encode('test file content');

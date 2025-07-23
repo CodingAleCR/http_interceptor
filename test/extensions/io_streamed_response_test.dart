@@ -29,7 +29,8 @@ void main() {
       );
     });
 
-    test('creates a copy with the same properties when no parameters are provided',
+    test(
+        'creates a copy with the same properties when no parameters are provided',
         () {
       // Act
       final copy = response.copyWith();
@@ -53,7 +54,8 @@ void main() {
 
       // Assert
       expect(copy.statusCode, equals(newStatusCode));
-      expect(copy.contentLength, equals(testContentLength)); // Other properties remain the same
+      expect(copy.contentLength,
+          equals(testContentLength)); // Other properties remain the same
     });
 
     test('overrides contentLength when provided', () {
@@ -65,7 +67,8 @@ void main() {
 
       // Assert
       expect(copy.contentLength, equals(newContentLength));
-      expect(copy.statusCode, equals(testStatusCode)); // Other properties remain the same
+      expect(copy.statusCode,
+          equals(testStatusCode)); // Other properties remain the same
     });
 
     test('overrides request when provided', () {
@@ -77,7 +80,8 @@ void main() {
 
       // Assert
       expect(copy.request, equals(newRequest));
-      expect(copy.statusCode, equals(testStatusCode)); // Other properties remain the same
+      expect(copy.statusCode,
+          equals(testStatusCode)); // Other properties remain the same
     });
 
     test('overrides headers when provided', () {
@@ -89,7 +93,8 @@ void main() {
 
       // Assert
       expect(copy.headers, equals(newHeaders));
-      expect(copy.statusCode, equals(testStatusCode)); // Other properties remain the same
+      expect(copy.statusCode,
+          equals(testStatusCode)); // Other properties remain the same
     });
 
     test('overrides isRedirect when provided', () {
@@ -98,16 +103,19 @@ void main() {
 
       // Assert
       expect(copy.isRedirect, equals(!testIsRedirect));
-      expect(copy.statusCode, equals(testStatusCode)); // Other properties remain the same
+      expect(copy.statusCode,
+          equals(testStatusCode)); // Other properties remain the same
     });
 
     test('overrides persistentConnection when provided', () {
       // Act
-      final copy = response.copyWith(persistentConnection: !testPersistentConnection);
+      final copy =
+          response.copyWith(persistentConnection: !testPersistentConnection);
 
       // Assert
       expect(copy.persistentConnection, equals(!testPersistentConnection));
-      expect(copy.statusCode, equals(testStatusCode)); // Other properties remain the same
+      expect(copy.statusCode,
+          equals(testStatusCode)); // Other properties remain the same
     });
 
     test('overrides reasonPhrase when provided', () {
@@ -119,7 +127,8 @@ void main() {
 
       // Assert
       expect(copy.reasonPhrase, equals(newReasonPhrase));
-      expect(copy.statusCode, equals(testStatusCode)); // Other properties remain the same
+      expect(copy.statusCode,
+          equals(testStatusCode)); // Other properties remain the same
     });
 
     test('overrides stream when provided', () async {
@@ -134,7 +143,8 @@ void main() {
       final copyData = await copy.stream.toList();
       final flattenedCopyData = copyData.expand((x) => x).toList();
       expect(flattenedCopyData, equals(newData));
-      expect(copy.statusCode, equals(testStatusCode)); // Other properties remain the same
+      expect(copy.statusCode,
+          equals(testStatusCode)); // Other properties remain the same
     });
 
     test('can override multiple properties at once', () {
@@ -154,7 +164,8 @@ void main() {
       expect(copy.statusCode, equals(newStatusCode));
       expect(copy.headers, equals(newHeaders));
       expect(copy.reasonPhrase, equals(newReasonPhrase));
-      expect(copy.contentLength, equals(testContentLength)); // Unchanged properties remain the same
+      expect(copy.contentLength,
+          equals(testContentLength)); // Unchanged properties remain the same
     });
   });
 }

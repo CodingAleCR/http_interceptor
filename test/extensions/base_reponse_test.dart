@@ -60,7 +60,8 @@ main() {
       expect(copied.request, equals(response.request));
       expect(copied.headers, equals(response.headers));
       expect(copied.isRedirect, equals(response.isRedirect));
-      expect(copied.persistentConnection, equals(response.persistentConnection));
+      expect(
+          copied.persistentConnection, equals(response.persistentConnection));
       expect(copied.reasonPhrase, equals(response.reasonPhrase));
     });
 
@@ -80,7 +81,6 @@ main() {
     });
   });
 }
-
 
 // Custom response type that doesn't extend any of the supported types
 class _UnsupportedResponse extends BaseResponse {
