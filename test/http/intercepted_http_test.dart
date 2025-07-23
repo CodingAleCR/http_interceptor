@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:http/http.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:test/test.dart';
 
@@ -239,7 +238,7 @@ void main() {
       // Arrange
       final timeout = Duration(seconds: 30);
       final retryPolicy = MockRetryPolicy();
-      final onTimeout = () => StreamedResponse(Stream.value([]), 408);
+      StreamedResponse onTimeout() => StreamedResponse(Stream.value([]), 408);
 
       http = InterceptedHttp.build(
         interceptors: [mockInterceptor],
