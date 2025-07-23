@@ -27,5 +27,56 @@ main() {
       expect(copied.maxRedirects, equals(request.maxRedirects));
       expect(copied.persistentConnection, equals(request.persistentConnection));
     });
+
+    test('MultipartRequest is copied from BaseRequest', () {
+      // Arrange
+      final testUrl = Uri.parse('https://example.com');
+      final testHeaders = {'Content-Type': 'multipart/form-data'};
+      final testFields = {'field1': 'value1', 'field2': 'value2'};
+
+      final MultipartRequest multipartRequest = MultipartRequest('POST', testUrl)
+        ..headers.addAll(testHeaders)
+        ..fields.addAll(testFields);
+
+      // Add a test file to the request
+      final testFileBytes = utf8.encode('test file content');
+      final testFile = MultipartFile.fromBytes(
+        'file',
+        testFileBytes,
+        filename: 'test.txt',
+      );
+      multipartRequest.files.add(testFile);
+
+      // Act
+      final copied = multipartRequest.copyWith();
+
+      // Assert
+      expect(copied.hashCode, isNot(equals(multipartRequest.hashCode)));
+      expect(copied.url, equals(multipartRequest.url));
+      expect(copied.method, equals(multipartRequest.method));
+      expect(copied.headers, equals(multipartRequest.headers));
+      expect(copied.fields, equals(multipartRequest.fields));
+      expect(copied.files.length, equals(multipartRequest.files.length));
+    });
+
+    test('throws UnsupportedError for unsupported request type', () {
+      // Arrange
+      final unsupportedRequest = _UnsupportedRequest();
+
+      // Act & Assert
+      expect(
+        () => unsupportedRequest.copyWith(),
+        throwsA(isA<UnsupportedError>().having(
+          (e) => e.message,
+          'message',
+          'Cannot copy unsupported type of request _UnsupportedRequest',
+        )),
+      );
+    });
   });
+}
+
+// Custom request type that doesn't extend any of the supported types
+class _UnsupportedRequest extends BaseRequest {
+  _UnsupportedRequest() : super('GET', Uri.parse('https://example.com'));
 }
