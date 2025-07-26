@@ -397,7 +397,7 @@ class InterceptedClient extends BaseClient {
 
   /// This internal function intercepts the request.
   Future<BaseRequest> _interceptRequest(BaseRequest request) async {
-    BaseRequest interceptedRequest = request.copyWith();
+    BaseRequest interceptedRequest = await request.copyWith();
     for (InterceptorContract interceptor in interceptors) {
       if (await interceptor.shouldInterceptRequest(
         request: interceptedRequest,

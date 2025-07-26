@@ -5,12 +5,12 @@ import 'package:test/test.dart';
 
 main() {
   group('BaseRequest.copyWith: ', () {
-    test('Request is copied from BaseRequest', () {
+    test('Request is copied from BaseRequest', () async {
       // Arrange
       final BaseRequest baseRequest =
           Request("GET", Uri.https("www.google.com", "/helloworld"))
             ..body = jsonEncode(<String, String>{'some_param': 'some value'});
-      final copiedBaseRequest = baseRequest.copyWith();
+      final copiedBaseRequest = await baseRequest.copyWith();
 
       // Act
       final copied = copiedBaseRequest as Request;

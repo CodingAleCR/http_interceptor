@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart';
@@ -18,7 +19,7 @@ extension BaseRequestCopyWith on BaseRequest {
   /// instance.
   ///
   /// [stream] are only copied if `this` is a [StreamedRequest] instance.
-  BaseRequest copyWith({
+  Future<BaseRequest> copyWith({
     HttpMethod? method,
     Uri? url,
     Map<String, String>? headers,
@@ -33,39 +34,40 @@ extension BaseRequestCopyWith on BaseRequest {
     List<MultipartFile>? files,
     // StreamedRequest only properties.
     Stream<List<int>>? stream,
-  }) =>
-      switch (this) {
-        Request req => req.copyWith(
-            method: method,
-            url: url,
-            headers: headers,
-            body: body,
-            encoding: encoding,
-            followRedirects: followRedirects,
-            maxRedirects: maxRedirects,
-            persistentConnection: persistentConnection,
-          ),
-        StreamedRequest req => req.copyWith(
-            method: method,
-            url: url,
-            headers: headers,
-            stream: stream,
-            followRedirects: followRedirects,
-            maxRedirects: maxRedirects,
-            persistentConnection: persistentConnection,
-          ),
-        MultipartRequest req => req.copyWith(
-            method: method,
-            url: url,
-            headers: headers,
-            fields: fields,
-            files: files,
-            followRedirects: followRedirects,
-            maxRedirects: maxRedirects,
-            persistentConnection: persistentConnection,
-          ),
-        _ => throw UnsupportedError(
-            'Cannot copy unsupported type of request $runtimeType',
-          ),
-      };
+  }) async {
+    return switch (this) {
+      Request req => req.copyWith(
+          method: method,
+          url: url,
+          headers: headers,
+          body: body,
+          encoding: encoding,
+          followRedirects: followRedirects,
+          maxRedirects: maxRedirects,
+          persistentConnection: persistentConnection,
+        ),
+      StreamedRequest req => await req.copyWith(
+          method: method,
+          url: url,
+          headers: headers,
+          stream: stream,
+          followRedirects: followRedirects,
+          maxRedirects: maxRedirects,
+          persistentConnection: persistentConnection,
+        ),
+      MultipartRequest req => req.copyWith(
+          method: method,
+          url: url,
+          headers: headers,
+          fields: fields,
+          files: files,
+          followRedirects: followRedirects,
+          maxRedirects: maxRedirects,
+          persistentConnection: persistentConnection,
+        ),
+      _ => throw UnsupportedError(
+          'Cannot copy unsupported type of request $runtimeType',
+        ),
+    };
+  }
 }
