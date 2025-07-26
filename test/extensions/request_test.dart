@@ -18,9 +18,9 @@ main() {
   });
 
   group('BaseRequest.copyWith: ', () {
-    test('Request is copied from BaseRequest', () {
+    test('Request is copied from BaseRequest', () async {
       // Arrange
-      final copiedBaseRequest = baseRequest.copyWith();
+      final copiedBaseRequest = await baseRequest.copyWith();
 
       // Act
       final copied = copiedBaseRequest as Request;

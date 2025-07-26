@@ -1,7 +1,6 @@
 import 'package:http/http.dart';
-
-import './response.dart';
-import './streamed_response.dart';
+import 'package:http_interceptor/extensions/response.dart';
+import 'package:http_interceptor/extensions/streamed_response.dart';
 
 // Extends [BaseRequest] to provide copied instances.
 extension BaseResponseCopyWith on BaseResponse {

@@ -1,5 +1,5 @@
-import 'package:test/test.dart';
 import 'package:http_interceptor/utils/utils.dart';
+import 'package:test/test.dart';
 
 main() {
   group("buildUrlString", () {

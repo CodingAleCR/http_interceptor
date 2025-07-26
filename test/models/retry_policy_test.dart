@@ -20,6 +20,14 @@ main() {
 
       expect(testObject.maxRetryAttempts, 5);
     });
+
+    test("base class default is 1", () {
+      // Arrange
+      final policy = MinimalRetryPolicy();
+
+      // Act & Assert
+      expect(policy.maxRetryAttempts, 1);
+    });
   });
 
   group("delayRetryAttemptOnException", () {
@@ -77,4 +85,10 @@ class TestRetryPolicy extends RetryPolicy {
 
   @override
   int get maxRetryAttempts => internalMaxRetryAttempts;
+}
+
+/// A minimal implementation of RetryPolicy that doesn't override any methods
+/// Used to test the default implementations in the base class
+class MinimalRetryPolicy extends RetryPolicy {
+  // No overrides - uses all default implementations
 }
