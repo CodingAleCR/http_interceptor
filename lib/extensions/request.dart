@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:convert' show Encoding;
 
 import 'package:http/http.dart';
 import 'package:http_interceptor/http/http_methods.dart';

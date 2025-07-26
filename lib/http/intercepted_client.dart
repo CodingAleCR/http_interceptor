@@ -5,10 +5,9 @@ import 'dart:typed_data';
 import 'package:http/http.dart';
 import 'package:http_interceptor/extensions/base_request.dart';
 import 'package:http_interceptor/extensions/uri.dart';
-
-import '../models/interceptor_contract.dart';
-import '../models/retry_policy.dart';
-import 'http_methods.dart';
+import 'package:http_interceptor/http/http_methods.dart';
+import 'package:http_interceptor/models/interceptor_contract.dart';
+import 'package:http_interceptor/models/retry_policy.dart';
 
 typedef TimeoutCallback = FutureOr<StreamedResponse> Function();
 

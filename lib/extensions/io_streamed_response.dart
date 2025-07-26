@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:io' show HttpClientResponse;
 
 import 'package:http/http.dart';
 import 'package:http/io_client.dart';
