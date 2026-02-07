@@ -20,18 +20,14 @@ extension MultipartRequestCopyWith on MultipartRequest {
           ..headers.addAll(headers ?? this.headers)
           ..fields.addAll(fields ?? this.fields);
 
-    if (files != null) {
-      clonedRequest.files.addAll(files);
-    } else {
-      for (final MultipartFile file in this.files) {
-        clonedRequest.files.add(MultipartFile(
-          file.field,
-          file.finalize(),
-          file.length,
-          filename: file.filename,
-          contentType: file.contentType,
-        ));
-      }
+    for (final MultipartFile file in files ?? this.files) {
+      clonedRequest.files.add(MultipartFile(
+        file.field,
+        file.finalize(),
+        file.length,
+        filename: file.filename,
+        contentType: file.contentType,
+      ));
     }
 
     clonedRequest.persistentConnection =
