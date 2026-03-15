@@ -13,15 +13,14 @@ extension StreamedResponseCopyWith on StreamedResponse {
     bool? isRedirect,
     bool? persistentConnection,
     String? reasonPhrase,
-  }) =>
-      StreamedResponse(
-        stream ?? this.stream,
-        statusCode ?? this.statusCode,
-        contentLength: contentLength ?? this.contentLength,
-        request: request ?? this.request,
-        headers: headers ?? this.headers,
-        isRedirect: isRedirect ?? this.isRedirect,
-        persistentConnection: persistentConnection ?? this.persistentConnection,
-        reasonPhrase: reasonPhrase ?? this.reasonPhrase,
-      );
+  }) => StreamedResponse(
+    stream ?? this.stream,
+    statusCode ?? this.statusCode,
+    contentLength: contentLength ?? this.contentLength,
+    request: request ?? this.request,
+    headers: headers ?? this.headers,
+    isRedirect: isRedirect ?? this.isRedirect,
+    persistentConnection: persistentConnection ?? this.persistentConnection,
+    reasonPhrase: reasonPhrase ?? this.reasonPhrase,
+  );
 }

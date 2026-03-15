@@ -1,7 +1,7 @@
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:test/test.dart';
 
-main() {
+void main() {
   late RetryPolicy testObject;
 
   setUp(() {
@@ -14,9 +14,7 @@ main() {
     });
 
     test("can be overridden", () {
-      testObject = TestRetryPolicy(
-        maxRetryAttempts: 5,
-      );
+      testObject = TestRetryPolicy(maxRetryAttempts: 5);
 
       expect(testObject.maxRetryAttempts, 5);
     });
@@ -45,23 +43,19 @@ main() {
   group("shouldAttemptRetryOnException", () {
     test("returns false by default", () async {
       expect(
-          await testObject.shouldAttemptRetryOnException(
-            Exception("Test Exception."),
-            Request(
-              'GET',
-              Uri(),
-            ),
-          ),
-          false);
+        await testObject.shouldAttemptRetryOnException(
+          Exception("Test Exception."),
+          Request('GET', Uri()),
+        ),
+        false,
+      );
     });
   });
 
   group("shouldAttemptRetryOnResponse", () {
     test("returns false by default", () async {
       expect(
-        await testObject.shouldAttemptRetryOnResponse(
-          Response('', 200),
-        ),
+        await testObject.shouldAttemptRetryOnResponse(Response('', 200)),
         false,
       );
     });
@@ -69,9 +63,8 @@ main() {
 }
 
 class TestRetryPolicy extends RetryPolicy {
-  TestRetryPolicy({
-    int maxRetryAttempts = 1,
-  }) : internalMaxRetryAttempts = maxRetryAttempts;
+  TestRetryPolicy({int maxRetryAttempts = 1})
+    : internalMaxRetryAttempts = maxRetryAttempts;
 
   final int internalMaxRetryAttempts;
 

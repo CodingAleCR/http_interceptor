@@ -88,25 +88,22 @@ class InterceptedClient extends BaseClient {
     TimeoutCallback? onRequestTimeout,
     RetryPolicy? retryPolicy,
     Client? client,
-  }) =>
-      InterceptedClient._internal(
-        interceptors: interceptors,
-        requestTimeout: requestTimeout,
-        onRequestTimeout: onRequestTimeout,
-        retryPolicy: retryPolicy,
-        client: client,
-      );
+  }) => InterceptedClient._internal(
+    interceptors: interceptors,
+    requestTimeout: requestTimeout,
+    onRequestTimeout: onRequestTimeout,
+    retryPolicy: retryPolicy,
+    client: client,
+  );
 
   @override
-  Future<Response> head(
-    Uri url, {
-    Map<String, String>? headers,
-  }) async =>
+  Future<Response> head(Uri url, {Map<String, String>? headers}) async =>
       (await _sendUnstreamed(
-        method: HttpMethod.HEAD,
-        url: url,
-        headers: headers,
-      )) as Response;
+            method: HttpMethod.HEAD,
+            url: url,
+            headers: headers,
+          ))
+          as Response;
 
   @override
   Future<Response> get(
@@ -115,11 +112,12 @@ class InterceptedClient extends BaseClient {
     Map<String, dynamic>? params,
   }) async =>
       (await _sendUnstreamed(
-        method: HttpMethod.GET,
-        url: url,
-        headers: headers,
-        params: params,
-      )) as Response;
+            method: HttpMethod.GET,
+            url: url,
+            headers: headers,
+            params: params,
+          ))
+          as Response;
 
   @override
   Future<Response> post(
@@ -130,13 +128,14 @@ class InterceptedClient extends BaseClient {
     Encoding? encoding,
   }) async =>
       (await _sendUnstreamed(
-        method: HttpMethod.POST,
-        url: url,
-        headers: headers,
-        params: params,
-        body: body,
-        encoding: encoding,
-      )) as Response;
+            method: HttpMethod.POST,
+            url: url,
+            headers: headers,
+            params: params,
+            body: body,
+            encoding: encoding,
+          ))
+          as Response;
 
   @override
   Future<Response> put(
@@ -147,13 +146,14 @@ class InterceptedClient extends BaseClient {
     Encoding? encoding,
   }) async =>
       (await _sendUnstreamed(
-        method: HttpMethod.PUT,
-        url: url,
-        headers: headers,
-        params: params,
-        body: body,
-        encoding: encoding,
-      )) as Response;
+            method: HttpMethod.PUT,
+            url: url,
+            headers: headers,
+            params: params,
+            body: body,
+            encoding: encoding,
+          ))
+          as Response;
 
   @override
   Future<Response> patch(
@@ -164,13 +164,14 @@ class InterceptedClient extends BaseClient {
     Encoding? encoding,
   }) async =>
       (await _sendUnstreamed(
-        method: HttpMethod.PATCH,
-        url: url,
-        headers: headers,
-        params: params,
-        body: body,
-        encoding: encoding,
-      )) as Response;
+            method: HttpMethod.PATCH,
+            url: url,
+            headers: headers,
+            params: params,
+            body: body,
+            encoding: encoding,
+          ))
+          as Response;
 
   @override
   Future<Response> delete(
@@ -181,13 +182,14 @@ class InterceptedClient extends BaseClient {
     Encoding? encoding,
   }) async =>
       (await _sendUnstreamed(
-        method: HttpMethod.DELETE,
-        url: url,
-        headers: headers,
-        params: params,
-        body: body,
-        encoding: encoding,
-      )) as Response;
+            method: HttpMethod.DELETE,
+            url: url,
+            headers: headers,
+            params: params,
+            body: body,
+            encoding: encoding,
+          ))
+          as Response;
 
   @override
   Future<String> read(
@@ -213,8 +215,10 @@ class InterceptedClient extends BaseClient {
 
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
-    final BaseResponse response =
-        await _attemptRequest(request, isStream: true);
+    final BaseResponse response = await _attemptRequest(
+      request,
+      isStream: true,
+    );
 
     final BaseResponse interceptedResponse = await _interceptResponse(response);
 
@@ -235,10 +239,7 @@ class InterceptedClient extends BaseClient {
     Object? body,
     Encoding? encoding,
   }) async {
-    final Request request = Request(
-      method.asString,
-      url.addParameters(params),
-    );
+    final Request request = Request(method.asString, url.addParameters(params));
     if (headers != null) request.headers.addAll(headers);
     if (encoding != null) request.encoding = encoding;
     if (body != null) {
@@ -298,8 +299,9 @@ class InterceptedClient extends BaseClient {
       } else {
         // Use a completer to properly handle timeout and cancellation
         final Completer<StreamedResponse> completer = Completer();
-        final Future<StreamedResponse> requestFuture =
-            _inner.send(interceptedRequest);
+        final Future<StreamedResponse> requestFuture = _inner.send(
+          interceptedRequest,
+        );
 
         // Set up timeout with proper cleanup
         bool isCompleted = false;
@@ -312,15 +314,17 @@ class InterceptedClient extends BaseClient {
               try {
                 final timeoutResponse = onRequestTimeout!();
                 if (timeoutResponse is Future<StreamedResponse>) {
-                  timeoutResponse.then((response) {
-                    if (!completer.isCompleted) {
-                      completer.complete(response);
-                    }
-                  }).catchError((error) {
-                    if (!completer.isCompleted) {
-                      completer.completeError(error);
-                    }
-                  });
+                  timeoutResponse
+                      .then((response) {
+                        if (!completer.isCompleted) {
+                          completer.complete(response);
+                        }
+                      })
+                      .catchError((error) {
+                        if (!completer.isCompleted) {
+                          completer.completeError(error);
+                        }
+                      });
                 } else {
                   if (!completer.isCompleted) {
                     completer.complete(timeoutResponse);
@@ -334,31 +338,36 @@ class InterceptedClient extends BaseClient {
             } else {
               // Default timeout behavior
               if (!completer.isCompleted) {
-                completer.completeError(Exception(
-                    'Request timeout after ${requestTimeout!.inMilliseconds}ms'));
+                completer.completeError(
+                  Exception(
+                    'Request timeout after ${requestTimeout!.inMilliseconds}ms',
+                  ),
+                );
               }
             }
           }
         });
 
         // Handle the actual request completion
-        requestFuture.then((streamResponse) {
-          timeoutTimer.cancel();
-          if (!isCompleted) {
-            isCompleted = true;
-            if (!completer.isCompleted) {
-              completer.complete(streamResponse);
-            }
-          }
-        }).catchError((error) {
-          timeoutTimer.cancel();
-          if (!isCompleted) {
-            isCompleted = true;
-            if (!completer.isCompleted) {
-              completer.completeError(error);
-            }
-          }
-        });
+        requestFuture
+            .then((streamResponse) {
+              timeoutTimer.cancel();
+              if (!isCompleted) {
+                isCompleted = true;
+                if (!completer.isCompleted) {
+                  completer.complete(streamResponse);
+                }
+              }
+            })
+            .catchError((error) {
+              timeoutTimer.cancel();
+              if (!isCompleted) {
+                isCompleted = true;
+                if (!completer.isCompleted) {
+                  completer.completeError(error);
+                }
+              }
+            });
 
         stream = await completer.future;
       }
@@ -369,8 +378,9 @@ class InterceptedClient extends BaseClient {
           retryPolicy!.maxRetryAttempts > _retryCount &&
           await retryPolicy!.shouldAttemptRetryOnResponse(response)) {
         _retryCount += 1;
-        await Future.delayed(retryPolicy!
-            .delayRetryAttemptOnResponse(retryAttempt: _retryCount));
+        await Future.delayed(
+          retryPolicy!.delayRetryAttemptOnResponse(retryAttempt: _retryCount),
+        );
         return _attemptRequestWithRetries(request, isStream: isStream);
       }
     } on Exception catch (error, stackTrace) {
@@ -378,8 +388,9 @@ class InterceptedClient extends BaseClient {
           retryPolicy!.maxRetryAttempts > _retryCount &&
           await retryPolicy!.shouldAttemptRetryOnException(error, request)) {
         _retryCount += 1;
-        await Future.delayed(retryPolicy!
-            .delayRetryAttemptOnException(retryAttempt: _retryCount));
+        await Future.delayed(
+          retryPolicy!.delayRetryAttemptOnException(retryAttempt: _retryCount),
+        );
         return _attemptRequestWithRetries(request, isStream: isStream);
       } else {
         await _interceptError(
@@ -436,7 +447,9 @@ class InterceptedClient extends BaseClient {
   }) async {
     for (InterceptorContract interceptor in interceptors) {
       if (await interceptor.shouldInterceptError(
-          request: request, response: response)) {
+        request: request,
+        response: response,
+      )) {
         await interceptor.interceptError(
           request: request,
           response: response,

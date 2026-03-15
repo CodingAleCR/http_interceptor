@@ -29,8 +29,11 @@ void main() {
 
       // Assert
       Map<String, String> allParameters = {"foo": "bar", "num": "0"};
-      Uri expectedUrl =
-          Uri.https("www.google.com", "/helloworld", allParameters);
+      Uri expectedUrl = Uri.https(
+        "www.google.com",
+        "/helloworld",
+        allParameters,
+      );
       expect(parameterUri, equals(expectedUrl));
     });
     test("Add parameters with array to Uri Url without parameters", () {
@@ -67,8 +70,11 @@ void main() {
         "foo": ["bar", "bar1"],
         "num": "0",
       };
-      Uri expectedUrl =
-          Uri.https("www.google.com", "/helloworld", allParameters);
+      Uri expectedUrl = Uri.https(
+        "www.google.com",
+        "/helloworld",
+        allParameters,
+      );
       expect(parameterUri, equals(expectedUrl));
     });
     test("Add non-string parameters to Uri without parameters", () {
@@ -82,8 +88,11 @@ void main() {
       Uri parameterUri = url.addParameters(parameters);
 
       // Assert
-      Uri expectedUrl =
-          Uri.https("www.google.com", "/helloworld", expectedParameters);
+      Uri expectedUrl = Uri.https(
+        "www.google.com",
+        "/helloworld",
+        expectedParameters,
+      );
       expect(parameterUri, equals(expectedUrl));
     });
     test("Add non-string parameters to Uri with parameters", () {
@@ -99,32 +108,40 @@ void main() {
 
       // Assert
       Map<String, String> allParameters = {"foo": "bar", "num": "0"};
-      Uri expectedUrl =
-          Uri.https("www.google.com", "/helloworld", allParameters);
+      Uri expectedUrl = Uri.https(
+        "www.google.com",
+        "/helloworld",
+        allParameters,
+      );
       expect(parameterUri, equals(expectedUrl));
     });
-    test("Add non-string parameters with array to Uri Url without parameters",
-        () {
-      // Arrange
-      String stringUrl = "https://www.google.com/helloworld";
-      Map<String, dynamic> expectedParameters = {
-        "foo": "bar",
-        "num": ["0", "1"],
-      };
-      Map<String, dynamic> parameters = {
-        "foo": "bar",
-        "num": ["0", 1],
-      };
-      Uri url = Uri.parse(stringUrl);
+    test(
+      "Add non-string parameters with array to Uri Url without parameters",
+      () {
+        // Arrange
+        String stringUrl = "https://www.google.com/helloworld";
+        Map<String, dynamic> expectedParameters = {
+          "foo": "bar",
+          "num": ["0", "1"],
+        };
+        Map<String, dynamic> parameters = {
+          "foo": "bar",
+          "num": ["0", 1],
+        };
+        Uri url = Uri.parse(stringUrl);
 
-      // Act
-      Uri parameterUri = url.addParameters(parameters);
+        // Act
+        Uri parameterUri = url.addParameters(parameters);
 
-      // Assert
-      Uri expectedUrl =
-          Uri.https("www.google.com", "/helloworld", expectedParameters);
-      expect(parameterUri, equals(expectedUrl));
-    });
+        // Assert
+        Uri expectedUrl = Uri.https(
+          "www.google.com",
+          "/helloworld",
+          expectedParameters,
+        );
+        expect(parameterUri, equals(expectedUrl));
+      },
+    );
     test("Add non-string parameters to Uri Url with array parameters", () {
       // Arrange
       String authority = "www.google.com";
@@ -149,8 +166,11 @@ void main() {
         "num2": "1",
         "num3": ["3", "2"],
       };
-      Uri expectedUrl =
-          Uri.https("www.google.com", "/helloworld", expectedParameters);
+      Uri expectedUrl = Uri.https(
+        "www.google.com",
+        "/helloworld",
+        expectedParameters,
+      );
       expect(parameterUri, equals(expectedUrl));
     });
   });

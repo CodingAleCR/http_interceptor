@@ -8,7 +8,7 @@ issue_tracker: https://github.com/CodingAleCR/http_interceptor/issues
 repository: https://github.com/CodingAleCR/http_interceptor
 
 environment:
-  sdk: ">=3.0.3 <4.0.0"
+  sdk: ">=3.8.0 <4.0.0"
 
 dependencies:
   http: ^1.2.1
@@ -16,5 +16,5 @@ dependencies:
   validators: ^3.0.0
 
 dev_dependencies:
-  lints: ^4.0.0
+  lints: ^6.1.0
   test: ^1.25.8

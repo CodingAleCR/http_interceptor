@@ -12,14 +12,13 @@ extension ResponseCopyWith on Response {
     bool? isRedirect,
     bool? persistentConnection,
     String? reasonPhrase,
-  }) =>
-      Response(
-        body ?? this.body,
-        statusCode ?? this.statusCode,
-        request: request ?? this.request,
-        headers: headers ?? this.headers,
-        isRedirect: isRedirect ?? this.isRedirect,
-        persistentConnection: persistentConnection ?? this.persistentConnection,
-        reasonPhrase: reasonPhrase ?? this.reasonPhrase,
-      );
+  }) => Response(
+    body ?? this.body,
+    statusCode ?? this.statusCode,
+    request: request ?? this.request,
+    headers: headers ?? this.headers,
+    isRedirect: isRedirect ?? this.isRedirect,
+    persistentConnection: persistentConnection ?? this.persistentConnection,
+    reasonPhrase: reasonPhrase ?? this.reasonPhrase,
+  );
 }

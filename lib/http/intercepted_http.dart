@@ -86,27 +86,19 @@ class InterceptedHttp {
     TimeoutCallback? onRequestTimeout,
     RetryPolicy? retryPolicy,
     Client? client,
-  }) =>
-      InterceptedHttp._internal(
-        interceptors: interceptors,
-        requestTimeout: requestTimeout,
-        onRequestTimeout: onRequestTimeout,
-        retryPolicy: retryPolicy,
-        client: client,
-      );
+  }) => InterceptedHttp._internal(
+    interceptors: interceptors,
+    requestTimeout: requestTimeout,
+    onRequestTimeout: onRequestTimeout,
+    retryPolicy: retryPolicy,
+    client: client,
+  );
 
   /// Performs a HEAD request with a new [Client] instance and closes it after
   /// it has been used.
-  Future<Response> head(
-    Uri url, {
-    Map<String, String>? headers,
-  }) =>
-      _withClient(
-        (InterceptedClient client) => client.head(
-          url,
-          headers: headers,
-        ),
-      );
+  Future<Response> head(Uri url, {Map<String, String>? headers}) => _withClient(
+    (InterceptedClient client) => client.head(url, headers: headers),
+  );
 
   /// Performs a GET request with a new [Client] instance and closes it after
   /// it has been used.
@@ -114,14 +106,10 @@ class InterceptedHttp {
     Uri url, {
     Map<String, String>? headers,
     Map<String, dynamic>? params,
-  }) =>
-      _withClient(
-        (InterceptedClient client) => client.get(
-          url,
-          headers: headers,
-          params: params,
-        ),
-      );
+  }) => _withClient(
+    (InterceptedClient client) =>
+        client.get(url, headers: headers, params: params),
+  );
 
   /// Performs a POST request with a new [Client] instance and closes it after
   /// it has been used.
@@ -131,16 +119,15 @@ class InterceptedHttp {
     Map<String, dynamic>? params,
     Object? body,
     Encoding? encoding,
-  }) =>
-      _withClient(
-        (InterceptedClient client) => client.post(
-          url,
-          headers: headers,
-          params: params,
-          body: body,
-          encoding: encoding,
-        ),
-      );
+  }) => _withClient(
+    (InterceptedClient client) => client.post(
+      url,
+      headers: headers,
+      params: params,
+      body: body,
+      encoding: encoding,
+    ),
+  );
 
   /// Performs a PUT request with a new [Client] instance and closes it after
   /// it has been used.
@@ -150,16 +137,15 @@ class InterceptedHttp {
     Map<String, dynamic>? params,
     Object? body,
     Encoding? encoding,
-  }) =>
-      _withClient(
-        (InterceptedClient client) => client.put(
-          url,
-          headers: headers,
-          params: params,
-          body: body,
-          encoding: encoding,
-        ),
-      );
+  }) => _withClient(
+    (InterceptedClient client) => client.put(
+      url,
+      headers: headers,
+      params: params,
+      body: body,
+      encoding: encoding,
+    ),
+  );
 
   /// Performs a PATCH request with a new [Client] instance and closes it after
   /// it has been used.
@@ -169,16 +155,15 @@ class InterceptedHttp {
     Map<String, dynamic>? params,
     Object? body,
     Encoding? encoding,
-  }) =>
-      _withClient(
-        (InterceptedClient client) => client.patch(
-          url,
-          headers: headers,
-          params: params,
-          body: body,
-          encoding: encoding,
-        ),
-      );
+  }) => _withClient(
+    (InterceptedClient client) => client.patch(
+      url,
+      headers: headers,
+      params: params,
+      body: body,
+      encoding: encoding,
+    ),
+  );
 
   /// Performs a DELETE request with a new [Client] instance and closes it after
   /// it has been used.
@@ -188,16 +173,15 @@ class InterceptedHttp {
     Map<String, dynamic>? params,
     Object? body,
     Encoding? encoding,
-  }) =>
-      _withClient(
-        (InterceptedClient client) => client.delete(
-          url,
-          headers: headers,
-          params: params,
-          body: body,
-          encoding: encoding,
-        ),
-      );
+  }) => _withClient(
+    (InterceptedClient client) => client.delete(
+      url,
+      headers: headers,
+      params: params,
+      body: body,
+      encoding: encoding,
+    ),
+  );
 
   /// Executes `client.read` with a new [Client] instance and closes it after
   /// it has been used.
@@ -205,14 +189,10 @@ class InterceptedHttp {
     Uri url, {
     Map<String, String>? headers,
     Map<String, dynamic>? params,
-  }) =>
-      _withClient(
-        (InterceptedClient client) => client.read(
-          url,
-          headers: headers,
-          params: params,
-        ),
-      );
+  }) => _withClient(
+    (InterceptedClient client) =>
+        client.read(url, headers: headers, params: params),
+  );
 
   /// Executes `client.readBytes` with a new [Client] instance and closes it
   /// after it has been used.
@@ -220,14 +200,10 @@ class InterceptedHttp {
     Uri url, {
     Map<String, String>? headers,
     Map<String, dynamic>? params,
-  }) =>
-      _withClient(
-        (InterceptedClient client) => client.readBytes(
-          url,
-          headers: headers,
-          params: params,
-        ),
-      );
+  }) => _withClient(
+    (InterceptedClient client) =>
+        client.readBytes(url, headers: headers, params: params),
+  );
 
   /// Internal convenience utility to create a new [Client] instance for each
   /// request. It closes the client after using it for the request.
