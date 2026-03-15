@@ -21,13 +21,15 @@ extension MultipartRequestCopyWith on MultipartRequest {
           ..fields.addAll(fields ?? this.fields);
 
     for (final MultipartFile file in this.files) {
-      clonedRequest.files.add(MultipartFile(
-        file.field,
-        file.finalize(),
-        file.length,
-        filename: file.filename,
-        contentType: file.contentType,
-      ));
+      clonedRequest.files.add(
+        MultipartFile(
+          file.field,
+          file.finalize(),
+          file.length,
+          filename: file.filename,
+          contentType: file.contentType,
+        ),
+      );
     }
 
     this.persistentConnection =

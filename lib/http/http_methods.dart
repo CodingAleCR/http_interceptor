@@ -11,19 +11,19 @@ enum HttpMethod {
 
   /// Converts a string to an [HttpMethod].
   static HttpMethod fromString(String method) => switch (method) {
-        "HEAD" => HttpMethod.HEAD,
-        "GET" => HttpMethod.GET,
-        "POST" => HttpMethod.POST,
-        "PUT" => HttpMethod.PUT,
-        "PATCH" => HttpMethod.PATCH,
-        "DELETE" => HttpMethod.DELETE,
-        "OPTIONS" => HttpMethod.OPTIONS,
-        _ => throw ArgumentError.value(
-            method,
-            "method",
-            "Must be a valid HTTP Method.",
-          ),
-      };
+    "HEAD" => HttpMethod.HEAD,
+    "GET" => HttpMethod.GET,
+    "POST" => HttpMethod.POST,
+    "PUT" => HttpMethod.PUT,
+    "PATCH" => HttpMethod.PATCH,
+    "DELETE" => HttpMethod.DELETE,
+    "OPTIONS" => HttpMethod.OPTIONS,
+    _ => throw ArgumentError.value(
+      method,
+      "method",
+      "Must be a valid HTTP Method.",
+    ),
+  };
 
   /// Converts the [HttpMethod] to a string.
   String get asString => name;

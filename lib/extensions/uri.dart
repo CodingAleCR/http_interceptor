@@ -6,18 +6,14 @@ extension AddParameters on Uri {
   /// Returns a new [Uri] instance based on `this` and adds [parameters].
   Uri addParameters([Map<String, dynamic>? parameters]) =>
       parameters?.isNotEmpty ?? false
-          ? (StringBuffer()
-                ..writeAll([
-                  buildUrlString(
-                    "$origin$path",
-                    {
-                      ...queryParametersAll,
-                      ...?parameters,
-                    },
-                  ),
-                  if (fragment.isNotEmpty) '#$fragment',
-                ]))
-              .toString()
-              .toUri()
-          : this;
+      ? (StringBuffer()..writeAll([
+              buildUrlString("$origin$path", {
+                ...queryParametersAll,
+                ...?parameters,
+              }),
+              if (fragment.isNotEmpty) '#$fragment',
+            ]))
+            .toString()
+            .toUri()
+      : this;
 }

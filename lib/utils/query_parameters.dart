@@ -18,19 +18,17 @@ String buildUrlString(String url, Map<String, dynamic>? parameters) {
 
   return parameters?.isNotEmpty ?? false
       ? uri
-          .replace(
+            .replace(
               query: qs.encode(
-                <String, dynamic>{
-                  ...uri.queryParametersAll,
-                  ...?parameters,
-                },
+                <String, dynamic>{...uri.queryParametersAll, ...?parameters},
                 qs.EncodeOptions(
                   listFormat: qs.ListFormat.repeat,
                   skipNulls: false,
                   strictNullHandling: false,
                 ),
               ),
-              queryParameters: null)
-          .toString()
+              queryParameters: null,
+            )
+            .toString()
       : url;
 }

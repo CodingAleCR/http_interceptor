@@ -208,10 +208,7 @@ void main() {
           reasonPhrase: 'Not Found',
         );
 
-        expect(
-          () => client.read(url),
-          throwsA(isA<ClientException>()),
-        );
+        expect(() => client.read(url), throwsA(isA<ClientException>()));
       });
 
       test('send method returns StreamedResponse', () async {
@@ -380,10 +377,7 @@ void main() {
         retryPolicy.shouldRetryOnException = true;
         retryPolicy.maxRetryAttempts = 1;
 
-        await expectLater(
-          () => client.get(url),
-          throwsException,
-        );
+        await expectLater(() => client.get(url), throwsException);
 
         expect(mockClient.requestCount, 2); // Original + 1 retry
       });
@@ -435,10 +429,7 @@ void main() {
         final url = Uri.parse('https://example.com');
         mockClient.delayResponse = Duration(milliseconds: 200);
 
-        expect(
-          () => client.get(url),
-          throwsA(isA<Exception>()),
-        );
+        expect(() => client.get(url), throwsA(isA<Exception>()));
       });
 
       test('uses timeout callback when provided', () async {
@@ -489,10 +480,10 @@ class _MockClient extends BaseClient {
   Map<String, String>? lastRequestFields;
 
   StreamedResponse get response => StreamedResponse(
-        Stream.value(_responseBody),
-        _responseStatusCode,
-        headers: _responseHeaders,
-      );
+    Stream.value(_responseBody),
+    _responseStatusCode,
+    headers: _responseHeaders,
+  );
 
   set response(StreamedResponse resp) {
     _responseStatusCode = resp.statusCode;
@@ -513,8 +504,9 @@ class _MockClient extends BaseClient {
       lastRequestBody = request.body;
 
       // For form fields - only access if content type is appropriate
-      if (request.headers['content-type']
-              ?.contains('application/x-www-form-urlencoded') ??
+      if (request.headers['content-type']?.contains(
+            'application/x-www-form-urlencoded',
+          ) ??
           false) {
         try {
           lastRequestFields = request.bodyFields;
@@ -651,8 +643,7 @@ class _MockRetryPolicy extends RetryPolicy {
   bool shouldAttemptRetryOnException(
     Exception exception,
     BaseRequest request,
-  ) =>
-      shouldRetryOnException;
+  ) => shouldRetryOnException;
 
   @override
   Duration delayRetryAttemptOnResponse({required int retryAttempt}) => delay;

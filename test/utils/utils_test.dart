@@ -1,7 +1,7 @@
-import 'package:test/test.dart';
 import 'package:http_interceptor/utils/utils.dart';
+import 'package:test/test.dart';
 
-main() {
+void main() {
   group("buildUrlString", () {
     test("Adds parameters to a URL string without parameters", () {
       // Arrange
@@ -23,7 +23,7 @@ main() {
       final String url = "https://www.google.com/helloworld?foo=bar&num=0";
       final Map<String, dynamic> parameters = {
         "extra": "1",
-        "extra2": "anotherone"
+        "extra2": "anotherone",
       };
 
       // Act
@@ -58,18 +58,12 @@ main() {
 
     test("Null parameters returns original URL", () {
       final url = "https://example.com/path";
-      expect(
-        buildUrlString(url, null),
-        equals(url),
-      );
+      expect(buildUrlString(url, null), equals(url));
     });
 
     test("Empty parameters returns original URL", () {
       final url = "https://example.com/path";
-      expect(
-        buildUrlString(url, {}),
-        equals(url),
-      );
+      expect(buildUrlString(url, {}), equals(url));
     });
 
     test("Null parameter value becomes empty assignment", () {
@@ -93,15 +87,19 @@ main() {
     test("Preserves fragment without existing query", () {
       final url = "https://example.com/path#section";
       final params = {"a": "1"};
-      expect(buildUrlString(url, params),
-          equals("https://example.com/path?a=1#section"));
+      expect(
+        buildUrlString(url, params),
+        equals("https://example.com/path?a=1#section"),
+      );
     });
 
     test("Preserves fragment with existing query", () {
       final url = "https://example.com/path?foo=bar#section";
       final params = {"baz": "qux"};
-      expect(buildUrlString(url, params),
-          equals("https://example.com/path?foo=bar&baz=qux#section"));
+      expect(
+        buildUrlString(url, params),
+        equals("https://example.com/path?foo=bar&baz=qux#section"),
+      );
     });
 
     test("Invalid URL does not trigger concatenation fallback", () {
@@ -131,7 +129,7 @@ main() {
     test("List parameter overrides existing singular key", () {
       final url = "https://example.com/path?x=1";
       final params = {
-        "x": ["2", "3"]
+        "x": ["2", "3"],
       };
       expect(
         buildUrlString(url, params),
@@ -141,22 +139,13 @@ main() {
 
     test('encodes a query string object (basic key/value)', () {
       final String testUrl = 'https://example.com/path';
-      expect(
-        buildUrlString(testUrl, {'a': 'b'}),
-        equals('$testUrl?a=b'),
-      );
-      expect(
-        buildUrlString(testUrl, {'a': '1'}),
-        equals('$testUrl?a=1'),
-      );
+      expect(buildUrlString(testUrl, {'a': 'b'}), equals('$testUrl?a=b'));
+      expect(buildUrlString(testUrl, {'a': '1'}), equals('$testUrl?a=1'));
       expect(
         buildUrlString(testUrl, {'a': '1', 'b': '2'}),
         equals('$testUrl?a=1&b=2'),
       );
-      expect(
-        buildUrlString(testUrl, {'a': 'A_Z'}),
-        equals('$testUrl?a=A_Z'),
-      );
+      expect(buildUrlString(testUrl, {'a': 'A_Z'}), equals('$testUrl?a=A_Z'));
     });
 
     test('encodes various unicode characters', () {
@@ -169,10 +158,7 @@ main() {
         buildUrlString(testUrl, {'a': ''}),
         equals('$testUrl?a=%EE%80%80'),
       );
-      expect(
-        buildUrlString(testUrl, {'a': 'א'}),
-        equals('$testUrl?a=%D7%90'),
-      );
+      expect(buildUrlString(testUrl, {'a': 'א'}), equals('$testUrl?a=%D7%90'));
       expect(
         buildUrlString(testUrl, {'a': '𐐷'}),
         equals('$testUrl?a=%F0%90%90%B7'),
@@ -200,7 +186,7 @@ main() {
       expect(
         buildUrlString(testUrl, {
           'a': ['b', 'c', 'd'],
-          'e': 'f'
+          'e': 'f',
         }),
         equals('$testUrl?a=b&a=c&a=d&e=f'),
       );
@@ -216,10 +202,7 @@ main() {
 
     test('single key with empty string value', () {
       final String testUrl = 'https://example.com/path';
-      expect(
-        buildUrlString(testUrl, {'a': ''}),
-        equals('$testUrl?a='),
-      );
+      expect(buildUrlString(testUrl, {'a': ''}), equals('$testUrl?a='));
     });
 
     test('null value is not skipped', () {
@@ -275,11 +258,7 @@ main() {
     test('multiple keys maintain insertion order', () {
       final String testUrl = 'https://example.com/path';
       expect(
-        buildUrlString(testUrl, {
-          'first': '1',
-          'second': '2',
-          'third': '3',
-        }),
+        buildUrlString(testUrl, {'first': '1', 'second': '2', 'third': '3'}),
         equals('$testUrl?first=1&second=2&third=3'),
       );
     });

@@ -45,8 +45,7 @@ abstract class InterceptorContract {
   FutureOr<bool> shouldInterceptError({
     BaseRequest? request,
     BaseResponse? response,
-  }) =>
-      true;
+  }) => true;
 
   /// Intercepts the error response.
   FutureOr<void> interceptError({

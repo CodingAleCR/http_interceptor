@@ -14,16 +14,15 @@ extension IOStreamedResponseCopyWith on IOStreamedResponse {
     bool? persistentConnection,
     String? reasonPhrase,
     HttpClientResponse? inner,
-  }) =>
-      IOStreamedResponse(
-        stream ?? this.stream,
-        statusCode ?? this.statusCode,
-        contentLength: contentLength ?? this.contentLength,
-        request: request ?? this.request,
-        headers: headers ?? this.headers,
-        isRedirect: isRedirect ?? this.isRedirect,
-        persistentConnection: persistentConnection ?? this.persistentConnection,
-        reasonPhrase: reasonPhrase ?? this.reasonPhrase,
-        inner: inner,
-      );
+  }) => IOStreamedResponse(
+    stream ?? this.stream,
+    statusCode ?? this.statusCode,
+    contentLength: contentLength ?? this.contentLength,
+    request: request ?? this.request,
+    headers: headers ?? this.headers,
+    isRedirect: isRedirect ?? this.isRedirect,
+    persistentConnection: persistentConnection ?? this.persistentConnection,
+    reasonPhrase: reasonPhrase ?? this.reasonPhrase,
+    inner: inner,
+  );
 }

@@ -3,13 +3,14 @@ import 'dart:convert';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:test/test.dart';
 
-main() {
+void main() {
   group('BaseRequest.copyWith: ', () {
     test('Request is copied from BaseRequest', () {
       // Arrange
-      final BaseRequest baseRequest =
-          Request("GET", Uri.https("www.google.com", "/helloworld"))
-            ..body = jsonEncode(<String, String>{'some_param': 'some value'});
+      final BaseRequest baseRequest = Request(
+        "GET",
+        Uri.https("www.google.com", "/helloworld"),
+      )..body = jsonEncode(<String, String>{'some_param': 'some value'});
       final copiedBaseRequest = baseRequest.copyWith();
 
       // Act

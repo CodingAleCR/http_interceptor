@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:test/test.dart';
 
-main() {
+void main() {
   late BaseRequest baseRequest;
   late Request request;
 
@@ -61,17 +61,10 @@ main() {
       final Uri newUrl = Uri.https("www.google.com", "/foobar");
 
       // Act
-      final Request copied = request.copyWith(
-        url: newUrl,
-      );
+      final Request copied = request.copyWith(url: newUrl);
 
       // Assert
-      expect(
-          copied.url,
-          allOf([
-            equals(newUrl),
-            isNot(equals(request.url)),
-          ]));
+      expect(copied.url, allOf([equals(newUrl), isNot(equals(request.url))]));
       expect(copied.method, equals(request.method));
       expect(copied.headers, equals(request.headers));
       expect(copied.body, equals(request.body));
@@ -85,18 +78,17 @@ main() {
       const newMethod = HttpMethod.POST;
 
       // Act
-      final Request copied = request.copyWith(
-        method: newMethod,
-      );
+      final Request copied = request.copyWith(method: newMethod);
 
       // Assert
       expect(copied.url, equals(request.url));
       expect(
-          copied.method,
-          allOf([
-            equals(HttpMethod.POST.asString),
-            isNot(equals(request.method)),
-          ]));
+        copied.method,
+        allOf([
+          equals(HttpMethod.POST.asString),
+          isNot(equals(request.method)),
+        ]),
+      );
       expect(copied.headers, equals(request.headers));
       expect(copied.body, equals(request.body));
       expect(copied.encoding, equals(request.encoding));
@@ -110,19 +102,15 @@ main() {
       newHeaders['Authorization'] = 'Bearer token';
 
       // Act
-      final Request copied = request.copyWith(
-        headers: newHeaders,
-      );
+      final Request copied = request.copyWith(headers: newHeaders);
 
       // Assert
       expect(copied.url, equals(request.url));
       expect(copied.method, equals(request.method));
       expect(
-          copied.headers,
-          allOf([
-            equals(newHeaders),
-            isNot(equals(request.headers)),
-          ]));
+        copied.headers,
+        allOf([equals(newHeaders), isNot(equals(request.headers))]),
+      );
       expect(copied.body, equals(request.body));
       expect(copied.encoding, equals(request.encoding));
       expect(copied.followRedirects, equals(request.followRedirects));
@@ -135,19 +123,15 @@ main() {
       newHeaders['Authorization'] = 'Bearer token';
 
       // Act
-      final Request copied = request.copyWith(
-        headers: newHeaders,
-      );
+      final Request copied = request.copyWith(headers: newHeaders);
 
       // Assert
       expect(copied.url, equals(request.url));
       expect(copied.method, equals(request.method));
       expect(
-          copied.headers,
-          allOf([
-            equals(newHeaders),
-            isNot(equals(request.headers)),
-          ]));
+        copied.headers,
+        allOf([equals(newHeaders), isNot(equals(request.headers))]),
+      );
       expect(copied.body, equals(request.body));
       expect(copied.encoding, equals(request.encoding));
       expect(copied.followRedirects, equals(request.followRedirects));
@@ -160,19 +144,15 @@ main() {
       newHeaders['content-type'] = 'text/plain; charset=utf-8';
 
       // Act
-      final Request copied = request.copyWith(
-        headers: newHeaders,
-      );
+      final Request copied = request.copyWith(headers: newHeaders);
 
       // Assert
       expect(copied.url, equals(request.url));
       expect(copied.method, equals(request.method));
       expect(
-          copied.headers,
-          allOf([
-            equals(newHeaders),
-            isNot(equals(request.headers)),
-          ]));
+        copied.headers,
+        allOf([equals(newHeaders), isNot(equals(request.headers))]),
+      );
       expect(copied.body, equals(request.body));
       expect(copied.encoding, equals(request.encoding));
       expect(copied.followRedirects, equals(request.followRedirects));
@@ -186,20 +166,16 @@ main() {
       newBody['hello'] = 'world';
 
       // Act
-      final Request copied = request.copyWith(
-        body: jsonEncode(newBody),
-      );
+      final Request copied = request.copyWith(body: jsonEncode(newBody));
 
       // Assert
       expect(copied.url, equals(request.url));
       expect(copied.method, equals(request.method));
       expect(copied.headers, equals(request.headers));
       expect(
-          copied.body,
-          allOf([
-            equals(jsonEncode(newBody)),
-            isNot(equals(request.body)),
-          ]));
+        copied.body,
+        allOf([equals(jsonEncode(newBody)), isNot(equals(request.body))]),
+      );
       expect(copied.encoding, equals(request.encoding));
       expect(copied.followRedirects, equals(request.followRedirects));
       expect(copied.maxRedirects, equals(request.maxRedirects));
@@ -216,9 +192,7 @@ main() {
       // Act
       final utfBytes = utf8.encode(jsonEncode(newBody));
       final gzipBytes = gzip.encode(utfBytes);
-      final Request copied = request.copyWith(
-        body: base64.encode(gzipBytes),
-      );
+      final Request copied = request.copyWith(body: base64.encode(gzipBytes));
 
       // Assert
       final decodedBody = utf8.decode(gzip.decode(base64.decode(copied.body)));
@@ -226,11 +200,9 @@ main() {
       expect(copied.method, equals(request.method));
       expect(copied.headers, equals(request.headers));
       expect(
-          decodedBody,
-          allOf([
-            equals(jsonEncode(newBody)),
-            isNot(equals(request.body)),
-          ]));
+        decodedBody,
+        allOf([equals(jsonEncode(newBody)), isNot(equals(request.body))]),
+      );
       expect(copied.encoding, equals(request.encoding));
       expect(copied.followRedirects, equals(request.followRedirects));
       expect(copied.maxRedirects, equals(request.maxRedirects));
@@ -259,11 +231,9 @@ main() {
       expect(updatedHeadersRequest.headers, equals(request.headers));
       expect(copied.body, equals(request.body));
       expect(
-          copied.encoding,
-          allOf([
-            equals(newEncoding),
-            isNot(equals(request.encoding)),
-          ]));
+        copied.encoding,
+        allOf([equals(newEncoding), isNot(equals(request.encoding))]),
+      );
       expect(copied.followRedirects, equals(request.followRedirects));
       expect(copied.maxRedirects, equals(request.maxRedirects));
       expect(copied.persistentConnection, equals(request.persistentConnection));
@@ -284,11 +254,12 @@ main() {
       expect(copied.body, equals(request.body));
       expect(copied.encoding, equals(request.encoding));
       expect(
-          copied.followRedirects,
-          allOf([
-            equals(newFollowRedirects),
-            isNot(equals(request.followRedirects)),
-          ]));
+        copied.followRedirects,
+        allOf([
+          equals(newFollowRedirects),
+          isNot(equals(request.followRedirects)),
+        ]),
+      );
       expect(copied.maxRedirects, equals(request.maxRedirects));
       expect(copied.persistentConnection, equals(request.persistentConnection));
     });
@@ -297,9 +268,7 @@ main() {
       const newMaxRedirects = 2;
 
       // Act
-      final Request copied = request.copyWith(
-        maxRedirects: newMaxRedirects,
-      );
+      final Request copied = request.copyWith(maxRedirects: newMaxRedirects);
 
       // Assert
       expect(copied.url, equals(request.url));
@@ -309,11 +278,9 @@ main() {
       expect(copied.encoding, equals(request.encoding));
       expect(copied.followRedirects, equals(request.followRedirects));
       expect(
-          copied.maxRedirects,
-          allOf([
-            equals(newMaxRedirects),
-            isNot(equals(request.maxRedirects)),
-          ]));
+        copied.maxRedirects,
+        allOf([equals(newMaxRedirects), isNot(equals(request.maxRedirects))]),
+      );
       expect(copied.persistentConnection, equals(request.persistentConnection));
     });
 
@@ -335,11 +302,12 @@ main() {
       expect(copied.followRedirects, equals(request.followRedirects));
       expect(copied.maxRedirects, equals(request.maxRedirects));
       expect(
-          copied.persistentConnection,
-          allOf([
-            equals(newPersistentConnection),
-            isNot(equals(request.persistentConnection)),
-          ]));
+        copied.persistentConnection,
+        allOf([
+          equals(newPersistentConnection),
+          isNot(equals(request.persistentConnection)),
+        ]),
+      );
     });
   });
 }

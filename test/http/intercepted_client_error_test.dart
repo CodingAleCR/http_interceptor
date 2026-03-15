@@ -11,30 +11,27 @@ void main() {
       client = InterceptedClient.build(interceptors: [mockInterceptor]);
     });
 
-    test(
-      'interceptors are called when an error occurs',
-      () async {
-        final request = Request('GET', Uri.parse('https://example.com'));
-        final error = Exception('Test error');
-        final stackTrace = StackTrace.current;
+    test('interceptors are called when an error occurs', () async {
+      final request = Request('GET', Uri.parse('https://example.com'));
+      final error = Exception('Test error');
+      final stackTrace = StackTrace.current;
 
-        mockInterceptor.shouldInterceptErrorResult = true;
+      mockInterceptor.shouldInterceptErrorResult = true;
 
-        // Call the internal _interceptError method indirectly
-        // by creating a scenario where it would be called
-        await _callInterceptError(
-          client: client,
-          request: request,
-          error: error,
-          stackTrace: stackTrace,
-        );
+      // Call the internal _interceptError method indirectly
+      // by creating a scenario where it would be called
+      await _callInterceptError(
+        client: client,
+        request: request,
+        error: error,
+        stackTrace: stackTrace,
+      );
 
-        expect(mockInterceptor.interceptErrorCalled, true);
-        expect(mockInterceptor.lastRequest, isNotNull);
-        expect(mockInterceptor.lastError, isNotNull);
-        expect(mockInterceptor.lastStackTrace, isNotNull);
-      },
-    );
+      expect(mockInterceptor.interceptErrorCalled, true);
+      expect(mockInterceptor.lastRequest, isNotNull);
+      expect(mockInterceptor.lastError, isNotNull);
+      expect(mockInterceptor.lastStackTrace, isNotNull);
+    });
 
     test(
       'interceptors are not called when shouldInterceptError returns false',
