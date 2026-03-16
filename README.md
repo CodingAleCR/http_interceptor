@@ -18,7 +18,7 @@ This is a plugin that lets you intercept the different requests and responses fr
 
 ## Quick Reference
 
-**Already using `http_interceptor`? Check out the [1.0.0 migration guide](./guides/migration_guide_1.0.0.md) for quick reference on the changes made and how to migrate your code.**
+**Upgrading from 2.x? See the [3.0.0 migration guide](./guides/migration_guide_3.0.0.md).**
 
 - [http\_interceptor](#http_interceptor)
   - [Quick Reference](#quick-reference)
@@ -51,7 +51,7 @@ http_interceptor: <latest>
 - 🚦 Intercept & change unstreamed requests and responses.
 - ✨ Retrying requests when an error occurs or when the response does not match the desired (useful for handling custom error responses).
 - 👓 `GET` requests with separated parameters.
-- ⚡️ Standard `bodyBytes` on `ResponseData` to encode or decode in the desired format.
+- ⚡️ Standard `Response.bodyBytes` for encoding or decoding as needed.
 - 🙌🏼 Array parameters on requests.
 - 🖋 Supports self-signed certificates (except on Flutter Web).
 - 🍦 Compatible with vanilla Dart projects or Flutter projects.
@@ -67,114 +67,57 @@ import 'package:http_interceptor/http_interceptor.dart';
 
 ### Building your own interceptor
 
-In order to implement `http_interceptor` you need to implement the `InterceptorContract` and create your own interceptor. This abstract class has four methods:
+Implement `HttpInterceptor` to add logging, headers, error handling, and more. The interface has four methods:
 
- - `interceptRequest`, which triggers before the http request is called 
- - `interceptResponse`, which triggers after the request is called, it has a response attached to it which the corresponding to said request;
- 
-- `shouldInterceptRequest` and `shouldInterceptResponse`, which are used to determine if the request or response should be intercepted or not. These two methods are optional as they return `true` by default, but they can be useful if you want to conditionally intercept requests or responses based on certain criteria. 
+- **interceptRequest** – runs before the request is sent. Return the (possibly modified) request.
+- **interceptResponse** – runs after the response is received. Return the (possibly modified) response.
+- **shouldInterceptRequest** / **shouldInterceptResponse** – return `false` to skip interception for that request/response (default `true`).
 
-You could use this package to do logging, adding headers, error handling, or many other cool stuff. It is important to note that after you proccess the request/response objects you need to return them so that `http` can continue the execute.
+All methods support `FutureOr` so you can use sync or async. Modify the request/response in place and return it, or return a new instance.
 
-All four methods use `FutureOr` syntax, which makes it easier to support both synchronous and asynchronous behaviors.
-
-- Logging with interceptor:
+- Logging interceptor:
 
 ```dart
-class LoggerInterceptor extends InterceptorContract {
+class LoggerInterceptor implements HttpInterceptor {
   @override
-  BaseRequest interceptRequest({
-    required BaseRequest request,
-  }) {
+  BaseRequest interceptRequest({required BaseRequest request}) {
     print('----- Request -----');
     print(request.toString());
-    print(request.headers.toString());
     return request;
   }
 
   @override
-  BaseResponse interceptResponse({
-    required BaseResponse response,
-  }) {
-    log('----- Response -----');
-    log('Code: ${response.statusCode}');
+  BaseResponse interceptResponse({required BaseResponse response}) {
+    print('----- Response -----');
+    print('Code: ${response.statusCode}');
     if (response is Response) {
-      log((response).body);
+      print(response.body);
     }
     return response;
   }
 }
 ```
 
-- Changing headers with interceptor:
+- Adding headers / query params (in-place mutation):
 
 ```dart
-class WeatherApiInterceptor implements InterceptorContract {
+class WeatherApiInterceptor implements HttpInterceptor {
   @override
-  FutureOr<BaseRequest> interceptRequest({required BaseRequest request}) async {
-    try {
-      request.url.queryParameters['appid'] = OPEN_WEATHER_API_KEY;
-      request.url.queryParameters['units'] = 'metric';
-      request.headers[HttpHeaders.contentTypeHeader] = "application/json";
-    } catch (e) {
-      print(e);
-    }
-    return request;
+  BaseRequest interceptRequest({required BaseRequest request}) {
+    final url = request.url.replace(
+      queryParameters: {
+        ...request.url.queryParameters,
+        'appid': apiKey,
+        'units': 'metric',
+      },
+    );
+    return Request(request.method, url)
+      ..headers.addAll(request.headers)
+      ..headers[HttpHeaders.contentTypeHeader] = 'application/json';
   }
 
   @override
-  BaseResponse interceptResponse({
-  required BaseResponse response,
-  }) =>
-      response;
-  
-  @override
-  FutureOr<bool> shouldInterceptRequest({required BaseRequest request}) async {
-    // You can conditionally intercept requests here
-    return true; // Intercept all requests
-  }
-
-  @override
-  FutureOr<bool> shouldInterceptResponse({required BaseResponse response}) async {
-    // You can conditionally intercept responses here
-    return true; // Intercept all responses
-  }
-}
-```
-
-- You can also react to and modify specific types of requests and responses, such as `StreamedRequest`,`StreamedResponse`, or `MultipartRequest` :
-
-```dart
-class MultipartRequestInterceptor implements InterceptorContract {
-  @override
-  FutureOr<BaseRequest> interceptRequest({required BaseRequest request}) async {
-    if(request is MultipartRequest){
-      request.fields['app_version'] = await PackageInfo.fromPlatform().version;
-    }
-    return request;
-  }
-
-  @override
-  FutureOr<BaseResponse> interceptResponse({required BaseResponse response}) async {
-    if(response is StreamedResponse){
-      response.stream.asBroadcastStream().listen((data){
-        print(data);
-      });
-    }
-    return response;
-  }
-
-  @override
-  FutureOr<bool> shouldInterceptRequest({required BaseRequest request}) async {
-    // You can conditionally intercept requests here
-    return true; // Intercept all requests
-  }
-
-  @override
-  FutureOr<bool> shouldInterceptResponse({required BaseResponse response}) async {
-    // You can conditionally intercept responses here
-    return true; // Intercept all responses
-  }
+  BaseResponse interceptResponse({required BaseResponse response}) => response;
 }
 ```
 
@@ -190,15 +133,17 @@ Here is an example with a repository using the `InterceptedClient` class.
 
 ```dart
 class WeatherRepository {
-  Client client = InterceptedClient.build(interceptors: [
-      WeatherApiInterceptor(),
-  ]);
+  final client = InterceptedClient.build(
+    interceptors: [WeatherApiInterceptor()],
+  );
 
   Future<Map<String, dynamic>> fetchCityWeather(int id) async {
     var parsedWeather;
     try {
-      final response =
-          await client.get("$baseUrl/weather".toUri(), params: {'id': "$id"});
+      final response = await client.get(
+        '$baseUrl/weather'.toUri(),
+        params: {'id': '$id'},
+      );
       if (response.statusCode == 200) {
         parsedWeather = json.decode(response.body);
       } else {
@@ -225,11 +170,13 @@ class WeatherRepository {
     Future<Map<String, dynamic>> fetchCityWeather(int id) async {
     var parsedWeather;
     try {
-      final http = InterceptedHttp.build(interceptors: [
-          WeatherApiInterceptor(),
-      ]);
-      final response =
-          await http.get("$baseUrl/weather".toUri(), params: {'id': "$id"});
+      final http = InterceptedHttp.build(
+        interceptors: [WeatherApiInterceptor()],
+      );
+      final response = await http.get(
+        '$baseUrl/weather'.toUri(),
+        params: {'id': '$id'},
+      );
       if (response.statusCode == 200) {
         parsedWeather = json.decode(response.body);
       } else {

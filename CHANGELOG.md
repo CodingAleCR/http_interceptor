@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.0.0
+
+- **Breaking**: Rebuild from scratch. Not backwards compatible with 2.x.
+- **Added**: `HttpInterceptor` interface (replaces `InterceptorContract`). Same four methods with `FutureOr` support.
+- **Added**: `InterceptedClient.build(...)` and `InterceptedHttp.build(...)` with `interceptors`, `client`, `retryPolicy`, `requestTimeout`, `onRequestTimeout`.
+- **Added**: Optional `params` and `paramsAll` on `get`, `post`, `put`, `patch`, `delete`, `head`; merged into URL query.
+- **Added**: `String.toUri()` extension. `Uri.addQueryParams(params: ..., paramsAll: ...)` extension.
+- **Added**: Conditional export `http_interceptor_io.dart` for `IOClient` (VM/mobile/desktop; do not use on web).
+- **Removed**: `RequestData`/`ResponseData`. Use `BaseRequest`/`BaseResponse` only; no `copyWith` in core.
+- **Removed**: Dependencies `qs_dart` and `validators` (not used in v3).
+
 ## 2.0.0
 
 * feat: Simplify configuration of delay between retries by @jonasschaude in <https://github.com/CodingAleCR/http_interceptor/pull/122>

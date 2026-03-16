@@ -6,7 +6,6 @@
 
 build/
 
-
 .atom/
 .idea
 .vscode
@@ -22,3 +21,6 @@ coverage/
 flutter_export_environment.sh
 !packages/**/example/ios/
 !packages/**/example/android/
+
+# FVM Version Cache
+.fvm/

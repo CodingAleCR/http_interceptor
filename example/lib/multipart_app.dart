@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:http_interceptor_example/common.dart';
@@ -91,9 +92,12 @@ class _MultipartAppState extends State<MultipartApp> {
             ),
             if (pickedImage != null) ...[
               const Text('Before'),
-              Image.file(
-                File(pickedImage!.path),
-              ),
+              if (kIsWeb)
+                Image.network(pickedImage!.path)
+              else
+                Image.file(
+                  File(pickedImage!.path),
+                ),
             ],
             if (noBgImage != null) ...[
               const Text('After'),
@@ -122,14 +126,22 @@ class RemoveBgRepository {
   ) async {
     Uint8List parsedResponse;
     try {
+      late MultipartFile file;
+      if (kIsWeb) {
+        final Uint8List bytes = await imgFile.readAsBytes();
+        file = MultipartFile.fromBytes(fieldName, bytes);
+      } else {
+        file = await MultipartFile.fromPath(
+          fieldName,
+          imgFile.path,
+        );
+      }
+
       final req = MultipartRequest(
-        HttpMethod.POST.asString,
+        'POST',
         Uri.parse(baseUrl),
       )..files.add(
-          await MultipartFile.fromPath(
-            fieldName,
-            imgFile.path,
-          ),
+          file,
         );
 
       final streamResponse = await client.send(req);
@@ -157,23 +169,33 @@ class RemoveBgRepository {
   }
 }
 
-class RemoveBgApiInterceptor extends InterceptorContract {
+class RemoveBgApiInterceptor implements HttpInterceptor {
   @override
-  Future<BaseRequest> interceptRequest({
-    required BaseRequest request,
-  }) async {
-    final Map<String, String> headers = Map.from(request.headers);
+  bool shouldInterceptRequest({required BaseRequest request}) => true;
+
+  @override
+  bool shouldInterceptResponse({required BaseResponse response}) => true;
+
+  @override
+  BaseRequest interceptRequest({required BaseRequest request}) {
+    final headers = Map<String, String>.from(request.headers);
     headers[HttpHeaders.contentTypeHeader] = 'application/json';
     headers['X-Api-Key'] = kRemoveBgApiKey;
 
-    return request.copyWith(
-      headers: headers,
-    );
+    if (request is MultipartRequest) {
+      final multipart = request;
+      final newReq = MultipartRequest(request.method, request.url);
+      newReq.fields.addAll(multipart.fields);
+      newReq.files.addAll(multipart.files);
+      newReq.headers.addAll(headers);
+      return newReq;
+    }
+
+    final newReq = Request(request.method, request.url);
+    newReq.headers.addAll(headers);
+    return newReq;
   }
 
   @override
-  BaseResponse interceptResponse({
-    required BaseResponse response,
-  }) =>
-      response;
+  BaseResponse interceptResponse({required BaseResponse response}) => response;
 }

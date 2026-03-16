@@ -309,31 +309,32 @@ class WeatherRepository {
 
 const String kOWApiToken = 'TOKEN';
 
-class WeatherApiInterceptor extends InterceptorContract {
+class WeatherApiInterceptor implements HttpInterceptor {
+  @override
+  bool shouldInterceptRequest({required BaseRequest request}) => true;
+
+  @override
+  bool shouldInterceptResponse({required BaseResponse response}) => true;
+
   @override
   Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
     final cache = await SharedPreferences.getInstance();
-
-    final Map<String, String> headers = Map.from(request.headers);
-    headers[HttpHeaders.contentTypeHeader] = 'application/json';
-
-    return request.copyWith(
-      url: request.url.addParameters({
+    final url = request.url.addQueryParams(
+      params: {
         'appid': cache.getString(kOWApiToken) ?? '',
         'units': 'metric',
-      }),
-      headers: headers,
+      },
     );
+    final headers = Map<String, String>.from(request.headers);
+    headers[HttpHeaders.contentTypeHeader] = 'application/json';
+    return Request(request.method, url)..headers.addAll(headers);
   }
 
   @override
-  BaseResponse interceptResponse({
-    required BaseResponse response,
-  }) =>
-      response;
+  BaseResponse interceptResponse({required BaseResponse response}) => response;
 }
 
-class ExpiredTokenRetryPolicy extends RetryPolicy {
+class ExpiredTokenRetryPolicy implements RetryPolicy {
   @override
   int get maxRetryAttempts => 2;
 
@@ -343,13 +344,7 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
     BaseRequest request,
   ) async {
     log(reason.toString());
-
     return false;
-  }
-
-  @override
-  Duration delayRetryAttemptOnResponse({required int retryAttempt}) {
-    return const Duration(milliseconds: 250) * math.pow(2.0, retryAttempt);
   }
 
   @override
@@ -357,12 +352,17 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
     if (response.statusCode == 401) {
       log('Retrying request...');
       final cache = await SharedPreferences.getInstance();
-
       cache.setString(kOWApiToken, kOpenWeatherApiKey);
-
       return true;
     }
-
     return false;
   }
+
+  @override
+  Duration delayRetryAttemptOnException({required int retryAttempt}) =>
+      Duration(milliseconds: (250 * math.pow(2.0, retryAttempt)).round());
+
+  @override
+  Duration delayRetryAttemptOnResponse({required int retryAttempt}) =>
+      Duration(milliseconds: (250 * math.pow(2.0, retryAttempt)).round());
 }
