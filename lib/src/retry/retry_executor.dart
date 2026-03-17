@@ -24,14 +24,18 @@ Future<StreamedResponse> executeWithRetry({
       final shouldRetry = await policy.shouldAttemptRetryOnResponse(response);
       if (!shouldRetry || tries >= totalAllowed) return response;
       await Future.delayed(
-          policy.delayRetryAttemptOnResponse(retryAttempt: tries));
+        policy.delayRetryAttemptOnResponse(retryAttempt: tries),
+      );
     } on Exception catch (e) {
       if (tries >= totalAllowed) rethrow;
-      final shouldRetry =
-          await policy.shouldAttemptRetryOnException(e, request);
+      final shouldRetry = await policy.shouldAttemptRetryOnException(
+        e,
+        request,
+      );
       if (!shouldRetry) rethrow;
       await Future.delayed(
-          policy.delayRetryAttemptOnException(retryAttempt: tries));
+        policy.delayRetryAttemptOnException(retryAttempt: tries),
+      );
     }
   }
 }

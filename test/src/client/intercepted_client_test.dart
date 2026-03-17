@@ -7,6 +7,7 @@ import 'package:test/test.dart';
 void main() {
   group('InterceptedClient', () {
     test('send runs request then response interceptors', () async {
+      // arrange
       var requestSeen = false;
       var responseSeen = false;
       final client = InterceptedClient.build(
@@ -24,14 +25,20 @@ void main() {
         ],
         client: _FakeClient(Response('ok', 200)),
       );
+
+      // act
       final response = await client.get(Uri.parse('https://example.com/'));
+
+      // assert
       expect(response.body, 'ok');
       expect(requestSeen, true);
       expect(responseSeen, true);
+
       client.close();
     });
 
     test('get with params merges into url', () async {
+      // arrange
       Uri? capturedUrl;
       final client = InterceptedClient.build(
         interceptors: [
@@ -44,12 +51,17 @@ void main() {
         ],
         client: _FakeClient(Response('', 200)),
       );
+
+      // act
       await client.get(
         Uri.parse('https://example.com/path'),
         params: {'a': '1', 'b': '2'},
       );
+
+      // assert
       expect(capturedUrl?.queryParameters['a'], '1');
       expect(capturedUrl?.queryParameters['b'], '2');
+
       client.close();
     });
   });

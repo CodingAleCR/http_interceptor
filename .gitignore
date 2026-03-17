@@ -11,7 +11,7 @@ build/
 .vscode
 packages/**/ios/
 packages/**/android/
-doc/
+doc/api/
 pubspec.lock
 .flutter-plugins
 *.iml

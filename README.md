@@ -29,6 +29,8 @@ This is a plugin that lets you intercept the different requests and responses fr
     - [Using your interceptor](#using-your-interceptor)
       - [Using interceptors with Client](#using-interceptors-with-client)
       - [Using interceptors without Client](#using-interceptors-without-client)
+    - [Working with JSON responses](#working-with-json-responses)
+    - [Decoding responses into models](#decoding-responses-into-models)
     - [Retrying requests](#retrying-requests)
     - [Using self signed certificates](#using-self-signed-certificates)
     - [InterceptedClient](#interceptedclient)
@@ -52,6 +54,7 @@ http_interceptor: <latest>
 - ✨ Retrying requests when an error occurs or when the response does not match the desired (useful for handling custom error responses).
 - 👓 `GET` requests with separated parameters.
 - ⚡️ Standard `Response.bodyBytes` for encoding or decoding as needed.
+- 📦 Convenience helpers to decode JSON responses and map them into your own models.
 - 🙌🏼 Array parameters on requests.
 - 🖋 Supports self-signed certificates (except on Flutter Web).
 - 🍦 Compatible with vanilla Dart projects or Flutter projects.
@@ -138,21 +141,15 @@ class WeatherRepository {
   );
 
   Future<Map<String, dynamic>> fetchCityWeather(int id) async {
-    var parsedWeather;
-    try {
-      final response = await client.get(
-        '$baseUrl/weather'.toUri(),
-        params: {'id': '$id'},
-      );
-      if (response.statusCode == 200) {
-        parsedWeather = json.decode(response.body);
-      } else {
-        throw Exception("Error while fetching. \n ${response.body}");
-      }
-    } catch (e) {
-      print(e);
+    final response = await client.get(
+      '$baseUrl/weather'.toUri(),
+      params: {'id': '$id'},
+    );
+    if (response.statusCode == 200) {
+      // Built-in Response JSON helpers:
+      return response.jsonMap;
     }
-    return parsedWeather;
+    throw Exception('Error while fetching.\\n${response.body}');
   }
 
 }
@@ -168,34 +165,84 @@ Here is an example with a repository using the `InterceptedHttp` class.
 class WeatherRepository {
 
     Future<Map<String, dynamic>> fetchCityWeather(int id) async {
-    var parsedWeather;
-    try {
-      final http = InterceptedHttp.build(
-        interceptors: [WeatherApiInterceptor()],
-      );
-      final response = await http.get(
-        '$baseUrl/weather'.toUri(),
-        params: {'id': '$id'},
-      );
-      if (response.statusCode == 200) {
-        parsedWeather = json.decode(response.body);
-      } else {
-        return Future.error(
-          "Error while fetching.",
-          StackTrace.fromString("${response.body}"),
-        );
-      }
-    } on SocketException {
-      return Future.error('No Internet connection 😑');
-    } on FormatException {
-      return Future.error('Bad response format 👎');
-    } on Exception {
-      return Future.error('Unexpected error 😢');
+    final http = InterceptedHttp.build(interceptors: [WeatherApiInterceptor()]);
+    final response = await http.get(
+      '$baseUrl/weather'.toUri(),
+      params: {'id': '$id'},
+    );
+    if (response.statusCode == 200) {
+      // Built-in Response JSON helpers:
+      return response.jsonMap;
     }
-
-    return parsedWeather;
+    return Future.error(
+      'Error while fetching.',
+      StackTrace.fromString(response.body),
+    );
   }
 
+}
+```
+
+### Working with JSON responses
+
+The `ResponseBodyDecoding` extension adds a few lightweight helpers on `Response` for common JSON use cases:
+
+```dart
+final response = await client.get(
+  '$baseUrl/weather'.toUri(),
+  params: {'id': '$id'},
+);
+
+// Dynamically-typed JSON value (Map/List/primitive or null on empty body).
+final Object? json = response.jsonBody;
+
+// JSON object as a map (throws if body is empty or not a JSON object).
+final Map<String, dynamic> data = response.jsonMap;
+
+// JSON array as a list (throws if body is empty or not a JSON array).
+final List<dynamic> items = response.jsonList;
+```
+
+### Decoding responses into models
+
+The `ResponseBodyDecoding` extension provides helpers to turn JSON responses into strongly-typed models with minimal boilerplate.
+
+```dart
+class Weather {
+  final String description;
+  final double temperature;
+
+  const Weather({
+    required this.description,
+    required this.temperature,
+  });
+
+  factory Weather.fromJson(Map<String, dynamic> json) {
+    return Weather(
+      description: (json['weather'] as List).first['description'] as String,
+      temperature: (json['main']['temp'] as num).toDouble(),
+    );
+  }
+}
+
+Future<Weather> fetchCityWeather(int id) async {
+  final client = InterceptedClient.build(
+    interceptors: [WeatherApiInterceptor()],
+  );
+
+  final response = await client.get(
+    '$baseUrl/weather'.toUri(),
+    params: {'id': '$id'},
+  );
+
+  if (response.statusCode == 200) {
+    // Use the built-in JSON mapper:
+    return response.decodeJson(
+      (json) => Weather.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  throw Exception('Error while fetching.\n${response.body}');
 }
 ```
 

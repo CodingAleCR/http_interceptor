@@ -4,7 +4,7 @@ import 'package:http/http.dart';
 
 import '../interceptor/http_interceptor.dart';
 import '../interceptor/interceptor_chain.dart';
-import '../request_response/uri_extension.dart';
+import '../extensions/uri_extension.dart';
 import '../retry/retry_executor.dart';
 import '../retry/retry_policy.dart';
 import '../timeout_wrapper.dart';

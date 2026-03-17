@@ -17,8 +17,9 @@ class InterceptorChain {
   Future<BaseRequest> runRequestInterceptors(BaseRequest request) async {
     BaseRequest current = request;
     for (final interceptor in _interceptors) {
-      final shouldIntercept =
-          await interceptor.shouldInterceptRequest(request: current);
+      final shouldIntercept = await interceptor.shouldInterceptRequest(
+        request: current,
+      );
       if (!shouldIntercept) continue;
       current = await interceptor.interceptRequest(request: current);
     }
@@ -29,8 +30,9 @@ class InterceptorChain {
   Future<BaseResponse> runResponseInterceptors(BaseResponse response) async {
     BaseResponse current = response;
     for (final interceptor in _interceptors) {
-      final shouldIntercept =
-          await interceptor.shouldInterceptResponse(response: current);
+      final shouldIntercept = await interceptor.shouldInterceptResponse(
+        response: current,
+      );
       if (!shouldIntercept) continue;
       current = await interceptor.interceptResponse(response: current);
     }

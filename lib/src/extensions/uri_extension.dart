@@ -22,10 +22,13 @@ extension UriQueryParams on Uri {
     // manually to support multiple values per key.
     final parts = <String>[
       ...p.entries.map(
-          (e) => '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}'),
-      ...pa.entries.expand((e) => e.value
-          .map((v) =>
-              '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(v)}')),
+        (e) => '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}',
+      ),
+      ...pa.entries.expand(
+        (e) => e.value.map(
+          (v) => '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(v)}',
+        ),
+      ),
     ];
     return replace(query: parts.isEmpty ? null : parts.join('&'));
   }
