@@ -1,6 +1,5 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:developer';
+import 'dart:developer' show log;
 import 'dart:io';
 import 'dart:math' as math;
 
@@ -13,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// If you are going to run this example you need to replace the key.
 import 'cities.dart';
 import 'credentials.dart';
+import 'weather_model.dart';
 
 class WeatherApp extends StatefulWidget {
   const WeatherApp({super.key});
@@ -161,7 +161,7 @@ class WeatherSearch extends SearchDelegate<String?> {
   }
 
   Widget buildWeatherCard(final city) {
-    return FutureBuilder<Map<String, dynamic>>(
+    return FutureBuilder<Weather>(
       future: repo.fetchCityWeather(city['id']),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
@@ -175,10 +175,10 @@ class WeatherSearch extends SearchDelegate<String?> {
             child: CircularProgressIndicator(),
           );
         }
-        final weather = snapshot.data;
-        final iconWeather = weather!['weather'][0]['icon'];
-        final main = weather['main'];
-        final wind = weather['wind'];
+        final weather = snapshot.data!;
+        final iconWeather = weather.condition.icon;
+        final main = weather.main;
+        final wind = weather.wind;
         return Card(
           margin: const EdgeInsets.all(16.0),
           child: Container(
@@ -189,7 +189,7 @@ class WeatherSearch extends SearchDelegate<String?> {
               children: <Widget>[
                 ListTile(
                   leading: Tooltip(
-                    message: weather['weather'][0]['main'],
+                    message: weather.condition.main,
                     child: Image.network(
                         'https://openweathermap.org/img/w/$iconWeather.png'),
                   ),
@@ -197,27 +197,27 @@ class WeatherSearch extends SearchDelegate<String?> {
                   subtitle: Text(city['country']),
                 ),
                 ListTile(
-                  title: Text("${main["temp"]} °C"),
+                  title: Text('${main.temp} °C'),
                   subtitle: const Text('Temperature'),
                 ),
                 ListTile(
-                  title: Text("${main["temp_min"]} °C"),
+                  title: Text('${main.tempMin} °C'),
                   subtitle: const Text('Min Temperature'),
                 ),
                 ListTile(
-                  title: Text("${main["temp_max"]} °C"),
+                  title: Text('${main.tempMax} °C'),
                   subtitle: const Text('Max Temperature'),
                 ),
                 ListTile(
-                  title: Text("${main["humidity"]} %"),
+                  title: Text('${main.humidity} %'),
                   subtitle: const Text('Humidity'),
                 ),
                 ListTile(
-                  title: Text("${main["pressure"]} hpa"),
+                  title: Text('${main.pressure} hpa'),
                   subtitle: const Text('Pressure'),
                 ),
                 ListTile(
-                  title: Text("${wind["speed"]} m/s"),
+                  title: Text('${wind.speed} m/s'),
                   subtitle: const Text('Wind Speed'),
                 ),
               ],
@@ -262,32 +262,30 @@ class WeatherRepository {
 
   WeatherRepository(this.client);
 
-  // Alternatively you can forget about using the Client and just doing the HTTP request with
-  // the InterceptedHttp.build() call.
-  // Future<Map<String, dynamic>> fetchCityWeather(int id) async {
-  //   var parsedWeather;
-  //   try {
-  //     var response = await InterceptedHttp.build(
-  //       interceptors: [WeatherApiInterceptor()],
-  //     ).get('$baseUrl/weather', params: {'id': '$id'});
-  //     if (response.statusCode == 200) {
-  //       parsedWeather = json.decode(response.body);
-  //     } else {
-  //       throw Exception('Error while fetching. \n ${response.body}');
-  //     }
-  //   } catch (e) {
-  //     log(e.toString());
+  // Alternatively you can skip holding a client instance and do a one-off call
+  // with `InterceptedHttp.build()`.
+  //
+  // Future<Weather> fetchCityWeather(int id) async {
+  //   final http = InterceptedHttp.build(interceptors: [WeatherApiInterceptor()]);
+  //   final response = await http.get(
+  //     '$baseUrl/weather'.toUri(),
+  //     params: {'id': '$id'},
+  //   );
+  //   if (response.statusCode != 200) {
+  //     return Future.error(
+  //       'Error while fetching.',
+  //       StackTrace.fromString(response.body),
+  //     );
   //   }
-  //   return parsedWeather;
+  //   return Weather.fromJson(response.jsonMap);
   // }
 
-  Future<Map<String, dynamic>> fetchCityWeather(int? id) async {
-    Map<String, dynamic> parsedWeather;
+  Future<Weather> fetchCityWeather(int? id) async {
     try {
       final response =
           await client.get('$baseUrl/weather'.toUri(), params: {'id': '$id'});
       if (response.statusCode == 200) {
-        parsedWeather = jsonDecode(response.body);
+        return Weather.fromJson(response.jsonMap);
       } else {
         return Future.error(
           'Error while fetching.',
@@ -302,38 +300,37 @@ class WeatherRepository {
       log(error.toString());
       return Future.error('Unexpected error 😢');
     }
-
-    return parsedWeather;
   }
 }
 
 const String kOWApiToken = 'TOKEN';
 
-class WeatherApiInterceptor extends InterceptorContract {
+class WeatherApiInterceptor implements HttpInterceptor {
+  @override
+  bool shouldInterceptRequest({required BaseRequest request}) => true;
+
+  @override
+  bool shouldInterceptResponse({required BaseResponse response}) => true;
+
   @override
   Future<BaseRequest> interceptRequest({required BaseRequest request}) async {
     final cache = await SharedPreferences.getInstance();
-
-    final Map<String, String> headers = Map.from(request.headers);
-    headers[HttpHeaders.contentTypeHeader] = 'application/json';
-
-    return request.copyWith(
-      url: request.url.addParameters({
+    final url = request.url.addQueryParams(
+      params: {
         'appid': cache.getString(kOWApiToken) ?? '',
         'units': 'metric',
-      }),
-      headers: headers,
+      },
     );
+    final headers = Map<String, String>.from(request.headers);
+    headers[HttpHeaders.contentTypeHeader] = 'application/json';
+    return Request(request.method, url)..headers.addAll(headers);
   }
 
   @override
-  BaseResponse interceptResponse({
-    required BaseResponse response,
-  }) =>
-      response;
+  BaseResponse interceptResponse({required BaseResponse response}) => response;
 }
 
-class ExpiredTokenRetryPolicy extends RetryPolicy {
+class ExpiredTokenRetryPolicy implements RetryPolicy {
   @override
   int get maxRetryAttempts => 2;
 
@@ -343,13 +340,7 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
     BaseRequest request,
   ) async {
     log(reason.toString());
-
     return false;
-  }
-
-  @override
-  Duration delayRetryAttemptOnResponse({required int retryAttempt}) {
-    return const Duration(milliseconds: 250) * math.pow(2.0, retryAttempt);
   }
 
   @override
@@ -357,12 +348,17 @@ class ExpiredTokenRetryPolicy extends RetryPolicy {
     if (response.statusCode == 401) {
       log('Retrying request...');
       final cache = await SharedPreferences.getInstance();
-
       cache.setString(kOWApiToken, kOpenWeatherApiKey);
-
       return true;
     }
-
     return false;
   }
+
+  @override
+  Duration delayRetryAttemptOnException({required int retryAttempt}) =>
+      Duration(milliseconds: (250 * math.pow(2.0, retryAttempt)).round());
+
+  @override
+  Duration delayRetryAttemptOnResponse({required int retryAttempt}) =>
+      Duration(milliseconds: (250 * math.pow(2.0, retryAttempt)).round());
 }
