@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.0.0-beta.1
+## 3.0.0
 
 - **Breaking**: Rebuild from scratch. Not backwards compatible with 2.x.
 - **Added**: `HttpInterceptor` interface (replaces `InterceptorContract`). Same four methods with `FutureOr` support.
