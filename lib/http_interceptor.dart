@@ -2,6 +2,7 @@ export 'package:http/http.dart';
 
 export 'src/client/intercepted_client.dart';
 export 'src/client/intercepted_http.dart';
+export 'src/extensions/request_extension.dart';
 export 'src/extensions/string_extension.dart';
 export 'src/extensions/response_extension.dart';
 export 'src/extensions/uri_extension.dart';

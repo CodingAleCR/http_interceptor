@@ -4,6 +4,7 @@ import 'package:http/http.dart';
 
 import '../interceptor/http_interceptor.dart';
 import '../interceptor/interceptor_chain.dart';
+import '../extensions/request_extension.dart';
 import '../extensions/uri_extension.dart';
 import '../retry/retry_executor.dart';
 import '../retry/retry_policy.dart';
@@ -60,7 +61,12 @@ class InterceptedClient extends BaseClient {
   }
 
   Future<StreamedResponse> _execute(BaseRequest request) async {
-    final interceptedRequest = await _chain.runRequestInterceptors(request);
+    // Copy the request so each attempt (including retries) starts with a fresh,
+    // unfinalized BaseRequest. Dart's http package only allows finalize() once;
+    // reusing the same object across retries throws StateError.
+    final interceptedRequest = await _chain.runRequestInterceptors(
+      request.copy(),
+    );
     return _client.send(interceptedRequest);
   }
 
